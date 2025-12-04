@@ -10,7 +10,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Kategori Vendor Routess
+// Kategori Vendor Routes
 Route::prefix('kategori-vendor')->group(function () {
     Route::get('/', [KategoriVendorController::class, 'index']);
     Route::post('/', [KategoriVendorController::class, 'store']);
@@ -23,7 +23,6 @@ Route::prefix('kategori-vendor')->group(function () {
 Route::prefix('vendor')->group(function () {
     Route::get('/', [DataVendorController::class, 'index']);
     Route::post('/', [DataVendorController::class, 'store']);
-    Route::post('/with-kategori', [DataVendorController::class, 'storeWithKategori']); 
     Route::get('/{id}', [DataVendorController::class, 'show']);
     Route::put('/{id}', [DataVendorController::class, 'update']);
     Route::delete('/{id}', [DataVendorController::class, 'destroy']);
