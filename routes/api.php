@@ -10,7 +10,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Kategori Vendor Routes
+// Kategori Vendor Routess
 Route::prefix('kategori-vendor')->group(function () {
     Route::get('/', [KategoriVendorController::class, 'index']);
     Route::post('/', [KategoriVendorController::class, 'store']);
