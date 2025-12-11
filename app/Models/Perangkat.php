@@ -10,6 +10,7 @@ class Perangkat extends Model
 
     protected $fillable = [
         'id_kategori_perangkat',
+        'serial_number',
         'nama_perangkat',
         'status',
         'catatan_perangkat',
