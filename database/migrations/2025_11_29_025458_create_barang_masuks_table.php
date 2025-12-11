@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('id_perangkat')->constrained('perangkats')->onDelete('cascade');
             $table->integer('jumlah');
             $table->timestamp('tanggal');
+            $table->enum('status', ['Customer', 'Vendor']);
             $table->text('catatan_barang_masuk')->nullable();
             $table->timestamps();
         });
