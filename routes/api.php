@@ -1,16 +1,15 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\InventoryController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\KategoriVendorController;
 use App\Http\Controllers\Api\DataVendorController;
+use App\Http\Controllers\Api\PerangkatController;
+use App\Http\Controllers\Api\KategoriPerangkatController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\API\PurchaseOrderController;
 use App\Http\Controllers\API\DetailPurchaseOrderController;
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -20,7 +19,40 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/profile', [AuthController::class, 'profile']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
+
+    Route::apiResource('inventory', InventoryController::class);
+    
 });
+Route::middleware('auth:api')->prefix('perangkat')->group(function () {
+
+    Route::get('/', [PerangkatController::class, 'index']);
+    Route::get('/statistics', [PerangkatController::class, 'statistics']);
+    Route::get('/export', [PerangkatController::class, 'export']);
+    Route::get('/{id}', [PerangkatController::class, 'show']);
+    Route::post('/', [PerangkatController::class, 'store']);
+    Route::put('/{id}', [PerangkatController::class, 'update']);
+    Route::delete('/{id}', [PerangkatController::class, 'destroy']);
+
+});
+
+Route::prefix('kategori-perangkat')->group(function () {
+    Route::get('/', [KategoriPerangkatController::class, 'index']);        // GET all
+    Route::post('/', [KategoriPerangkatController::class, 'store']);       // CREATE
+    Route::get('/{id}', [KategoriPerangkatController::class, 'show']);     // GET by ID
+    Route::put('/{id}', [KategoriPerangkatController::class, 'update']);   // UPDATE
+    Route::delete('/{id}', [KategoriPerangkatController::class, 'destroy']); // DELETE
+});
+
+Route::prefix('perangkat')->group(function () {
+    Route::get('/', [PerangkatController::class, 'index']);
+    Route::get('/statistics', [PerangkatController::class, 'statistics']);
+    Route::get('/export', [PerangkatController::class, 'export']);
+    Route::get('/{id}', [PerangkatController::class, 'show']);
+    Route::post('/', [PerangkatController::class, 'store']);
+    Route::put('/{id}', [PerangkatController::class, 'update']);
+    Route::delete('/{id}', [PerangkatController::class, 'destroy']);
+});
+
 
 // Kategori Vendor Routes
 Route::prefix('kategori-vendor')->group(function () {

@@ -10,14 +10,13 @@ class Perangkat extends Model
 
     protected $fillable = [
         'id_kategori_perangkat',
-        'serial_number',
         'nama_perangkat',
         'status',
         'catatan_perangkat',
     ];
 
     // Perangkat -> KategoriPerangkat (Many to One)
-    public function kategori()
+    public function kategoriPerangkat()
     {
         return $this->belongsTo(KategoriPerangkat::class, 'id_kategori_perangkat');
     }

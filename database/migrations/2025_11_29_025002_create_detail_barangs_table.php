@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('detail_barangs', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('id_perangkat')->constrained('perangkats')->onDelete('cascade');
             $table->string('serial_number')->unique();
             $table->enum('kategori', ['Listrik', 'Non-Listrik']);
-            $table->string('mac_address')->nullable();
+            $table->timestamps();
         });
     }
 
