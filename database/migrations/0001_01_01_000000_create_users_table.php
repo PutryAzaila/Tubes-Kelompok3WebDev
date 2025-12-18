@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('tanggal_lahir');
             $table->text('alamat');
             $table->string('no_hp');
-            $table->string('jabatan');
+            $table->enum('jabatan', ['Manajer','Admin','NOC']);
             $table->string('password');
             $table->timestamps();
         });
