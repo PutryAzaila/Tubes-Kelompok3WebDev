@@ -6,20 +6,17 @@ use Illuminate\Database\Eloquent\Model;
 
 class BarangKeluar extends Model
 {
-    protected $table = 'barang_keluars';
-
     protected $fillable = [
-        'id_perangkat',
+        'detail_barang_id',
         'jumlah',
         'tanggal',
         'alamat',
         'status',
-        'catatan_barang_keluar',
+        'catatan_barang_keluar'
     ];
 
-    // BarangKeluar -> Perangkat (One to One)
-    public function perangkat()
+    public function detailBarang()
     {
-        return $this->belongsTo(Perangkat::class, 'id_perangkat');
+        return $this->belongsTo(DetailBarang::class);
     }
 }
