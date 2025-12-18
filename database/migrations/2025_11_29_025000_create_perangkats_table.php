@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('perangkats', function (Blueprint $table) {
             $table->id();
             $table->foreignId('id_kategori_perangkat')->constrained('kategori_perangkats')->onDelete('cascade');
-            $table->string('serial_number')->unique();
             $table->string('nama_perangkat');
             $table->enum('status', ['Rusak', 'Hilang', 'Return','Berfungsi']);
             $table->text('catatan_perangkat')->nullable();
