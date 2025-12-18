@@ -20,6 +20,7 @@ class User extends Authenticatable
         'alamat',
         'no_hp',
         'jabatan',
+        'password',
     ];
 
     protected $hidden = [
