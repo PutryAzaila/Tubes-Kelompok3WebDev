@@ -10,7 +10,6 @@ use App\Models\KategoriPerangkat;
 
 class PerangkatController extends Controller
 {
-    // GET /api/perangkats
     public function index(Request $request)
     {
         try {
@@ -18,26 +17,26 @@ class PerangkatController extends Controller
             $search = $request->input('search', '');
             $kategori = $request->input('kategori', '');
             $status = $request->input('status', '');
-
+            
             $query = Perangkat::with('kategoriPerangkat');
-
+            
             if ($search) {
                 $query->where(function($q) use ($search) {
-                    $q->where('nama_perangkat', 'like', "%{$search}%")
-                      ->orWhere('catatan', 'like', "%{$search}%");
+                    $q->where('nama_perangat', 'like', "%{$search}%")
+                    ->orWhere('catatan', 'like', "%{$search}%");
                 });
             }
-
+            
             if ($kategori) {
                 $query->where('id_kategori_perangkat', $kategori);
             }
-
+            
             if ($status) {
                 $query->where('status', $status);
             }
-
+            
             $perangkat = $query->orderBy('created_at', 'desc')->paginate($perPage);
-
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Data perangkats retrieved successfully',
@@ -88,8 +87,7 @@ class PerangkatController extends Controller
             ], 500);
         }
     }
-
-    // POST /api/perangkats
+    
     public function store(Request $request)
     {
         try {
@@ -219,7 +217,8 @@ class PerangkatController extends Controller
             $returDevices = Perangkat::where('status', 'retur')->count();
             $missingDevices = Perangkat::where('status', 'hilang')->count();
 
-            $devicesByCategory = KategoriPerangkat::withCount('perangkats')->get();
+            // Get devices by category
+            $devicesByCategory = KategoriPerangkat::withCount('perangkat')->get();
 
             return response()->json([
                 'success' => true,
