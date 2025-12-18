@@ -85,7 +85,7 @@ class AuthController extends Controller
         }
 
         // Generate simple token
-        $token = base64_encode(Str::random(60));
+        $token = $user->createToken($user->email ?? 'my_app_token');
 
         return response()->json([
             'success' => true,
@@ -103,23 +103,25 @@ class AuthController extends Controller
     public function profile(Request $request)
     {
         // Untuk testing sederhana, kita ambil user berdasarkan email dari header
-        $email = $request->header('User-Email');
+        // $email = $request->header('User-Email');
         
-        if (!$email) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Unauthorized'
-            ], 401);
-        }
+        // if (!$email) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'Unauthorized'
+        //     ], 401);
+        // }
 
-        $user = User::where('email', $email)->first();
+        // $user = User::where('email', $email)->first();
 
-        if (!$user) {
-            return response()->json([
-                'success' => false,
-                'message' => 'User not found'
-            ], 404);
-        }
+        // if (!$user) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'User not found'
+        //     ], 404);
+        // }
+
+        $user = $request->user();
 
         return response()->json([
             'success' => true,
@@ -133,6 +135,8 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
+        $request->user()->currentAccessToken()->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'Logout successful'
