@@ -4,8 +4,276 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use App\Models\Perangkat;
+use App\Models\KategoriPerangkat;
 
 class PerangkatController extends Controller
 {
-    //
+
+    public function index(Request $request)
+    {
+        try {
+            $perPage = $request->input('per_page', 10);
+            $search = $request->input('search', '');
+            $kategori = $request->input('kategori', '');
+            $status = $request->input('status', '');
+
+            $query = Perangkat::with('kategoriPerangkat');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('serial_number', 'like', "%{$search}%")
+                      ->orWhere('nama_perangat', 'like', "%{$search}%")
+                      ->orWhere('catatan', 'like', "%{$search}%");
+                });
+            }
+
+            if ($kategori) {
+                $query->where('id_kategori_perangkat', $kategori);
+            }
+
+            if ($status) {
+                $query->where('status', $status);
+            }
+
+            $perangkat = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data perangkat retrieved successfully',
+                'data' => $perangkat->items(),
+                'pagination' => [
+                    'total' => $perangkat->total(),
+                    'per_page' => $perangkat->perPage(),
+                    'current_page' => $perangkat->currentPage(),
+                    'last_page' => $perangkat->lastPage(),
+                    'from' => $perangkat->firstItem(),
+                    'to' => $perangkat->lastItem()
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve perangkat data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function show($id)
+    {
+        try {
+            $perangkat = Perangkat::with('kategoriPerangkat')->find($id);
+
+            if (!$perangkat) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Perangkat not found'
+                ], 404);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perangkat data retrieved successfully',
+                'data' => $perangkat
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve perangkat data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function store(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'id_kategori_perangkat' => 'required|exists:kategori_perangkat,id_kategori_perangkat',
+                'nama_perangat' => 'required|string|max:255',
+                'serial_number' => 'required|string|max:255|unique:perangkat,serial_number',
+                'status' => 'required|in:rusak,hilang,retur,berfungsi',
+                'catatan' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $perangkat = Perangkat::create([
+                'id_kategori_perangkat' => $request->id_kategori_perangkat,
+                'nama_perangat' => $request->nama_perangat,
+                'serial_number' => $request->serial_number,
+                'status' => $request->status,
+                'catatan' => $request->catatan
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perangkat created successfully',
+                'data' => $perangkat->load('kategoriPerangkat')
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create perangkat',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        try {
+            $perangkat = Perangkat::find($id);
+
+            if (!$perangkat) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Perangkat not found'
+                ], 404);
+            }
+
+            $validator = Validator::make($request->all(), [
+                'id_kategori_perangkat' => 'sometimes|required|exists:kategori_perangkat,id_kategori_perangkat',
+                'nama_perangat' => 'sometimes|required|string|max:255',
+                'serial_number' => 'sometimes|required|string|max:255|unique:perangkat,serial_number,' . $id . ',id_perangkat',
+                'status' => 'sometimes|required|in:rusak,hilang,retur,berfungsi',
+                'catatan' => 'nullable|string'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            $perangkat->update($request->only([
+                'id_kategori_perangkat',
+                'nama_perangat',
+                'serial_number',
+                'status',
+                'catatan'
+            ]));
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perangkat updated successfully',
+                'data' => $perangkat->load('kategoriPerangkat')
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update perangkat',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $perangkat = Perangkat::find($id);
+
+            if (!$perangkat) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Perangkat not found'
+                ], 404);
+            }
+
+            $perangkat->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perangkat deleted successfully'
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete perangkat',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function statistics()
+    {
+        try {
+            $totalDevices = Perangkat::count();
+            $availableDevices = Perangkat::where('status', 'berfungsi')->count();
+            $damagedDevices = Perangkat::where('status', 'rusak')->count();
+            $returDevices = Perangkat::where('status', 'retur')->count();
+            $missingDevices = Perangkat::where('status', 'hilang')->count();
+
+            $devicesByCategory = KategoriPerangkat::withCount('perangkat')->get();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Statistics retrieved successfully',
+                'data' => [
+                    'total_devices' => $totalDevices,
+                    'available' => $availableDevices,
+                    'damaged' => $damagedDevices,
+                    'retur' => $returDevices,
+                    'missing' => $missingDevices,
+                    'by_category' => $devicesByCategory
+                ]
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve statistics',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $format = $request->input('format', 'excel'); // excel or csv
+            
+            $perangkat = Perangkat::with('kategoriPerangkat')->get();
+
+            // Prepare data for export
+            $exportData = $perangkat->map(function($item) {
+                return [
+                    'Serial Number' => $item->serial_number,
+                    'Nama Perangkat' => $item->nama_perangat,
+                    'Kategori' => $item->kategoriPerangkat->nama_kategori ?? '-',
+                    'Status' => ucfirst($item->status),
+                    'Catatan' => $item->catatan ?? '-',
+                    'Created At' => $item->created_at->format('Y-m-d H:i:s')
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Data prepared for export',
+                'data' => $exportData
+            ], 200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to export data',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
