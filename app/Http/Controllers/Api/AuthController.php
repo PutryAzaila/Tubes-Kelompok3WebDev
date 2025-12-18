@@ -92,7 +92,7 @@ class AuthController extends Controller
             'message' => 'Login successful',
             'data' => [
                 'user' => $user,
-                'token' => $token,
+                'token' => $token->plainTextToken
             ]
         ], 200);
     }

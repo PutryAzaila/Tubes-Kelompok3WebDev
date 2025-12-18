@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('id_perangkat')->constrained('perangkats')->onDelete('cascade');
             $table->string('serial_number')->unique();
             $table->enum('kategori', ['Listrik', 'Non-Listrik']);
+            $table->timestamps();
         });
     }
 

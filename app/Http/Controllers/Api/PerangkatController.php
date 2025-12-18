@@ -10,7 +10,7 @@ use App\Models\KategoriPerangkat;
 
 class PerangkatController extends Controller
 {
-
+    // GET /api/perangkats
     public function index(Request $request)
     {
         try {
@@ -23,8 +23,7 @@ class PerangkatController extends Controller
 
             if ($search) {
                 $query->where(function($q) use ($search) {
-                    $q->where('serial_number', 'like', "%{$search}%")
-                      ->orWhere('nama_perangat', 'like', "%{$search}%")
+                    $q->where('nama_perangkat', 'like', "%{$search}%")
                       ->orWhere('catatan', 'like', "%{$search}%");
                 });
             }
@@ -41,7 +40,7 @@ class PerangkatController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Data perangkat retrieved successfully',
+                'message' => 'Data perangkats retrieved successfully',
                 'data' => $perangkat->items(),
                 'pagination' => [
                     'total' => $perangkat->total(),
@@ -56,12 +55,13 @@ class PerangkatController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve perangkat data',
+                'message' => 'Failed to retrieve perangkats',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
+    // GET /api/perangkats/{id}
     public function show($id)
     {
         try {
@@ -83,19 +83,19 @@ class PerangkatController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve perangkat data',
+                'message' => 'Failed to retrieve perangkat',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
+    // POST /api/perangkats
     public function store(Request $request)
     {
         try {
             $validator = Validator::make($request->all(), [
-                'id_kategori_perangkat' => 'required|exists:kategori_perangkat,id_kategori_perangkat',
-                'nama_perangat' => 'required|string|max:255',
-                'serial_number' => 'required|string|max:255|unique:perangkat,serial_number',
+                'id_kategori_perangkat' => 'required|exists:kategori_perangkats,id',
+                'nama_perangkat' => 'required|string|max:255',
                 'status' => 'required|in:rusak,hilang,retur,berfungsi',
                 'catatan' => 'nullable|string'
             ]);
@@ -108,13 +108,12 @@ class PerangkatController extends Controller
                 ], 422);
             }
 
-            $perangkat = Perangkat::create([
-                'id_kategori_perangkat' => $request->id_kategori_perangkat,
-                'nama_perangat' => $request->nama_perangat,
-                'serial_number' => $request->serial_number,
-                'status' => $request->status,
-                'catatan' => $request->catatan
-            ]);
+            $perangkat = Perangkat::create($request->only([
+                'id_kategori_perangkat',
+                'nama_perangkat',
+                'status',
+                'catatan'
+            ]));
 
             return response()->json([
                 'success' => true,
@@ -131,6 +130,7 @@ class PerangkatController extends Controller
         }
     }
 
+    // PUT/PATCH /api/perangkats/{id}
     public function update(Request $request, $id)
     {
         try {
@@ -144,9 +144,8 @@ class PerangkatController extends Controller
             }
 
             $validator = Validator::make($request->all(), [
-                'id_kategori_perangkat' => 'sometimes|required|exists:kategori_perangkat,id_kategori_perangkat',
-                'nama_perangat' => 'sometimes|required|string|max:255',
-                'serial_number' => 'sometimes|required|string|max:255|unique:perangkat,serial_number,' . $id . ',id_perangkat',
+                'id_kategori_perangkat' => 'sometimes|required|exists:kategori_perangkats,id',
+                'nama_perangkat' => 'sometimes|required|string|max:255',
                 'status' => 'sometimes|required|in:rusak,hilang,retur,berfungsi',
                 'catatan' => 'nullable|string'
             ]);
@@ -161,8 +160,7 @@ class PerangkatController extends Controller
 
             $perangkat->update($request->only([
                 'id_kategori_perangkat',
-                'nama_perangat',
-                'serial_number',
+                'nama_perangkat',
                 'status',
                 'catatan'
             ]));
@@ -182,6 +180,7 @@ class PerangkatController extends Controller
         }
     }
 
+    // DELETE /api/perangkats/{id}
     public function destroy($id)
     {
         try {
@@ -210,6 +209,7 @@ class PerangkatController extends Controller
         }
     }
 
+    // GET /api/perangkats/statistics
     public function statistics()
     {
         try {
@@ -219,7 +219,7 @@ class PerangkatController extends Controller
             $returDevices = Perangkat::where('status', 'retur')->count();
             $missingDevices = Perangkat::where('status', 'hilang')->count();
 
-            $devicesByCategory = KategoriPerangkat::withCount('perangkat')->get();
+            $devicesByCategory = KategoriPerangkat::withCount('perangkats')->get();
 
             return response()->json([
                 'success' => true,
@@ -243,19 +243,16 @@ class PerangkatController extends Controller
         }
     }
 
+    // GET /api/perangkats/export
     public function export(Request $request)
     {
         try {
-            $format = $request->input('format', 'excel'); // excel or csv
-            
             $perangkat = Perangkat::with('kategoriPerangkat')->get();
 
-            // Prepare data for export
             $exportData = $perangkat->map(function($item) {
                 return [
-                    'Serial Number' => $item->serial_number,
-                    'Nama Perangkat' => $item->nama_perangat,
-                    'Kategori' => $item->kategoriPerangkat->nama_kategori ?? '-',
+                    'Nama Perangkat' => $item->nama_perangkat,
+                    'Kategori' => $item->KategoriPerangkat->nama_kategori ?? '-',
                     'Status' => ucfirst($item->status),
                     'Catatan' => $item->catatan ?? '-',
                     'Created At' => $item->created_at->format('Y-m-d H:i:s')

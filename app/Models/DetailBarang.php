@@ -10,7 +10,6 @@ class DetailBarang extends Model
         'id_perangkat',
         'serial_number',
         'kategori',
-        'mac_address'
     ];
 
     public function perangkat()
