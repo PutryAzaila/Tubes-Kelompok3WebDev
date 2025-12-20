@@ -20,13 +20,15 @@ Route::middleware('auth')->group(function () {
         return view('dashboard');
     })->name('dashboard');
 
-    // Inventory Routes
-    Route::prefix('inventory')->name('inventory.')->group(function () {
-        Route::get('/', [WebInventoryController::class, 'index'])->name('index');
-        Route::get('/create', [WebInventoryController::class, 'create'])->name('create');
-        Route::post('/', [WebInventoryController::class, 'store'])->name('store');
-        Route::get('/{id}/{type}/edit', [WebInventoryController::class, 'edit'])->name('edit');
-        Route::put('/{id}/{type}', [WebInventoryController::class, 'update'])->name('update');
-        Route::delete('/{id}/{type}', [WebInventoryController::class, 'destroy'])->name('destroy');
-    });
+    // Inventory routes
+    Route::get('/inventory', [WebInventoryController::class, 'index'])->name('inventory.index');
+    Route::get('/inventory/create', [WebInventoryController::class, 'create'])->name('inventory.create');
+    
+    Route::get('/inventory/available-serials', [WebInventoryController::class, 'getAvailableSerials'])->name('inventory.available-serials');
+    Route::get('/inventory/returnable-serials', [WebInventoryController::class, 'getReturnableSerials'])->name('inventory.returnable-serials');
+    
+    Route::post('/inventory', [WebInventoryController::class, 'store'])->name('inventory.store');
+    Route::get('/inventory/{id}/edit/{type}', [WebInventoryController::class, 'edit'])->name('inventory.edit');
+    Route::put('/inventory/{id}/{type}', [WebInventoryController::class, 'update'])->name('inventory.update');
+    Route::delete('/inventory/{id}/{type}', [WebInventoryController::class, 'destroy'])->name('inventory.destroy');
 });

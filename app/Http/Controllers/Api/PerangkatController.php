@@ -22,7 +22,7 @@ class PerangkatController extends Controller
             
             if ($search) {
                 $query->where(function($q) use ($search) {
-                    $q->where('nama_perangat', 'like', "%{$search}%")
+                    $q->where('nama_perangkat', 'like', "%{$search}%")
                     ->orWhere('catatan', 'like', "%{$search}%");
                 });
             }

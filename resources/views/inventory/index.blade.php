@@ -339,7 +339,7 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="fw-semibold">{{ $item->detailBarang->perangkat->nama ?? '-' }}</td>
+                                <td class="fw-semibold">{{ $item->detailBarang->perangkat->nama_perangkat ?? '-' }}</td>
                                 <td>
                                     <span class="badge bg-primary">
                                         {{ $item->detailBarang->kategori ?? '-' }}

@@ -58,8 +58,6 @@
         color: var(--transdata-gray);
         margin-bottom: 0.75rem;
         font-size: 0.9rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
     }
 
     .form-control, .form-select {
@@ -75,19 +73,6 @@
         box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.15);
     }
 
-    .input-group-text {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        border: none;
-        color: white;
-        border-radius: 0.75rem 0 0 0.75rem;
-        padding: 0 1rem;
-    }
-
-    .input-group .form-control {
-        border-left: none;
-        border-radius: 0 0.75rem 0.75rem 0;
-    }
-
     .section-title {
         font-size: 1.1rem;
         font-weight: 700;
@@ -96,6 +81,90 @@
         padding-bottom: 0.75rem;
         border-bottom: 3px solid var(--transdata-orange);
         display: inline-block;
+    }
+
+    .radio-card {
+        border: 2px solid #e5e7eb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        position: relative;
+    }
+
+    .radio-card:hover {
+        border-color: var(--transdata-blue);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.15);
+    }
+
+    .radio-card.active {
+        border-color: var(--transdata-blue);
+        background: rgba(30, 58, 138, 0.05);
+    }
+
+    .radio-checkmark {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        width: 30px;
+        height: 30px;
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .radio-card.active .radio-checkmark {
+        opacity: 1;
+    }
+
+    .serial-input-group {
+        background: #f9fafb;
+        border: 2px dashed #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .serial-checkbox-item {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .serial-checkbox-item:hover {
+        border-color: var(--transdata-blue);
+        background: rgba(30, 58, 138, 0.05);
+    }
+
+    .serial-checkbox-item.selected {
+        border-color: var(--transdata-blue);
+        background: rgba(30, 58, 138, 0.1);
+    }
+
+    .btn-add-serial {
+        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+        border: none;
+        color: white;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+    }
+
+    .btn-remove-serial {
+        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+        border: none;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
     }
 
     .btn-submit {
@@ -116,124 +185,22 @@
         color: white;
     }
 
-    .btn-cancel {
-        background: linear-gradient(135deg, var(--transdata-gray) 0%, #9ca3af 100%);
-        border: none;
-        color: white;
-        padding: 1rem 3rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-    }
-
-    .btn-cancel:hover {
-        transform: translateY(-2px);
-        background: linear-gradient(135deg, #4b5563 0%, #6b7280 100%);
-        color: white;
-    }
-
-    .alert-custom {
-        border: none;
-        border-radius: 1rem;
-        padding: 1.25rem;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-        color: #991b1b;
-        border-left: 4px solid #dc2626;
-    }
-
-    .animate-fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
     .conditional-section {
-        display: none;
-        animation: slideDown 0.3s ease-out;
+        display: none !important;
+    }
+    
+    .conditional-section.show {
+        display: block !important;
     }
 
-    @keyframes slideDown {
-        from {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .radio-card {
-        border: 2px solid #e5e7eb;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .radio-card:hover {
-        border-color: var(--transdata-blue);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.15);
-    }
-
-    .radio-card input[type="radio"]:checked + .radio-card-body {
-        color: var(--transdata-blue);
-    }
-
-    .radio-card input[type="radio"]:checked ~ .radio-checkmark {
-        opacity: 1;
-    }
-
-    .radio-checkmark {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        width: 30px;
-        height: 30px;
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+    .info-badge {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
         color: white;
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .form-icon {
-        width: 45px;
-        height: 45px;
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        border-radius: 0.75rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.25rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .select2-container--bootstrap-5 .select2-selection {
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        min-height: 48px;
-    }
-
-    .select2-container--bootstrap-5.select2-container--focus .select2-selection {
-        border-color: var(--transdata-blue);
-        box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.85rem;
+        display: inline-block;
+        margin-bottom: 1rem;
     }
 </style>
 @endpush
@@ -264,36 +231,31 @@
                 </div>
                 <div class="form-card-body">
                     @if ($errors->any())
-                        <div class="alert alert-danger alert-custom">
-                            <div class="d-flex align-items-start">
-                                <i class="fas fa-exclamation-circle me-3 mt-1" style="font-size: 1.5rem;"></i>
-                                <div>
-                                    <strong>Terdapat kesalahan!</strong>
-                                    <ul class="mb-0 mt-2">
-                                        @foreach ($errors->all() as $error)
-                                            <li>{{ $error }}</li>
-                                        @endforeach
-                                    </ul>
-                                </div>
-                            </div>
+                        <div class="alert alert-danger">
+                            <strong>Terdapat kesalahan!</strong>
+                            <ul class="mb-0 mt-2">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
                     @endif
 
-                    <form action="{{ route('inventory.store') }}" method="POST" id="inventoryForm">
+                    <form action="{{ url('/inventory') }}" method="POST" id="inventoryForm">
                         @csrf
 
-                        <!-- Jenis Inventori Section -->
+                        <!-- Jenis Transaksi -->
                         <div class="mb-5">
                             <h5 class="section-title">
                                 <i class="fas fa-exchange-alt me-2"></i>Jenis Transaksi
                             </h5>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="radio-card">
+                                    <label class="radio-card" id="cardMasuk">
                                         <input type="radio" name="jenis_inventori" value="masuk" class="d-none" required>
                                         <div class="radio-card-body">
-                                            <div class="form-icon bg-gradient" style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%);">
-                                                <i class="fas fa-arrow-down"></i>
+                                            <div class="mb-2">
+                                                <i class="fas fa-arrow-down fa-2x text-success"></i>
                                             </div>
                                             <h5 class="mb-2">Barang Masuk</h5>
                                             <p class="text-muted mb-0 small">Catat barang yang masuk ke inventory</p>
@@ -304,11 +266,11 @@
                                     </label>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="radio-card">
+                                    <label class="radio-card" id="cardKeluar">
                                         <input type="radio" name="jenis_inventori" value="keluar" class="d-none" required>
                                         <div class="radio-card-body">
-                                            <div class="form-icon" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);">
-                                                <i class="fas fa-arrow-up"></i>
+                                            <div class="mb-2">
+                                                <i class="fas fa-arrow-up fa-2x text-warning"></i>
                                             </div>
                                             <h5 class="mb-2">Barang Keluar</h5>
                                             <p class="text-muted mb-0 small">Catat barang yang keluar dari inventory</p>
@@ -321,7 +283,7 @@
                             </div>
                         </div>
 
-                        <!-- Informasi Dasar Section -->
+                        <!-- Informasi Dasar -->
                         <div class="mb-5">
                             <h5 class="section-title">
                                 <i class="fas fa-info-circle me-2"></i>Informasi Dasar
@@ -331,11 +293,8 @@
                                     <label for="tanggal" class="form-label">
                                         <i class="fas fa-calendar-alt me-2"></i>Tanggal
                                     </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-calendar"></i></span>
-                                        <input type="date" class="form-control" id="tanggal" name="tanggal" 
-                                            value="{{ old('tanggal', date('Y-m-d')) }}" required>
-                                    </div>
+                                    <input type="date" class="form-control" id="tanggal" name="tanggal" 
+                                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
                                 </div>
 
                                 <div class="col-md-6">
@@ -345,9 +304,7 @@
                                     <select class="form-select select2" id="id_perangkat" name="id_perangkat" required>
                                         <option value="">-- Pilih Perangkat --</option>
                                         @foreach($perangkats as $perangkat)
-                                            <option value="{{ $perangkat->id }}" {{ old('id_perangkat') == $perangkat->id ? 'selected' : '' }}>
-                                                {{ $perangkat->nama }}
-                                            </option>
+                                            <option value="{{ $perangkat->id }}">{{ $perangkat->nama_perangkat }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -358,30 +315,24 @@
                                     </label>
                                     <select class="form-select" id="kategori" name="kategori" required>
                                         <option value="">-- Pilih Kategori --</option>
-                                        <option value="Listrik" {{ old('kategori') == 'Listrik' ? 'selected' : '' }}>Listrik</option>
-                                        <option value="Non-Listrik" {{ old('kategori') == 'Non-Listrik' ? 'selected' : '' }}>Non-Listrik</option>
+                                        <option value="Listrik">Listrik</option>
+                                        <option value="Non-Listrik">Non-Listrik</option>
                                     </select>
                                 </div>
 
-                                <div class="col-md-6" id="serialNumberSection" style="display: none;">
-                                    <label for="serial_number" class="form-label">
-                                        <i class="fas fa-barcode me-2"></i>Serial Number
-                                    </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-hashtag"></i></span>
-                                        <input type="text" class="form-control" id="serial_number" name="serial_number" 
-                                            placeholder="Masukkan serial number" value="{{ old('serial_number') }}">
-                                    </div>
-                                </div>
-
                                 <div class="col-md-6">
-                                    <label for="stok" class="form-label">
-                                        <i class="fas fa-cubes me-2"></i>Jumlah/Stok
+                                    <label class="form-label">
+                                        <i class="fas fa-barcode me-2"></i>Ada Serial Number?
                                     </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-layer-group"></i></span>
-                                        <input type="number" class="form-control" id="stok" name="stok" 
-                                            placeholder="Masukkan jumlah" min="1" value="{{ old('stok') }}" required>
+                                    <div class="d-flex gap-3">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="has_serial" id="hasSerialYes" value="1" required>
+                                            <label class="form-check-label" for="hasSerialYes">Ya</label>
+                                        </div>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="has_serial" id="hasSerialNo" value="0" required>
+                                            <label class="form-check-label" for="hasSerialNo">Tidak</label>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -392,16 +343,68 @@
                             <h5 class="section-title">
                                 <i class="fas fa-arrow-circle-down me-2"></i>Detail Barang Masuk
                             </h5>
-                            <div class="row g-4">
+                            
+                            <div class="row g-4 mb-4">
                                 <div class="col-md-12">
                                     <label for="sumber" class="form-label">
                                         <i class="fas fa-building me-2"></i>Sumber
                                     </label>
                                     <select class="form-select" id="sumber" name="sumber">
                                         <option value="">-- Pilih Sumber --</option>
-                                        <option value="Customer" {{ old('sumber') == 'Customer' ? 'selected' : '' }}>Customer</option>
-                                        <option value="Vendor" {{ old('sumber') == 'Vendor' ? 'selected' : '' }}>Vendor</option>
+                                        <option value="Vendor">Vendor (Barang Baru)</option>
+                                        <option value="Customer">Customer (Return/Titip Baru)</option>
                                     </select>
+                                </div>
+                            </div>
+
+                            <!-- Serial Number Section for Masuk -->
+                            <div id="serialMasukSection" class="conditional-section">
+                                <!-- Vendor: Input Baru -->
+                                <div id="vendorSerialSection" class="conditional-section">
+                                    <div class="info-badge">
+                                        <i class="fas fa-info-circle me-2"></i>Vendor: Input serial number baru
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Jumlah Barang</label>
+                                        <input type="number" class="form-control" id="jumlahVendor" min="1" value="1">
+                                    </div>
+                                    <div id="serialInputsVendor"></div>
+                                </div>
+
+                                <!-- Customer: Return atau Baru -->
+                                <div id="customerSerialSection" class="conditional-section">
+                                    <div class="info-badge">
+                                        <i class="fas fa-info-circle me-2"></i>Customer: Pilih serial return atau input baru
+                                    </div>
+                                    
+                                    <!-- Return Serials -->
+                                    <div class="mb-4">
+                                        <label class="form-label">Serial Number Return (Opsional)</label>
+                                        <div id="returnSerialsContainer"></div>
+                                    </div>
+
+                                    <!-- New Serials from Customer -->
+                                    <div>
+                                        <label class="form-label">Serial Number Baru dari Customer (Opsional)</label>
+                                        <div class="mb-3">
+                                            <button type="button" class="btn btn-add-serial" id="btnAddCustomerSerial">
+                                                <i class="fas fa-plus me-2"></i>Tambah Serial Baru
+                                            </button>
+                                        </div>
+                                        <div id="serialInputsCustomer"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Stok untuk Non-Serial -->
+                            <div id="stokMasukSection" class="conditional-section">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="stokMasuk" class="form-label">
+                                            <i class="fas fa-cubes me-2"></i>Jumlah/Stok
+                                        </label>
+                                        <input type="number" class="form-control" id="stokMasuk" name="stok" min="1" value="1">
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -411,16 +414,16 @@
                             <h5 class="section-title">
                                 <i class="fas fa-arrow-circle-up me-2"></i>Detail Barang Keluar
                             </h5>
-                            <div class="row g-4">
+                            <div class="row g-4 mb-4">
                                 <div class="col-md-6">
                                     <label for="perihal" class="form-label">
                                         <i class="fas fa-clipboard-list me-2"></i>Perihal
                                     </label>
                                     <select class="form-select" id="perihal" name="perihal">
                                         <option value="">-- Pilih Perihal --</option>
-                                        <option value="Pemeliharaan" {{ old('perihal') == 'Pemeliharaan' ? 'selected' : '' }}>Pemeliharaan</option>
-                                        <option value="Penjualan" {{ old('perihal') == 'Penjualan' ? 'selected' : '' }}>Penjualan</option>
-                                        <option value="Instalasi" {{ old('perihal') == 'Instalasi' ? 'selected' : '' }}>Instalasi</option>
+                                        <option value="Pemeliharaan">Pemeliharaan</option>
+                                        <option value="Penjualan">Penjualan</option>
+                                        <option value="Instalasi">Instalasi</option>
                                     </select>
                                 </div>
 
@@ -428,34 +431,45 @@
                                     <label for="alamat" class="form-label">
                                         <i class="fas fa-map-marker-alt me-2"></i>Alamat Tujuan
                                     </label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-location-dot"></i></span>
-                                        <input type="text" class="form-control" id="alamat" name="alamat" 
-                                            placeholder="Masukkan alamat tujuan" value="{{ old('alamat') }}">
+                                    <input type="text" class="form-control" id="alamat" name="alamat" 
+                                        placeholder="Masukkan alamat tujuan">
+                                </div>
+                            </div>
+
+                            <!-- Serial Number Section for Keluar -->
+                            <div id="serialKeluarSection" class="conditional-section">
+                                <div class="info-badge">
+                                    <i class="fas fa-info-circle me-2"></i>Pilih serial number yang akan keluar
+                                </div>
+                                <div id="availableSerialsContainer"></div>
+                            </div>
+
+                            <!-- Stok untuk Non-Serial -->
+                            <div id="stokKeluarSection" class="conditional-section">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <label for="stokKeluar" class="form-label">
+                                            <i class="fas fa-cubes me-2"></i>Jumlah/Stok
+                                        </label>
+                                        <input type="number" class="form-control" id="stokKeluar" name="stok" min="1" value="1">
+                                        <small class="text-muted">Stok tersedia: <span id="availableStock">-</span></small>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Catatan Section -->
+                        <!-- Catatan -->
                         <div class="mb-5">
                             <h5 class="section-title">
                                 <i class="fas fa-sticky-note me-2"></i>Catatan Tambahan
                             </h5>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label for="catatan" class="form-label">
-                                        <i class="fas fa-comment me-2"></i>Catatan (Opsional)
-                                    </label>
-                                    <textarea class="form-control" id="catatan" name="catatan" rows="4" 
-                                        placeholder="Tambahkan catatan atau keterangan tambahan...">{{ old('catatan') }}</textarea>
-                                </div>
-                            </div>
+                            <textarea class="form-control" id="catatan" name="catatan" rows="4" 
+                                placeholder="Tambahkan catatan atau keterangan tambahan..."></textarea>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="d-flex justify-content-end gap-3 pt-4 border-top">
-                            <a href="{{ route('inventory.index') }}" class="btn btn-cancel">
+                            <a href="{{ route('inventory.index') }}" class="btn btn-secondary">
                                 <i class="fas fa-times me-2"></i>Batal
                             </a>
                             <button type="submit" class="btn btn-submit">
@@ -471,90 +485,326 @@
 @endsection
 
 @push('scripts')
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- Bootstrap 5 -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Select2 -->
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
 <script>
+// Debug: Log when DOM is ready
+console.log('Script loaded, jQuery version:', $.fn.jquery);
+
 $(document).ready(function() {
+    console.log('Document ready!');
+    let serialCounterVendor = 0;
+    let serialCounterCustomer = 0;
+
     // Initialize Select2
     $('.select2').select2({
         theme: 'bootstrap-5',
-        placeholder: '-- Pilih Perangkat --',
-        allowClear: true
+        placeholder: '-- Pilih Perangkat --'
     });
 
-    // Handle Jenis Inventori Change
+    // Radio Card Handler
+    $('.radio-card').on('click', function() {
+        const radio = $(this).find('input[type="radio"]');
+        $('.radio-card').removeClass('active');
+        $(this).addClass('active');
+        radio.prop('checked', true).trigger('change');
+    });
+
+    // Jenis Inventori Change
     $('input[name="jenis_inventori"]').on('change', function() {
         const value = $(this).val();
         
         if (value === 'masuk') {
-            $('#barangMasukSection').slideDown(300).css('display', 'block');
-            $('#barangKeluarSection').slideUp(300);
+            $('#barangMasukSection').removeClass('conditional-section').addClass('show');
+            $('#barangKeluarSection').removeClass('show').addClass('conditional-section');
             $('#sumber').prop('required', true);
             $('#perihal').prop('required', false);
-        } else if (value === 'keluar') {
-            $('#barangKeluarSection').slideDown(300).css('display', 'block');
-            $('#barangMasukSection').slideUp(300);
+        } else {
+            $('#barangKeluarSection').removeClass('conditional-section').addClass('show');
+            $('#barangMasukSection').removeClass('show').addClass('conditional-section');
             $('#perihal').prop('required', true);
             $('#sumber').prop('required', false);
         }
     });
 
-    // Handle Kategori Change
-    $('#kategori').on('change', function() {
-        if ($(this).val() === 'Listrik') {
-            $('#serialNumberSection').slideDown(300).css('display', 'block');
-            $('#serial_number').prop('required', true);
-        } else {
-            $('#serialNumberSection').slideUp(300);
-            $('#serial_number').prop('required', false).val('');
+    // Has Serial Change
+    $('input[name="has_serial"]').on('change', function() {
+        const hasSerial = $(this).val() === '1';
+        const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
+        
+        console.log('Has Serial changed:', hasSerial, 'Jenis:', jenisInventori);
+
+        if (jenisInventori === 'masuk') {
+            if (hasSerial) {
+                $('#serialMasukSection').removeClass('conditional-section').addClass('show');
+                $('#stokMasukSection').removeClass('show').addClass('conditional-section');
+                console.log('Showing serialMasukSection');
+            } else {
+                $('#serialMasukSection').removeClass('show').addClass('conditional-section');
+                $('#stokMasukSection').removeClass('conditional-section').addClass('show');
+                console.log('Showing stokMasukSection');
+            }
+        } else if (jenisInventori === 'keluar') {
+            if (hasSerial) {
+                $('#serialKeluarSection').removeClass('conditional-section').addClass('show');
+                $('#stokKeluarSection').removeClass('show').addClass('conditional-section');
+                loadAvailableSerials();
+            } else {
+                $('#serialKeluarSection').removeClass('show').addClass('conditional-section');
+                $('#stokKeluarSection').removeClass('conditional-section').addClass('show');
+                checkAvailableStock();
+            }
         }
     });
 
-    // Trigger kategori change on page load if old value exists
-    if ($('#kategori').val() === 'Listrik') {
-        $('#serialNumberSection').show();
-        $('#serial_number').prop('required', true);
+    // Sumber Change (Vendor/Customer)
+    $('#sumber').on('change', function() {
+        const sumber = $(this).val();
+        const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+        
+        console.log('Sumber changed:', sumber, 'Has Serial:', hasSerial);
+
+        if (!hasSerial) return;
+
+        if (sumber === 'Vendor') {
+            $('#vendorSerialSection').removeClass('conditional-section').addClass('show');
+            $('#customerSerialSection').removeClass('show').addClass('conditional-section');
+            console.log('Showing vendorSerialSection');
+            generateVendorSerialInputs();
+        } else if (sumber === 'Customer') {
+            $('#customerSerialSection').removeClass('conditional-section').addClass('show');
+            $('#vendorSerialSection').removeClass('show').addClass('conditional-section');
+            console.log('Showing customerSerialSection');
+            loadReturnableSerials();
+        }
+    });
+
+    // Jumlah Vendor Change
+    $('#jumlahVendor').on('change', function() {
+        generateVendorSerialInputs();
+    });
+
+    // Generate Vendor Serial Inputs
+    function generateVendorSerialInputs() {
+        const jumlah = parseInt($('#jumlahVendor').val()) || 1;
+        const container = $('#serialInputsVendor');
+        container.empty();
+
+        for (let i = 0; i < jumlah; i++) {
+            container.append(`
+                <div class="serial-input-group">
+                    <label class="form-label">Serial Number ${i + 1}</label>
+                    <input type="text" class="form-control" name="serial_numbers[]" 
+                        placeholder="Masukkan serial number" required>
+                </div>
+            `);
+        }
     }
 
-    // Radio Card Click Handler
-    $('.radio-card').on('click', function() {
-        const radio = $(this).find('input[type="radio"]');
-        radio.prop('checked', true).trigger('change');
+    // Add Customer Serial Button
+    $('#btnAddCustomerSerial').on('click', function() {
+        serialCounterCustomer++;
+        $('#serialInputsCustomer').append(`
+            <div class="serial-input-group" id="customerSerial${serialCounterCustomer}">
+                <div class="d-flex gap-2">
+                    <input type="text" class="form-control" name="serial_numbers[]" 
+                        placeholder="Masukkan serial number baru">
+                    <button type="button" class="btn btn-remove-serial" onclick="removeCustomerSerial(${serialCounterCustomer})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `);
+    });
+
+    // Remove Customer Serial
+    window.removeCustomerSerial = function(id) {
+        $(`#customerSerial${id}`).remove();
+    };
+
+    // Load Returnable Serials (from customer - yang sedang keluar)
+function loadReturnableSerials() {
+    const perangkatId = $('#id_perangkat').val();
+    const kategori = $('#kategori').val();
+
+    if (!perangkatId || !kategori) return;
+
+    // GANTI INI - Gunakan route name Laravel
+    $.get('{{ route("inventory.returnable-serials") }}', {
+        id_perangkat: perangkatId,
+        kategori: kategori
+    }, function(response) {
+        const container = $('#returnSerialsContainer');
+        container.empty();
+
+        if (response.data.length === 0) {
+            container.html('<p class="text-muted">Tidak ada serial number yang dapat dikembalikan</p>');
+            return;
+        }
+
+        response.data.forEach(item => {
+            container.append(`
+                <div class="serial-checkbox-item">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="return_serials[]" 
+                            value="${item.id}" id="return${item.id}">
+                        <label class="form-check-label" for="return${item.id}">
+                            <strong>${item.serial_number}</strong>
+                            <span class="badge bg-warning ms-2">Keluar: ${item.out_stock}</span>
+                        </label>
+                    </div>
+                </div>
+            `);
+        });
+    }).fail(function(xhr) {
+        console.error('Error loading returnable serials:', xhr);
+    });
+}
+
+// Load Available Serials (for barang keluar)
+function loadAvailableSerials() {
+    const perangkatId = $('#id_perangkat').val();
+    const kategori = $('#kategori').val();
+
+    if (!perangkatId || !kategori) return;
+
+    // GANTI INI - Gunakan route name Laravel
+    $.get('{{ route("inventory.available-serials") }}', {
+        id_perangkat: perangkatId,
+        kategori: kategori
+    }, function(response) {
+        const container = $('#availableSerialsContainer');
+        container.empty();
+
+        if (response.data.length === 0) {
+            container.html('<p class="text-muted">Tidak ada serial number yang tersedia</p>');
+            return;
+        }
+
+        response.data.forEach(item => {
+            container.append(`
+                <div class="serial-checkbox-item">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="selected_serials[]" 
+                            value="${item.id}" id="serial${item.id}">
+                        <label class="form-check-label" for="serial${item.id}">
+                            <strong>${item.serial_number}</strong>
+                            <span class="badge bg-success ms-2">Tersedia: ${item.available_stock}</span>
+                        </label>
+                    </div>
+                </div>
+            `);
+        });
+
+        // Add click handler for checkbox items
+        $('.serial-checkbox-item').on('click', function(e) {
+            if (e.target.type !== 'checkbox') {
+                const checkbox = $(this).find('input[type="checkbox"]');
+                checkbox.prop('checked', !checkbox.prop('checked'));
+            }
+            $(this).toggleClass('selected', $(this).find('input[type="checkbox"]').prop('checked'));
+        });
+    }).fail(function(xhr) {
+        console.error('Error loading available serials:', xhr);
+    });
+}
+                // Check Available Stock for non-serial items
+    function checkAvailableStock() {
+        const perangkatId = $('#id_perangkat').val();
+        const kategori = $('#kategori').val();
+
+        if (!perangkatId || !kategori) {
+            $('#availableStock').text('-');
+            return;
+        }
+
+        $('#availableStock').text('Loading...');
         
-        // Remove active class from all cards
-        $('.radio-card').removeClass('border-primary');
-        // Add active class to clicked card
-        $(this).addClass('border-primary');
+        // You can implement this endpoint in controller if needed
+        // For now, just show placeholder
+        $('#availableStock').text('Cek manual di inventory');
+    }
+
+    // Trigger reload when perangkat or kategori changes
+    $('#id_perangkat, #kategori').on('change', function() {
+        const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+        const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
+        const sumber = $('#sumber').val();
+
+        if (jenisInventori === 'keluar') {
+            if (hasSerial) {
+                loadAvailableSerials();
+            } else {
+                checkAvailableStock();
+            }
+        } else if (jenisInventori === 'masuk' && sumber === 'Customer' && hasSerial) {
+            loadReturnableSerials();
+        }
     });
 
     // Form Validation
     $('#inventoryForm').on('submit', function(e) {
         const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
-        
+        const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+
         if (!jenisInventori) {
             e.preventDefault();
-            alert('Silakan pilih jenis transaksi terlebih dahulu!');
+            alert('Silakan pilih jenis transaksi!');
             return false;
         }
 
-        if (jenisInventori === 'masuk' && !$('#sumber').val()) {
-            e.preventDefault();
-            alert('Silakan pilih sumber untuk barang masuk!');
-            $('#sumber').focus();
-            return false;
+        if (jenisInventori === 'masuk') {
+            const sumber = $('#sumber').val();
+            if (!sumber) {
+                e.preventDefault();
+                alert('Silakan pilih sumber barang masuk!');
+                return false;
+            }
+
+            if (hasSerial) {
+                if (sumber === 'Vendor') {
+                    const serials = $('input[name="serial_numbers[]"]').filter(function() {
+                        return $(this).val().trim() !== '';
+                    });
+                    if (serials.length === 0) {
+                        e.preventDefault();
+                        alert('Silakan isi minimal 1 serial number!');
+                        return false;
+                    }
+                } else if (sumber === 'Customer') {
+                    const returnSerials = $('input[name="return_serials[]"]:checked').length;
+                    const newSerials = $('input[name="serial_numbers[]"]').filter(function() {
+                        return $(this).val().trim() !== '';
+                    }).length;
+                    
+                    if (returnSerials === 0 && newSerials === 0) {
+                        e.preventDefault();
+                        alert('Silakan pilih serial return atau input serial baru!');
+                        return false;
+                    }
+                }
+            }
+        } else if (jenisInventori === 'keluar') {
+            const perihal = $('#perihal').val();
+            if (!perihal) {
+                e.preventDefault();
+                alert('Silakan pilih perihal barang keluar!');
+                return false;
+            }
+
+            if (hasSerial) {
+                const selectedSerials = $('input[name="selected_serials[]"]:checked').length;
+                if (selectedSerials === 0) {
+                    e.preventDefault();
+                    alert('Silakan pilih minimal 1 serial number!');
+                    return false;
+                }
+            }
         }
 
-        if (jenisInventori === 'keluar' && !$('#perihal').val()) {
-            e.preventDefault();
-            alert('Silakan pilih perihal untuk barang keluar!');
-            $('#perihal').focus();
-            return false;
-        }
+        return true;
     });
 });
 </script>
