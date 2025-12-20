@@ -4,165 +4,518 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - PT Transdata Inventory System</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
-    @vite(['resources/css/app.css'])
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --transdata-blue: #1e3a8a;
+            --transdata-orange: #f97316;
+            --transdata-gray: #6b7280;
+        }
+
         @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-30px, -30px) scale(1.1); }
+            0%, 100% { 
+                transform: translate(0, 0) scale(1); 
+            }
+            50% { 
+                transform: translate(-30px, -30px) scale(1.1); 
+            }
         }
+
         @keyframes slideIn {
-            from { opacity: 0; transform: translateY(-40px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
+            from { 
+                opacity: 0; 
+                transform: translateY(-40px) scale(0.95); 
+            }
+            to { 
+                opacity: 1; 
+                transform: translateY(0) scale(1); 
+            }
         }
+
         @keyframes slideInRight {
-            from { transform: translateX(400px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { 
+                transform: translateX(400px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateX(0); 
+                opacity: 1; 
+            }
         }
+
         @keyframes fadeOut {
-            to { opacity: 0; transform: translateX(400px); }
+            to { 
+                opacity: 0; 
+                transform: translateX(400px); 
+            }
         }
+
         @keyframes progress {
             from { width: 100%; }
             to { width: 0%; }
         }
+
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
-        .animate-float { animation: float 8s ease-in-out infinite; }
-        .animate-float-reverse { animation: float 10s ease-in-out infinite reverse; }
-        .animate-slide-in { animation: slideIn 0.6s ease-out; }
-        .animate-toast-in { animation: slideInRight 0.4s ease-out, fadeOut 0.4s ease-in 4.6s forwards; }
-        .animate-progress { animation: progress 5s linear forwards; }
-        .animate-spin { animation: spin 0.6s linear infinite; }
+
+        body {
+            min-height: 100vh;
+            height: 100vh;
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .bg-circle-1 {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -300px;
+            right: -200px;
+            animation: float 8s ease-in-out infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .bg-circle-2 {
+            position: fixed;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(30, 58, 138, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -250px;
+            left: -150px;
+            animation: float 10s ease-in-out infinite reverse;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .login-container {
+            position: relative;
+            z-index: 10;
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            padding: 2.25rem;
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.6s ease-out;
+        }
+
+        .logo-img {
+            max-width: 170px;
+            height: auto;
+            filter: drop-shadow(0 10px 15px rgba(0, 0, 0, 0.1));
+        }
+
+        .badge-system {
+            display: inline-block;
+            margin-top: 0.5rem;
+            padding: 0.375rem 0.875rem;
+            background: linear-gradient(to right, #1e3a8a, #2563eb);
+            color: white !important;
+            border-radius: 50px;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .title-welcome {
+            color: #1e3a8a;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            margin-top: 0.75rem;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .divider {
+            height: 1px;
+            background: linear-gradient(to right, transparent, #e2e8f0, transparent);
+            margin: 1.125rem 0;
+        }
+
+        .form-label {
+            color: #1e3a8a;
+            font-weight: 600;
+            margin-bottom: 0.375rem;
+            font-size: 12px;
+        }
+
+        .input-group-custom {
+            position: relative;
+        }
+
+        .input-group-custom .form-control {
+            padding: 0.75rem 0.875rem 0.75rem 2.625rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            font-size: 13px;
+            background-color: #f8fafc;
+            color: #0f172a;
+            transition: all 0.3s ease;
+        }
+
+        .input-group-custom .form-control::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-group-custom .form-control:focus {
+            outline: none;
+            border-color: #1e3a8a !important;
+            background-color: white;
+            box-shadow: 0 0 0 4px rgba(3, 88, 234, 0.1) !important;
+        }
+
+        .input-group-custom .input-icon {
+            position: absolute;
+            left: 0.875rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 14px;
+            z-index: 5;
+            pointer-events: none;
+            transition: color 0.3s ease;
+        }
+
+        .input-group-custom .form-control:focus ~ .input-icon {
+            color: #1e3a8a !important;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 0.75rem;
+            background: linear-gradient(to right, #1e3a8a, #2563eb)!important;
+            color: white !important;
+            border: none !important;
+            border-radius: 0.75rem;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 15px -3px rgba(6, 6, 108, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            background: linear-gradient(to right, #1e3a8a, #2563eb)!important;
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(71, 22, 249, 0.4);
+        }
+
+        .btn-login:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        /* Toast Notification Styles */
+        .toast-container-custom {
+            position: fixed;
+            top: 1.25rem;
+            right: 1.25rem;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 0.625rem;
+        }
+
+        .toast-custom {
+            min-width: 300px;
+            max-width: 400px;
+            padding: 0.875rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            animation: slideInRight 0.4s ease-out, fadeOut 0.4s ease-in 4.6s forwards;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast-custom.toast-success {
+            background: linear-gradient(to right, #16a34a, #15803d);
+            color: white;
+        }
+
+        .toast-custom.toast-error {
+            background: linear-gradient(to right, #dc2626, #b91c1c);
+            color: white;
+        }
+
+        .toast-custom.toast-warning {
+            background: linear-gradient(to right, #ca8a04, #a16207);
+            color: white;
+        }
+
+        .toast-custom.toast-info {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+        }
+
+        .toast-icon {
+            font-size: 1.25rem;
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .toast-content {
+            flex: 1;
+        }
+
+        .toast-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .toast-message {
+            font-size: 0.75rem;
+            opacity: 0.95;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            width: 1.5rem;
+            height: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.375rem;
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            flex-shrink: 0;
+        }
+
+        .toast-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .toast-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 0.75rem 0.75rem;
+            animation: progress 5s linear forwards;
+        }
+
+        @media (max-width: 576px) {
+            body {
+                padding: 1rem;
+            }
+
+            .login-container {
+                padding: 1.5rem;
+            }
+
+            .logo-img {
+                max-width: 150px;
+            }
+
+            .badge-system {
+                font-size: 9px;
+                padding: 0.25rem 0.75rem;
+            }
+
+            .title-welcome {
+                font-size: 20px;
+            }
+
+            .toast-container-custom {
+                left: 0.625rem;
+                right: 0.625rem;
+            }
+
+            .toast-custom {
+                min-width: 0;
+                width: 100%;
+            }
+        }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-600 to-orange-500 relative overflow-hidden p-5">
+<body>
     
     <!-- Animated Background Circles -->
-    <div class="absolute w-[600px] h-[600px] bg-gradient-radial from-orange-500/15 to-transparent rounded-full -top-[300px] -right-[200px] animate-float"></div>
-    <div class="absolute w-[500px] h-[500px] bg-gradient-radial from-blue-900/15 to-transparent rounded-full -bottom-[250px] -left-[150px] animate-float-reverse"></div>
+    <div class="bg-circle-1"></div>
+    <div class="bg-circle-2"></div>
 
     <!-- Toast Container -->
-    <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2.5 max-sm:left-2.5 max-sm:right-2.5"></div>
+    <div id="toastContainer" class="toast-container-custom"></div>
 
     <!-- Login Container -->
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-[450px] relative z-10 animate-slide-in p-9 max-sm:p-6">
+    <div class="login-container">
         
         <!-- Logo Section -->
         <div class="text-center mb-1">
-            <img src="{{ asset('images/transdata-logo.png') }}" alt="PT Transdata Logo" class="max-w-[170px] h-auto mx-auto drop-shadow-lg max-sm:max-w-[150px]">
-            <span class="inline-block mt-0 px-3.5 py-1.5 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-full text-[10px] font-semibold tracking-wide max-sm:text-[9px] max-sm:px-3 max-sm:py-1">
-                INVENTORY MANAGEMENT SYSTEM
-            </span>
-            <h1 class="text-blue-900 text-[22px] font-bold mb-1 mt-1.5 max-sm:text-xl">Selamat Datang</h1>
-            <p class="text-slate-500 text-xs">Silakan login untuk melanjutkan</p>
+            <img src="/images/transdata-logo.png" alt="PT Transdata Logo" class="logo-img mx-auto">
+            <div>
+                <span class="badge-system">
+                    INVENTORY MANAGEMENT SYSTEM
+                </span>
+            </div>
+            <h1 class="title-welcome">Selamat Datang</h1>
+            <p class="subtitle mb-0">Silakan login untuk melanjutkan</p>
         </div>
 
         <!-- Divider -->
-        <div class="h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent my-4.5"></div>
-
-        <!-- Hidden Messages for Toast -->
-        <div class="hidden">
-            @if (session('error'))
-                <span data-error="{{ session('error') }}"></span>
-            @endif
-            @if (session('success'))
-                <span data-success="{{ session('success') }}"></span>
-            @endif
+        <div class="divider"></div>
+        
+        <!-- Hidden Messages for Toast (Laravel Blade) -->
+        <div style="display: none;">
             @if ($errors->any())
                 @foreach ($errors->all() as $error)
                     <span data-validation-error="{{ $error }}"></span>
                 @endforeach
             @endif
-        </div>
 
-        <!-- Login Form -->
-        <form method="POST" action="{{ url('/login') }}" id="loginForm">
+            @if (session('error'))
+                <span data-error="{{ session('error') }}"></span>
+            @endif
+
+            @if (session('success'))
+                <span data-success="{{ session('success') }}"></span>
+            @endif
+        </div>
+       
+        <form method="POST" action="{{ route('login') }}" id="loginForm">
             @csrf
             
             <!-- Email Field -->
-            <div class="mb-4">
-                <label for="email" class="block text-slate-700 font-semibold mb-1.5 text-xs">Email</label>
-                <div class="relative">
+            <div class="mb-3">
+                <label for="email" class="form-label">Email</label>
+                <div class="input-group-custom">
                     <input 
                         type="email" 
                         id="email" 
                         name="email" 
-                        class="w-full py-3 px-3.5 pl-[42px] border-2 border-slate-200 rounded-xl text-[13px] transition-all bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 placeholder:text-slate-400"
-                        placeholder="nama@gmail.com"
+                        class="form-control"
+                        placeholder="nama@example.com"
                         value="{{ old('email') }}"
                         required 
                         autofocus
                     >
-                    <i class="fas fa-envelope absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm peer-focus:text-blue-600 transition-colors"></i>
+                    <i class="bi bi-envelope input-icon"></i>
                 </div>
             </div>
 
             <!-- Password Field -->
-            <div class="mb-4">
-                <label for="password" class="block text-slate-700 font-semibold mb-1.5 text-xs">Password</label>
-                <div class="relative">
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group-custom">
                     <input 
                         type="password" 
                         id="password" 
                         name="password" 
-                        class="w-full py-3 px-3.5 pl-[42px] border-2 border-slate-200 rounded-xl text-[13px] transition-all bg-slate-50 text-slate-900 focus:outline-none focus:border-blue-600 focus:bg-white focus:ring-4 focus:ring-blue-600/10 placeholder:text-slate-400"
+                        class="form-control"
                         placeholder="Masukkan password Anda"
                         required
                     >
-                    <i class="fas fa-lock absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm transition-colors"></i>
+                    <i class="bi bi-lock input-icon"></i>
                 </div>
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" id="loginBtn" class="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-lg text-sm font-semibold cursor-pointer transition-all shadow-lg shadow-blue-600/30 hover:from-blue-800 hover:to-blue-900 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-blue-600/40 active:translate-y-0 flex items-center justify-center gap-1.5 disabled:opacity-70 disabled:pointer-events-none">
-                <div class="hidden w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" id="spinner"></div>
-                <i class="fas fa-sign-in-alt" id="btnIcon"></i>
+            <button type="submit" class="btn-login" id="loginBtn">
+                <div class="spinner" id="spinner"></div>
+                <i class="bi bi-box-arrow-in-right" id="btnIcon"></i>
                 <span id="btnText">Masuk ke Sistem</span>
             </button>
         </form>
 
         <!-- Footer -->
-        <p class="text-center mt-8 pt-4 border-t border-slate-200 text-slate-400 text-[11px]">
+        <p class="footer-text mb-0">
             © 2024 PT Transdata. All rights reserved.
         </p>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Toast Notification Function
         function showToast(type, title, message) {
             const container = document.getElementById('toastContainer');
+            
             const icons = {
-                success: 'fa-check-circle',
-                error: 'fa-exclamation-circle',
-                warning: 'fa-exclamation-triangle',
-                info: 'fa-info-circle'
-            };
-            const colors = {
-                success: 'from-green-600 to-green-700',
-                error: 'from-red-600 to-red-700',
-                warning: 'from-yellow-600 to-yellow-700',
-                info: 'from-blue-600 to-blue-700'
+                success: 'bi-check-circle-fill',
+                error: 'bi-exclamation-circle-fill',
+                warning: 'bi-exclamation-triangle-fill',
+                info: 'bi-info-circle-fill'
             };
 
             const toast = document.createElement('div');
-            toast.className = `min-w-[300px] max-w-[400px] p-3.5 rounded-xl shadow-2xl flex items-start gap-3 animate-toast-in backdrop-blur-lg relative bg-gradient-to-r ${colors[type]} text-white max-sm:min-w-0 max-sm:w-full`;
+            toast.className = `toast-custom toast-${type}`;
             toast.innerHTML = `
-                <i class="fas ${icons[type]} text-xl mt-0.5 flex-shrink-0"></i>
-                <div class="flex-1">
-                    <div class="font-semibold text-sm mb-1">${title}</div>
-                    <div class="text-xs opacity-95 leading-relaxed">${message}</div>
+                <i class="bi ${icons[type]} toast-icon"></i>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
                 </div>
-                <button onclick="this.parentElement.remove()" class="w-6 h-6 flex items-center justify-center rounded-md hover:bg-white/20 transition-colors flex-shrink-0">
-                    <i class="fas fa-times text-lg"></i>
+                <button class="toast-close" onclick="this.parentElement.remove()">
+                    <i class="bi bi-x-lg"></i>
                 </button>
-                <div class="absolute bottom-0 left-0 h-1 bg-white/30 rounded-b-xl animate-progress"></div>
+                <div class="toast-progress"></div>
             `;
             
             container.appendChild(toast);
-            setTimeout(() => toast.remove(), 5000);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.remove();
+                }
+            }, 5000);
         }
 
         // Form Submission Handler
@@ -193,22 +546,31 @@
                 return;
             }
 
-            // Show loading
+            // Show loading - form akan submit secara normal
             loginBtn.disabled = true;
-            spinner.classList.remove('hidden');
-            btnIcon.classList.add('hidden');
+            spinner.style.display = 'block';
+            btnIcon.style.display = 'none';
             btnText.textContent = 'Memproses...';
             showToast('info', 'Memproses...', 'Mohon tunggu, sedang memverifikasi login Anda.');
+            
+            // Form akan submit otomatis ke Laravel
         });
 
-        // Show Server Messages on Load
+        // Show Server Messages on Page Load (for Laravel)
         window.addEventListener('DOMContentLoaded', function() {
+            // Success messages
             const successEl = document.querySelector('[data-success]');
-            if (successEl) showToast('success', 'Berhasil!', successEl.dataset.success);
+            if (successEl) {
+                showToast('success', 'Berhasil!', successEl.dataset.success);
+            }
 
+            // Error messages
             const errorEl = document.querySelector('[data-error]');
-            if (errorEl) showToast('error', 'Login Gagal!', errorEl.dataset.error);
+            if (errorEl) {
+                showToast('error', 'Login Gagal!', errorEl.dataset.error);
+            }
 
+            // Validation errors
             document.querySelectorAll('[data-validation-error]').forEach(el => {
                 showToast('error', 'Validasi Error', el.dataset.validationError);
             });
@@ -218,10 +580,14 @@
         window.addEventListener('pageshow', function(event) {
             if (event.persisted) {
                 const loginBtn = document.getElementById('loginBtn');
+                const spinner = document.getElementById('spinner');
+                const btnIcon = document.getElementById('btnIcon');
+                const btnText = document.getElementById('btnText');
+                
                 loginBtn.disabled = false;
-                document.getElementById('spinner').classList.add('hidden');
-                document.getElementById('btnIcon').classList.remove('hidden');
-                document.getElementById('btnText').textContent = 'Masuk ke Sistem';
+                spinner.style.display = 'none';
+                btnIcon.style.display = 'block';
+                btnText.textContent = 'Masuk ke Sistem';
             }
         });
     </script>

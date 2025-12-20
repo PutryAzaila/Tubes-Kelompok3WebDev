@@ -1,99 +1,82 @@
+{{-- resources/views/layouts/dashboard.blade.php --}}
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard') - PT Transdata</title>
-    <link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
-    @vite(['resources/css/app.css'])
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Dashboard') - PT Transdata Inventory System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
     <style>
-        .menu-text-hidden {
-            opacity: 0;
-            width: 0;
-            overflow: hidden;
-            transition: opacity 0.2s ease;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .menu-text-visible {
-            opacity: 1;
-            width: auto;
-            transition: opacity 0.3s ease 0.1s;
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+        }
+
+        /* Main Content Wrapper */
+        .content-wrapper {
+            padding: 1.5rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @media (min-width: 992px) {
+            .content-wrapper {
+                margin-left: 260px;
+                padding-top: 90px; /* 70px navbar + 20px spacing */
+            }
+            
+            body.sidebar-collapsed .content-wrapper {
+                margin-left: 80px;
+            }
+        }
+
+        @media (max-width: 991px) {
+            .content-wrapper {
+                margin-left: 0;
+                padding-top: 80px; /* 60px navbar + 20px spacing */
+            }
+        }
+
+        @media (max-width: 575px) {
+            .content-wrapper {
+                padding: 1rem;
+                padding-top: 75px;
+            }
         }
     </style>
+
     @stack('styles')
 </head>
-<body class="bg-gray-50">
-    
+<body>
+
+    <!-- Include Sidebar -->
     @include('components.sidebar')
     
-    <main id="mainContent" class="ml-64 min-h-screen transition-[margin] duration-300 ease-in-out">
-        
-        @include('components.navbar')
-        
-        <div class="p-8">
-            @yield('content')
-        </div>
+    <!-- Include Navbar -->
+    @include('components.navbar')
+    
+    <!-- Main Content -->
+    <main class="content-wrapper">
+        @yield('content')
     </main>
 
-    <script>
-        const sidebar = document.getElementById('sidebar');
-        const mainContent = document.getElementById('mainContent');
-        const toggleBtn = document.getElementById('toggleBtn');
-        const menuTexts = document.querySelectorAll('.menu-text-visible');
-        const logoText = document.getElementById('logoText');
-        const navLabel = document.getElementById('navLabel');
-        const appsLabel = document.getElementById('appsLabel');
-        
-        let isCollapsed = false;
-
-        toggleBtn.addEventListener('click', () => {
-            isCollapsed = !isCollapsed;
-            
-            if (isCollapsed) {
-                sidebar.classList.remove('w-64');
-                sidebar.classList.add('w-20');
-                mainContent.classList.remove('ml-64');
-                mainContent.classList.add('ml-20');
-                
-                menuTexts.forEach(text => {
-                    text.classList.remove('menu-text-visible');
-                    text.classList.add('menu-text-hidden');
-                });
-                logoText.classList.add('menu-text-hidden');
-                navLabel.style.display = 'none';
-                appsLabel.style.display = 'none';
-                
-                toggleBtn.querySelector('i').classList.remove('fa-bars');
-                toggleBtn.querySelector('i').classList.add('fa-angles-right');
-            } else {
-                sidebar.classList.remove('w-20');
-                sidebar.classList.add('w-64');
-                mainContent.classList.remove('ml-20');
-                mainContent.classList.add('ml-64');
-                
-                setTimeout(() => {
-                    menuTexts.forEach(text => {
-                        text.classList.remove('menu-text-hidden');
-                        text.classList.add('menu-text-visible');
-                    });
-                    logoText.classList.remove('menu-text-hidden');
-                    navLabel.style.display = 'block';
-                    appsLabel.style.display = 'block';
-                }, 150);
-                
-                toggleBtn.querySelector('i').classList.remove('fa-angles-right');
-                toggleBtn.querySelector('i').classList.add('fa-bars');
-            }
-        });
-
-        // Logout confirmation
-        document.getElementById('logoutForm')?.addEventListener('submit', function(e) {
-            if (!confirm('Apakah Anda yakin ingin logout?')) {
-                e.preventDefault();
-            }
-        });
-    </script>
-
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     @stack('scripts')
 </body>
 </html>
