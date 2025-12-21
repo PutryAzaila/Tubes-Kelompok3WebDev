@@ -29,111 +29,145 @@ class WebInventoryController extends Controller
         return view('inventory.create', compact('perangkats'));
     }
 
-    public function store(Request $request)
-    {
-        Log::info('=== INVENTORY STORE START ===');
-        Log::info('Request Data:', $request->all());
+    // Replace the store() method in WebInventoryController.php
 
-        // Validasi dinamis berdasarkan kondisi
-        $rules = [
-            'tanggal' => 'required|date',
-            'id_perangkat' => 'required|exists:perangkats,id',
-            'jenis_inventori' => 'required|in:masuk,keluar',
-            'kategori' => 'required|string|in:Non-Listrik,Listrik',
-            'has_serial' => 'required|in:0,1',
-            'catatan' => 'nullable|string',
-        ];
+public function store(Request $request)
+{
+    Log::info('=== INVENTORY STORE START ===');
+    Log::info('Request Data:', $request->all());
 
-        // Tambah rules sesuai jenis
-        if ($request->jenis_inventori === 'masuk') {
-            $rules['sumber'] = 'required|string|in:Customer,Vendor';
-            
-            // PENTING: Jika tidak ada serial, stok HARUS ADA
-            if ($request->has_serial == '0') {
-                $rules['stok'] = 'required|integer|min:1';
-                Log::info('Validation: Stok is REQUIRED (no serial)');
-            }
-        } else {
-            $rules['perihal'] = 'required|string|in:Pemeliharaan,Penjualan,Instalasi';
-            $rules['alamat'] = 'nullable|string';
-            
-            // PENTING: Jika tidak ada serial, stok HARUS ADA
-            if ($request->has_serial == '0') {
-                $rules['stok'] = 'required|integer|min:1';
-                Log::info('Validation: Stok is REQUIRED (no serial)');
-            }
+    // Validasi dinamis berdasarkan kondisi
+    $rules = [
+        'tanggal' => 'required|date',
+        'id_perangkat' => 'required|exists:perangkats,id',
+        'jenis_inventori' => 'required|in:masuk,keluar',
+        'kategori' => 'required|string|in:Non-Listrik,Listrik',
+        'has_serial' => 'required|in:0,1',
+        'catatan' => 'nullable|string',
+    ];
+
+    // Tambah rules sesuai jenis
+    if ($request->jenis_inventori === 'masuk') {
+        $rules['sumber'] = 'required|string|in:Customer,Vendor';
+        
+        // PENTING: Jika tidak ada serial, stok HARUS ADA
+        if ($request->has_serial == '0') {
+            $rules['stok'] = 'required|integer|min:1';
+            Log::info('Validation: Stok is REQUIRED (no serial)');
         }
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) {
-            Log::error('Validation Failed:', $validator->errors()->toArray());
-            return redirect()->back()
-                ->withErrors($validator)
-                ->withInput();
-        }
-
-        Log::info('Validation Passed');
-
-        try {
-            DB::beginTransaction();
-            Log::info('Transaction Started');
-
-            if ($request->jenis_inventori === 'masuk') {
-                Log::info('Processing Barang Masuk...');
-                $this->handleBarangMasuk($request);
-            } else {
-                Log::info('Processing Barang Keluar...');
-                $this->handleBarangKeluar($request);
-            }
-
-            DB::commit();
-            Log::info('Transaction Committed Successfully');
-            Log::info('=== INVENTORY STORE SUCCESS ===');
-            
-            // Determine success message based on type
-            $jenisText = $request->jenis_inventori === 'masuk' ? 'masuk' : 'keluar';
-            $itemCount = 1; // default
-
-            if ($request->has_serial == '0') {
-                $itemCount = intval($request->stok);
-            } else {
-                if ($request->jenis_inventori === 'masuk') {
-                    if ($request->sumber === 'Vendor') {
-                        $itemCount = count(array_filter($request->serial_numbers ?? [], function($s) {
-                            return !empty(trim($s));
-                        }));
-                    } else {
-                        $returnCount = count($request->return_serials ?? []);
-                        $newCount = count(array_filter($request->serial_numbers ?? [], function($s) {
-                            return !empty(trim($s));
-                        }));
-                        $itemCount = $returnCount + $newCount;
-                    }
-                } else {
-                    $itemCount = count($request->selected_serials ?? []);
-                }
-            }
-
-            $perangkat = Perangkat::find($request->id_perangkat);
-            $perangkatName = $perangkat ? $perangkat->nama_perangkat : 'barang';
-
-            return redirect()->route('dashboard')
-                ->with('success', "✅ Berhasil! {$itemCount} unit {$perangkatName} telah ditambahkan sebagai barang {$jenisText}.");
-                
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('=== INVENTORY STORE ERROR ===');
-            Log::error('Error Message: ' . $e->getMessage());
-            Log::error('Error File: ' . $e->getFile() . ':' . $e->getLine());
-            Log::error('Stack Trace: ' . $e->getTraceAsString());
-            
-            return redirect()->back()
-                ->with('error', '❌ Gagal menyimpan data: ' . $e->getMessage())
-                ->withInput();
+    } else {
+        $rules['perihal'] = 'required|string|in:Pemeliharaan,Penjualan,Instalasi';
+        $rules['alamat'] = 'nullable|string';
+        
+        // PENTING: Jika tidak ada serial, stok HARUS ADA
+        if ($request->has_serial == '0') {
+            $rules['stok'] = 'required|integer|min:1';
+            Log::info('Validation: Stok is REQUIRED (no serial)');
         }
     }
 
+    $validator = Validator::make($request->all(), $rules);
+
+    if ($validator->fails()) {
+        Log::error('Validation Failed:', $validator->errors()->toArray());
+        
+        // Return JSON for AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        return redirect()->back()
+            ->withErrors($validator)
+            ->withInput();
+    }
+
+    Log::info('Validation Passed');
+
+    try {
+        DB::beginTransaction();
+        Log::info('Transaction Started');
+
+        if ($request->jenis_inventori === 'masuk') {
+            Log::info('Processing Barang Masuk...');
+            $this->handleBarangMasuk($request);
+        } else {
+            Log::info('Processing Barang Keluar...');
+            $this->handleBarangKeluar($request);
+        }
+
+        DB::commit();
+        Log::info('Transaction Committed Successfully');
+        Log::info('=== INVENTORY STORE SUCCESS ===');
+        
+        // Determine success message based on type
+        $jenisText = $request->jenis_inventori === 'masuk' ? 'masuk' : 'keluar';
+        $itemCount = 1; 
+        
+        if ($request->has_serial == '0') {
+            $itemCount = intval($request->stok);
+        } else {
+            if ($request->jenis_inventori === 'masuk') {
+                if ($request->sumber === 'Vendor') {
+                    $itemCount = count(array_filter($request->serial_numbers ?? [], function($s) {
+                        return !empty(trim($s));
+                    }));
+                } else {
+                    $returnCount = count($request->return_serials ?? []);
+                    $newCount = count(array_filter($request->serial_numbers ?? [], function($s) {
+                        return !empty(trim($s));
+                    }));
+                    $itemCount = $returnCount + $newCount;
+                }
+            } else {
+                $itemCount = count($request->selected_serials ?? []);
+            }
+        }
+
+        $perangkat = Perangkat::find($request->id_perangkat);
+        $perangkatName = $perangkat ? $perangkat->nama_perangkat : 'barang';
+        
+        $successMessage = "Berhasil! {$itemCount} unit {$perangkatName} telah ditambahkan sebagai barang {$jenisText}.";
+
+        // Return JSON for AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => $successMessage,
+                'data' => [
+                    'item_count' => $itemCount,
+                    'perangkat_name' => $perangkatName,
+                    'jenis' => $jenisText
+                ]
+            ]);
+        }
+        
+        return redirect()->route('inventory.index')
+            ->with('success', $successMessage);
+            
+    } catch (\Exception $e) {
+        DB::rollBack();
+        Log::error('=== INVENTORY STORE ERROR ===');
+        Log::error('Error Message: ' . $e->getMessage());
+        Log::error('Error File: ' . $e->getFile() . ':' . $e->getLine());
+        Log::error('Stack Trace: ' . $e->getTraceAsString());
+        
+        // Return JSON for AJAX
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Gagal menyimpan data: ' . $e->getMessage()
+            ], 500);
+        }
+        
+        return redirect()->back()
+            ->with('error', '❌ Gagal menyimpan data: ' . $e->getMessage())
+            ->withInput();
+    }
+}
     private function handleBarangMasuk($request)
     {
         Log::info('handleBarangMasuk - START');
@@ -533,7 +567,7 @@ class WebInventoryController extends Controller
             $jenisText = $type === 'masuk' ? 'masuk' : 'keluar';
             $perangkatName = $inventory->detailBarang->perangkat->nama_perangkat ?? 'barang';
 
-            return redirect()->route('dashboard')
+            return redirect()->route('inventory.index')
                 ->with('success', "Berhasil! Data {$perangkatName} ({$jenisText}) telah diperbarui.");
                 
         } catch (\Exception $e) {

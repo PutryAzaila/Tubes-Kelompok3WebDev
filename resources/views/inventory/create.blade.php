@@ -523,7 +523,6 @@ $(document).ready(function() {
             $('#perihal').prop('required', false);
             $('#alamat').prop('required', false);
             
-            // Disable fields barang keluar
             $('#stokKeluar').prop('disabled', true);
             $('#perihal').prop('disabled', true);
             $('#alamat').prop('disabled', true);
@@ -533,7 +532,6 @@ $(document).ready(function() {
             $('#perihal').prop('required', true);
             $('#sumber').prop('required', false);
             
-            // Disable fields barang masuk
             $('#stokMasuk').prop('disabled', true);
             $('#sumber').prop('disabled', true);
         }
@@ -631,7 +629,7 @@ $(document).ready(function() {
 
     // Remove Customer Serial
     window.removeCustomerSerial = function(id) {
-        $(`#customerSerial${id}`).remove();
+        $('#customerSerial' + id).remove();
     };
 
     // Load Returnable Serials
@@ -641,7 +639,7 @@ $(document).ready(function() {
 
         if (!perangkatId || !kategori) return;
 
-        $.get('{{ route("inventory.returnable-serials") }}', {
+        $.get('/inventory/returnable-serials', {
             id_perangkat: perangkatId,
             kategori: kategori
         }, function(response) {
@@ -679,7 +677,7 @@ $(document).ready(function() {
 
         if (!perangkatId || !kategori) return;
 
-        $.get('{{ route("inventory.available-serials") }}', {
+        $.get('/inventory/available-serials', {
             id_perangkat: perangkatId,
             kategori: kategori
         }, function(response) {
@@ -718,7 +716,6 @@ $(document).ready(function() {
         });
     }
 
-    // Check Available Stock
     function checkAvailableStock() {
         const perangkatId = $('#id_perangkat').val();
         const kategori = $('#kategori').val();
@@ -732,7 +729,6 @@ $(document).ready(function() {
         $('#availableStock').text('Cek manual di inventory');
     }
 
-    // Trigger reload when perangkat or kategori changes
     $('#id_perangkat, #kategori').on('change', function() {
         const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
         const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
@@ -749,197 +745,258 @@ $(document).ready(function() {
         }
     });
 
-    $('#inventoryForm').on('submit', function(e) {
-    e.preventDefault(); // Prevent default submit
-    
-    console.log('=== FORM VALIDATION START ===');
-    
-    const form = $(this);
-    const submitBtn = $('#btnSubmit');
-    const originalBtnText = submitBtn.html();
-    
-    // Basic validation
-    const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
-    const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
-    const tanggal = $('#tanggal').val();
-    const perangkat = $('#id_perangkat').val();
-    const kategori = $('#kategori').val();
-
-    console.log('Validating:', { jenisInventori, hasSerial, tanggal, perangkat, kategori });
-
-    // Validation: Jenis Transaksi
-    if (!jenisInventori) {
-        showError('Silakan pilih jenis transaksi (Barang Masuk atau Barang Keluar)!');
-        return false;
-    }
-
-    // Validation: Tanggal
-    if (!tanggal) {
-        showError('Tanggal harus diisi!');
-        $('#tanggal').focus();
-        return false;
-    }
-
-    // Validation: Perangkat
-    if (!perangkat) {
-        showError('Silakan pilih perangkat!');
-        $('#id_perangkat').focus();
-        return false;
-    }
-
-    // Validation: Kategori
-    if (!kategori) {
-        showError('Silakan pilih kategori (Listrik/Non-Listrik)!');
-        $('#kategori').focus();
-        return false;
-    }
-
-    // Validation: Has Serial
-    if ($('input[name="has_serial"]:checked').length === 0) {
-        showError('Silakan pilih apakah barang memiliki serial number atau tidak!');
-        return false;
-    }
-
-    // Validation berdasarkan Jenis Inventori
-    if (jenisInventori === 'masuk') {
-        const sumber = $('#sumber').val();
-        console.log('Validating Barang Masuk - Sumber:', sumber);
+    function showError(message) {
+        $('.alert-validation-error').remove();
         
-        if (!sumber) {
-            showError('Silakan pilih sumber barang masuk (Vendor/Customer)!');
-            $('#sumber').focus();
+        const alertHtml = `
+            <div class="alert alert-danger alert-dismissible fade show alert-validation-error" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Validasi Gagal!</strong><br>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `;
+        
+        $('#inventoryForm').prepend(alertHtml);
+        
+        $('html, body').animate({
+            scrollTop: $('#inventoryForm').offset().top - 100
+        }, 500);
+        
+        setTimeout(function() {
+            $('.alert-validation-error').fadeOut('slow', function() {
+                $(this).remove();
+            });
+        }, 5000);
+        
+        console.error('Validation Error:', message);
+    }
+
+    // Helper function untuk menampilkan success modal
+    function showSuccessModal(message) {
+        $('#successModal').remove();
+        
+        const modalHtml = `
+            <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg">
+                        <div class="modal-body text-center p-5">
+                            <div class="mb-4">
+                                <div class="success-checkmark mx-auto">
+                                    <div class="check-icon">
+                                        <span class="icon-line line-tip"></span>
+                                        <span class="icon-line line-long"></span>
+                                        <div class="icon-circle"></div>
+                                        <div class="icon-fix"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h3 class="text-success mb-3">Berhasil!</h3>
+                            <p class="text-muted mb-4">${message}</p>
+                            <div class="d-flex gap-3 justify-content-center">
+                                <button type="button" class="btn btn-secondary px-4" id="btnAddMore">
+                                    <i class="fas fa-plus me-2"></i>Tambah Lagi
+                                </button>
+                                <a href="/inventory" class="btn btn-primary px-4">
+                                    <i class="fas fa-list me-2"></i>Lihat Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(modalHtml);
+        
+        if (!$('#successModalStyles').length) {
+            const styles = `
+                <style id="successModalStyles">
+                    .success-checkmark { width: 80px; height: 80px; margin: 0 auto; }
+                    .success-checkmark .check-icon { width: 80px; height: 80px; position: relative; border-radius: 50%; box-sizing: content-box; border: 4px solid #10b981; }
+                    .success-checkmark .check-icon::before { top: 3px; left: -2px; width: 30px; transform-origin: 100% 50%; border-radius: 100px 0 0 100px; }
+                    .success-checkmark .check-icon::after { top: 0; left: 30px; width: 60px; transform-origin: 0 50%; border-radius: 0 100px 100px 0; animation: rotate-circle 4.25s ease-in; }
+                    .success-checkmark .check-icon::before, .success-checkmark .check-icon::after { content: ''; height: 100px; position: absolute; background: #fff; transform: rotate(-45deg); }
+                    .success-checkmark .icon-line { height: 5px; background-color: #10b981; display: block; border-radius: 2px; position: absolute; z-index: 10; }
+                    .success-checkmark .icon-line.line-tip { top: 46px; left: 14px; width: 25px; transform: rotate(45deg); animation: icon-line-tip 0.75s; }
+                    .success-checkmark .icon-line.line-long { top: 38px; right: 8px; width: 47px; transform: rotate(-45deg); animation: icon-line-long 0.75s; }
+                    .success-checkmark .icon-circle { top: -4px; left: -4px; z-index: 10; width: 80px; height: 80px; border-radius: 50%; position: absolute; box-sizing: content-box; border: 4px solid rgba(16, 185, 129, .5); }
+                    .success-checkmark .icon-fix { top: 8px; width: 5px; left: 26px; z-index: 1; height: 85px; position: absolute; transform: rotate(-45deg); background-color: #fff; }
+                    @keyframes rotate-circle { 0% { transform: rotate(-45deg); } 5% { transform: rotate(-45deg); } 12% { transform: rotate(-405deg); } 100% { transform: rotate(-405deg); } }
+                    @keyframes icon-line-tip { 0% { width: 0; left: 1px; top: 19px; } 54% { width: 0; left: 1px; top: 19px; } 70% { width: 50px; left: -8px; top: 37px; } 84% { width: 17px; left: 21px; top: 48px; } 100% { width: 25px; left: 14px; top: 45px; } }
+                    @keyframes icon-line-long { 0% { width: 0; right: 46px; top: 54px; } 65% { width: 0; right: 46px; top: 54px; } 84% { width: 55px; right: 0px; top: 35px; } 100% { width: 47px; right: 8px; top: 38px; } }
+                </style>
+            `;
+            $('head').append(styles);
+        }
+        
+        const modal = new bootstrap.Modal(document.getElementById('successModal'));
+        modal.show();
+        
+        $('#btnAddMore').on('click', function() {
+            modal.hide();
+            $('#inventoryForm')[0].reset();
+            $('.select2').val('').trigger('change');
+            $('.radio-card').removeClass('active');
+            $('.conditional-section').removeClass('show');
+            $('html, body').animate({ scrollTop: 0 }, 500);
+        });
+    }
+
+    // Form Submit Handler
+    $('#inventoryForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        console.log('=== FORM VALIDATION START ===');
+        
+        const form = $(this);
+        const submitBtn = form.find('button[type="submit"]');
+        const originalBtnText = submitBtn.html();
+        
+        const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
+        const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+        const tanggal = $('#tanggal').val();
+        const perangkat = $('#id_perangkat').val();
+        const kategori = $('#kategori').val();
+
+        console.log('Validating:', { jenisInventori, hasSerial, tanggal, perangkat, kategori });
+
+        if (!jenisInventori) {
+            showError('Silakan pilih jenis transaksi (Barang Masuk atau Barang Keluar)!');
             return false;
         }
 
-        if (!hasSerial) {
-            // Validasi stok untuk barang tanpa serial
-            const stokValue = $('#stokMasuk').val();
-            console.log('Stok Masuk Value:', stokValue);
+        if (!tanggal) {
+            showError('Tanggal harus diisi!');
+            $('#tanggal').focus();
+            return false;
+        }
+
+        if (!perangkat) {
+            showError('Silakan pilih perangkat!');
+            $('#id_perangkat').focus();
+            return false;
+        }
+
+        if (!kategori) {
+            showError('Silakan pilih kategori (Listrik/Non-Listrik)!');
+            $('#kategori').focus();
+            return false;
+        }
+
+        if ($('input[name="has_serial"]:checked').length === 0) {
+            showError('Silakan pilih apakah barang memiliki serial number atau tidak!');
+            return false;
+        }
+
+        if (jenisInventori === 'masuk') {
+            const sumber = $('#sumber').val();
+            console.log('Validating Barang Masuk - Sumber:', sumber);
             
-            if (!stokValue || parseInt(stokValue) < 1) {
-                showError('Silakan isi jumlah stok minimal 1!');
-                $('#stokMasuk').focus();
+            if (!sumber) {
+                showError('Silakan pilih sumber barang masuk (Vendor/Customer)!');
+                $('#sumber').focus();
                 return false;
             }
-        } else {
-            // Validasi serial number
-            if (sumber === 'Vendor') {
-                const serials = $('input[name="serial_numbers[]"]').filter(function() {
-                    return $(this).val().trim() !== '';
-                });
+
+            if (!hasSerial) {
+                const stokValue = $('#stokMasuk').val();
+                console.log('Stok Masuk Value:', stokValue);
                 
-                console.log('Vendor Serials Count:', serials.length);
-                
-                if (serials.length === 0) {
-                    showError('Silakan isi minimal 1 serial number untuk barang dari Vendor!');
+                if (!stokValue || parseInt(stokValue) < 1) {
+                    showError('Silakan isi jumlah stok minimal 1!');
+                    $('#stokMasuk').focus();
                     return false;
                 }
-                
-                // Validasi tidak ada serial yang kosong
-                let hasEmptySerial = false;
-                serials.each(function() {
-                    if (!$(this).val().trim()) {
-                        hasEmptySerial = true;
+            } else {
+                if (sumber === 'Vendor') {
+                    const serials = $('input[name="serial_numbers[]"]').filter(function() {
+                        return $(this).val().trim() !== '';
+                    });
+                    
+                    console.log('Vendor Serials Count:', serials.length);
+                    
+                    if (serials.length === 0) {
+                        showError('Silakan isi minimal 1 serial number untuk barang dari Vendor!');
                         return false;
                     }
-                });
+                } else if (sumber === 'Customer') {
+                    const returnSerials = $('input[name="return_serials[]"]:checked').length;
+                    const newSerials = $('input[name="serial_numbers[]"]').filter(function() {
+                        return $(this).val().trim() !== '';
+                    }).length;
+                    
+                    console.log('Customer - Return:', returnSerials, 'New:', newSerials);
+                    
+                    if (returnSerials === 0 && newSerials === 0) {
+                        showError('Silakan pilih minimal 1 serial return ATAU input minimal 1 serial baru dari customer!');
+                        return false;
+                    }
+                }
+            }
+            
+        } else if (jenisInventori === 'keluar') {
+            const perihal = $('#perihal').val();
+            console.log('Validating Barang Keluar - Perihal:', perihal);
+            
+            if (!perihal) {
+                showError('Silakan pilih perihal barang keluar (Pemeliharaan/Penjualan/Instalasi)!');
+                $('#perihal').focus();
+                return false;
+            }
+
+            if (!hasSerial) {
+                const stokValue = $('#stokKeluar').val();
+                console.log('Stok Keluar Value:', stokValue);
                 
-                if (hasEmptySerial) {
-                    showError('Semua serial number harus diisi, tidak boleh ada yang kosong!');
+                if (!stokValue || parseInt(stokValue) < 1) {
+                    showError('Silakan isi jumlah stok minimal 1!');
+                    $('#stokKeluar').focus();
                     return false;
                 }
+            } else {
+                const selectedSerials = $('input[name="selected_serials[]"]:checked').length;
+                console.log('Selected Serials Count:', selectedSerials);
                 
-            } else if (sumber === 'Customer') {
-                const returnSerials = $('input[name="return_serials[]"]:checked').length;
-                const newSerials = $('input[name="serial_numbers[]"]').filter(function() {
-                    return $(this).val().trim() !== '';
-                }).length;
-                
-                console.log('Customer - Return:', returnSerials, 'New:', newSerials);
-                
-                if (returnSerials === 0 && newSerials === 0) {
-                    showError('Silakan pilih minimal 1 serial return ATAU input minimal 1 serial baru dari customer!');
+                if (selectedSerials === 0) {
+                    showError('Silakan pilih minimal 1 serial number yang akan keluar!');
                     return false;
                 }
             }
         }
         
-    } else if (jenisInventori === 'keluar') {
-        const perihal = $('#perihal').val();
-        console.log('Validating Barang Keluar - Perihal:', perihal);
+        submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...');
         
-        if (!perihal) {
-            showError('Silakan pilih perihal barang keluar (Pemeliharaan/Penjualan/Instalasi)!');
-            $('#perihal').focus();
-            return false;
-        }
-
-        if (!hasSerial) {
-            // Validasi stok untuk barang tanpa serial
-            const stokValue = $('#stokKeluar').val();
-            console.log('Stok Keluar Value:', stokValue);
-            
-            if (!stokValue || parseInt(stokValue) < 1) {
-                showError('Silakan isi jumlah stok minimal 1!');
-                $('#stokKeluar').focus();
-                return false;
+        const formData = new FormData(form[0]);
+        
+        $.ajax({
+            url: form.attr('action'),
+            method: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('=== SUBMIT SUCCESS ===', response);
+                submitBtn.prop('disabled', false).html(originalBtnText);
+                showSuccessModal(response.message || 'Data berhasil disimpan!');
+            },
+            error: function(xhr) {
+                submitBtn.prop('disabled', false).html(originalBtnText);
+                
+                let errorMessage = 'Terjadi kesalahan saat menyimpan data!';
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    const errors = Object.values(xhr.responseJSON.errors).flat();
+                    errorMessage = errors.join('<br>');
+                }
+                
+                showError(errorMessage);
             }
-        } else {
-            // Validasi serial number selection
-            const selectedSerials = $('input[name="selected_serials[]"]:checked').length;
-            console.log('Selected Serials Count:', selectedSerials);
-            
-            if (selectedSerials === 0) {
-                showError('Silakan pilih minimal 1 serial number yang akan keluar!');
-                return false;
-            }
-        }
-    }
-
-    console.log('=== VALIDATION PASSED ===');
-    
-    // Show loading state
-    submitBtn.prop('disabled', true).html(
-        '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...'
-    );
-    
-    // Submit form
-    form.off('submit').submit();
-    
-    return true;
-});
-
-// Helper function untuk menampilkan error
-function showError(message) {
-    // Hapus alert lama jika ada
-    $('.alert-validation-error').remove();
-    
-    // Buat alert baru
-    const alertHtml = `
-        <div class="alert alert-danger alert-dismissible fade show alert-validation-error" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i>
-            <strong>Validasi Gagal!</strong> ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    // Insert alert di atas form
-    $('#inventoryForm').prepend(alertHtml);
-    
-    // Scroll ke atas untuk lihat alert
-    $('html, body').animate({
-        scrollTop: $('#inventoryForm').offset().top - 100
-    }, 500);
-    
-    // Auto hide setelah 5 detik
-    setTimeout(function() {
-        $('.alert-validation-error').fadeOut('slow', function() {
-            $(this).remove();
         });
-    }, 5000);
-    
-    console.error('Validation Error:', message);
-    }
+        
+        return false;
+    });
 });
 </script>
 @endpush
