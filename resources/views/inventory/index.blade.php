@@ -187,11 +187,6 @@
         color: white;
     }
 
-    .btn-delete {
-        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        color: white;
-    }
-
     .dtsp-searchPane {
         border-radius: 0.75rem !important;
         border: 1px solid #e0e0e0 !important;
@@ -243,7 +238,28 @@
         </div>
     </div>
 
+    <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    @endif
+
     <!-- Statistics Cards -->
+    @php
+        $totalMasuk = $data->whereInstanceOf(App\Models\BarangMasuk::class)->sum('jumlah');
+        $totalKeluar = $data->whereInstanceOf(App\Models\BarangKeluar::class)->sum('jumlah');
+        $totalStok = $totalMasuk - $totalKeluar;
+    @endphp
+
     <div class="row g-4 mb-4">
         <div class="col-md-4">
             <div class="card stats-card card-gradient-blue">
@@ -251,8 +267,8 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="mb-2 opacity-75 fw-semibold">Total Barang Masuk</p>
-                            <h2 class="mb-0 fw-bold">{{ $data->whereInstanceOf(App\Models\BarangMasuk::class)->count() }}</h2>
-                            <small class="opacity-75"><i class="fas fa-arrow-up me-1"></i>Inventory masuk</small>
+                            <h2 class="mb-0 fw-bold">{{ number_format($totalMasuk) }}</h2>
+                            <small class="opacity-75"><i class="fas fa-arrow-up me-1"></i>Unit masuk</small>
                         </div>
                         <div class="stats-icon">
                             <i class="fas fa-arrow-down"></i>
@@ -268,8 +284,8 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="mb-2 opacity-75 fw-semibold">Total Barang Keluar</p>
-                            <h2 class="mb-0 fw-bold">{{ $data->whereInstanceOf(App\Models\BarangKeluar::class)->count() }}</h2>
-                            <small class="opacity-75"><i class="fas fa-arrow-down me-1"></i>Inventory keluar</small>
+                            <h2 class="mb-0 fw-bold">{{ number_format($totalKeluar) }}</h2>
+                            <small class="opacity-75"><i class="fas fa-arrow-down me-1"></i>Unit keluar</small>
                         </div>
                         <div class="stats-icon">
                             <i class="fas fa-arrow-up"></i>
@@ -285,8 +301,8 @@
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <p class="mb-2 opacity-75 fw-semibold">Total Stok</p>
-                            <h2 class="mb-0 fw-bold">{{ $data->count() }}</h2>
-                            <small class="opacity-75"><i class="fas fa-sync-alt me-1"></i>Semua stok</small>
+                            <h2 class="mb-0 fw-bold">{{ number_format($totalStok) }}</h2>
+                            <small class="opacity-75"><i class="fas fa-sync-alt me-1"></i>Masuk - Keluar</small>
                         </div>
                         <div class="stats-icon">
                             <i class="fas fa-box"></i>
@@ -356,21 +372,11 @@
                                     {{ $isMasuk ? ($item->catatan_barang_masuk ?? '-') : ($item->catatan_barang_keluar ?? '-') }}
                                 </td>
                                 <td class="text-center">
-                                    <div class="d-inline-flex">
-                                        <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
-                                            class="action-btn btn-edit" title="Edit">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('inventory.destroy', [$item->id, $type]) }}" 
-                                            method="POST" class="d-inline" 
-                                            onsubmit="return confirm('Yakin ingin menghapus data ini?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="action-btn btn-delete" title="Hapus">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
-                                    </div>
+                                    <!-- REMOVED: Delete button, only Edit -->
+                                    <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
+                                        class="action-btn btn-edit" title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
                                 </td>
                             </tr>
                         @endforeach

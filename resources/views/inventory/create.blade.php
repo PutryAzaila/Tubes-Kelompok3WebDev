@@ -521,11 +521,21 @@ $(document).ready(function() {
             $('#barangKeluarSection').removeClass('show').addClass('conditional-section');
             $('#sumber').prop('required', true);
             $('#perihal').prop('required', false);
+            $('#alamat').prop('required', false);
+            
+            // Disable fields barang keluar
+            $('#stokKeluar').prop('disabled', true);
+            $('#perihal').prop('disabled', true);
+            $('#alamat').prop('disabled', true);
         } else {
             $('#barangKeluarSection').removeClass('conditional-section').addClass('show');
             $('#barangMasukSection').removeClass('show').addClass('conditional-section');
             $('#perihal').prop('required', true);
             $('#sumber').prop('required', false);
+            
+            // Disable fields barang masuk
+            $('#stokMasuk').prop('disabled', true);
+            $('#sumber').prop('disabled', true);
         }
     });
 
@@ -540,26 +550,28 @@ $(document).ready(function() {
             if (hasSerial) {
                 $('#serialMasukSection').removeClass('conditional-section').addClass('show');
                 $('#stokMasukSection').removeClass('show').addClass('conditional-section');
-                console.log('Showing serialMasukSection');
+                $('#stokMasuk').prop('disabled', true).prop('required', false);
             } else {
                 $('#serialMasukSection').removeClass('show').addClass('conditional-section');
                 $('#stokMasukSection').removeClass('conditional-section').addClass('show');
-                console.log('Showing stokMasukSection');
+                $('#stokMasuk').prop('disabled', false).prop('required', true);
             }
         } else if (jenisInventori === 'keluar') {
             if (hasSerial) {
                 $('#serialKeluarSection').removeClass('conditional-section').addClass('show');
                 $('#stokKeluarSection').removeClass('show').addClass('conditional-section');
+                $('#stokKeluar').prop('disabled', true).prop('required', false);
                 loadAvailableSerials();
             } else {
                 $('#serialKeluarSection').removeClass('show').addClass('conditional-section');
                 $('#stokKeluarSection').removeClass('conditional-section').addClass('show');
+                $('#stokKeluar').prop('disabled', false).prop('required', true);
                 checkAvailableStock();
             }
         }
     });
 
-    // Sumber Change (Vendor/Customer)
+    // Sumber Change
     $('#sumber').on('change', function() {
         const sumber = $(this).val();
         const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
@@ -571,12 +583,10 @@ $(document).ready(function() {
         if (sumber === 'Vendor') {
             $('#vendorSerialSection').removeClass('conditional-section').addClass('show');
             $('#customerSerialSection').removeClass('show').addClass('conditional-section');
-            console.log('Showing vendorSerialSection');
             generateVendorSerialInputs();
         } else if (sumber === 'Customer') {
             $('#customerSerialSection').removeClass('conditional-section').addClass('show');
             $('#vendorSerialSection').removeClass('show').addClass('conditional-section');
-            console.log('Showing customerSerialSection');
             loadReturnableSerials();
         }
     });
@@ -624,93 +634,91 @@ $(document).ready(function() {
         $(`#customerSerial${id}`).remove();
     };
 
-    // Load Returnable Serials (from customer - yang sedang keluar)
-function loadReturnableSerials() {
-    const perangkatId = $('#id_perangkat').val();
-    const kategori = $('#kategori').val();
+    // Load Returnable Serials
+    function loadReturnableSerials() {
+        const perangkatId = $('#id_perangkat').val();
+        const kategori = $('#kategori').val();
 
-    if (!perangkatId || !kategori) return;
+        if (!perangkatId || !kategori) return;
 
-    // GANTI INI - Gunakan route name Laravel
-    $.get('{{ route("inventory.returnable-serials") }}', {
-        id_perangkat: perangkatId,
-        kategori: kategori
-    }, function(response) {
-        const container = $('#returnSerialsContainer');
-        container.empty();
+        $.get('{{ route("inventory.returnable-serials") }}', {
+            id_perangkat: perangkatId,
+            kategori: kategori
+        }, function(response) {
+            const container = $('#returnSerialsContainer');
+            container.empty();
 
-        if (response.data.length === 0) {
-            container.html('<p class="text-muted">Tidak ada serial number yang dapat dikembalikan</p>');
-            return;
-        }
-
-        response.data.forEach(item => {
-            container.append(`
-                <div class="serial-checkbox-item">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="return_serials[]" 
-                            value="${item.id}" id="return${item.id}">
-                        <label class="form-check-label" for="return${item.id}">
-                            <strong>${item.serial_number}</strong>
-                            <span class="badge bg-warning ms-2">Keluar: ${item.out_stock}</span>
-                        </label>
-                    </div>
-                </div>
-            `);
-        });
-    }).fail(function(xhr) {
-        console.error('Error loading returnable serials:', xhr);
-    });
-}
-
-// Load Available Serials (for barang keluar)
-function loadAvailableSerials() {
-    const perangkatId = $('#id_perangkat').val();
-    const kategori = $('#kategori').val();
-
-    if (!perangkatId || !kategori) return;
-
-    // GANTI INI - Gunakan route name Laravel
-    $.get('{{ route("inventory.available-serials") }}', {
-        id_perangkat: perangkatId,
-        kategori: kategori
-    }, function(response) {
-        const container = $('#availableSerialsContainer');
-        container.empty();
-
-        if (response.data.length === 0) {
-            container.html('<p class="text-muted">Tidak ada serial number yang tersedia</p>');
-            return;
-        }
-
-        response.data.forEach(item => {
-            container.append(`
-                <div class="serial-checkbox-item">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="selected_serials[]" 
-                            value="${item.id}" id="serial${item.id}">
-                        <label class="form-check-label" for="serial${item.id}">
-                            <strong>${item.serial_number}</strong>
-                            <span class="badge bg-success ms-2">Tersedia: ${item.available_stock}</span>
-                        </label>
-                    </div>
-                </div>
-            `);
-        });
-
-        // Add click handler for checkbox items
-        $('.serial-checkbox-item').on('click', function(e) {
-            if (e.target.type !== 'checkbox') {
-                const checkbox = $(this).find('input[type="checkbox"]');
-                checkbox.prop('checked', !checkbox.prop('checked'));
+            if (response.data.length === 0) {
+                container.html('<p class="text-muted">Tidak ada serial number yang dapat dikembalikan</p>');
+                return;
             }
-            $(this).toggleClass('selected', $(this).find('input[type="checkbox"]').prop('checked'));
+
+            response.data.forEach(item => {
+                container.append(`
+                    <div class="serial-checkbox-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="return_serials[]" 
+                                value="${item.id}" id="return${item.id}">
+                            <label class="form-check-label" for="return${item.id}">
+                                <strong>${item.serial_number}</strong>
+                                <span class="badge bg-warning ms-2">Keluar: ${item.out_stock}</span>
+                            </label>
+                        </div>
+                    </div>
+                `);
+            });
+        }).fail(function(xhr) {
+            console.error('Error loading returnable serials:', xhr);
         });
-    }).fail(function(xhr) {
-        console.error('Error loading available serials:', xhr);
-    });
-}
-                // Check Available Stock for non-serial items
+    }
+
+    // Load Available Serials
+    function loadAvailableSerials() {
+        const perangkatId = $('#id_perangkat').val();
+        const kategori = $('#kategori').val();
+
+        if (!perangkatId || !kategori) return;
+
+        $.get('{{ route("inventory.available-serials") }}', {
+            id_perangkat: perangkatId,
+            kategori: kategori
+        }, function(response) {
+            const container = $('#availableSerialsContainer');
+            container.empty();
+
+            if (response.data.length === 0) {
+                container.html('<p class="text-muted">Tidak ada serial number yang tersedia</p>');
+                return;
+            }
+
+            response.data.forEach(item => {
+                container.append(`
+                    <div class="serial-checkbox-item">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="selected_serials[]" 
+                                value="${item.id}" id="serial${item.id}">
+                            <label class="form-check-label" for="serial${item.id}">
+                                <strong>${item.serial_number}</strong>
+                                <span class="badge bg-success ms-2">Tersedia: ${item.available_stock}</span>
+                            </label>
+                        </div>
+                    </div>
+                `);
+            });
+
+            $('.serial-checkbox-item').on('click', function(e) {
+                if (e.target.type !== 'checkbox') {
+                    const checkbox = $(this).find('input[type="checkbox"]');
+                    checkbox.prop('checked', !checkbox.prop('checked'));
+                }
+                $(this).toggleClass('selected', $(this).find('input[type="checkbox"]').prop('checked'));
+            });
+        }).fail(function(xhr) {
+            console.error('Error loading available serials:', xhr);
+        });
+    }
+
+    // Check Available Stock
     function checkAvailableStock() {
         const perangkatId = $('#id_perangkat').val();
         const kategori = $('#kategori').val();
@@ -721,9 +729,6 @@ function loadAvailableSerials() {
         }
 
         $('#availableStock').text('Loading...');
-        
-        // You can implement this endpoint in controller if needed
-        // For now, just show placeholder
         $('#availableStock').text('Cek manual di inventory');
     }
 
@@ -744,68 +749,197 @@ function loadAvailableSerials() {
         }
     });
 
-    // Form Validation
     $('#inventoryForm').on('submit', function(e) {
-        const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
-        const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+    e.preventDefault(); // Prevent default submit
+    
+    console.log('=== FORM VALIDATION START ===');
+    
+    const form = $(this);
+    const submitBtn = $('#btnSubmit');
+    const originalBtnText = submitBtn.html();
+    
+    // Basic validation
+    const jenisInventori = $('input[name="jenis_inventori"]:checked').val();
+    const hasSerial = $('input[name="has_serial"]:checked').val() === '1';
+    const tanggal = $('#tanggal').val();
+    const perangkat = $('#id_perangkat').val();
+    const kategori = $('#kategori').val();
 
-        if (!jenisInventori) {
-            e.preventDefault();
-            alert('Silakan pilih jenis transaksi!');
+    console.log('Validating:', { jenisInventori, hasSerial, tanggal, perangkat, kategori });
+
+    // Validation: Jenis Transaksi
+    if (!jenisInventori) {
+        showError('Silakan pilih jenis transaksi (Barang Masuk atau Barang Keluar)!');
+        return false;
+    }
+
+    // Validation: Tanggal
+    if (!tanggal) {
+        showError('Tanggal harus diisi!');
+        $('#tanggal').focus();
+        return false;
+    }
+
+    // Validation: Perangkat
+    if (!perangkat) {
+        showError('Silakan pilih perangkat!');
+        $('#id_perangkat').focus();
+        return false;
+    }
+
+    // Validation: Kategori
+    if (!kategori) {
+        showError('Silakan pilih kategori (Listrik/Non-Listrik)!');
+        $('#kategori').focus();
+        return false;
+    }
+
+    // Validation: Has Serial
+    if ($('input[name="has_serial"]:checked').length === 0) {
+        showError('Silakan pilih apakah barang memiliki serial number atau tidak!');
+        return false;
+    }
+
+    // Validation berdasarkan Jenis Inventori
+    if (jenisInventori === 'masuk') {
+        const sumber = $('#sumber').val();
+        console.log('Validating Barang Masuk - Sumber:', sumber);
+        
+        if (!sumber) {
+            showError('Silakan pilih sumber barang masuk (Vendor/Customer)!');
+            $('#sumber').focus();
             return false;
         }
 
-        if (jenisInventori === 'masuk') {
-            const sumber = $('#sumber').val();
-            if (!sumber) {
-                e.preventDefault();
-                alert('Silakan pilih sumber barang masuk!');
+        if (!hasSerial) {
+            // Validasi stok untuk barang tanpa serial
+            const stokValue = $('#stokMasuk').val();
+            console.log('Stok Masuk Value:', stokValue);
+            
+            if (!stokValue || parseInt(stokValue) < 1) {
+                showError('Silakan isi jumlah stok minimal 1!');
+                $('#stokMasuk').focus();
                 return false;
             }
-
-            if (hasSerial) {
-                if (sumber === 'Vendor') {
-                    const serials = $('input[name="serial_numbers[]"]').filter(function() {
-                        return $(this).val().trim() !== '';
-                    });
-                    if (serials.length === 0) {
-                        e.preventDefault();
-                        alert('Silakan isi minimal 1 serial number!');
-                        return false;
-                    }
-                } else if (sumber === 'Customer') {
-                    const returnSerials = $('input[name="return_serials[]"]:checked').length;
-                    const newSerials = $('input[name="serial_numbers[]"]').filter(function() {
-                        return $(this).val().trim() !== '';
-                    }).length;
-                    
-                    if (returnSerials === 0 && newSerials === 0) {
-                        e.preventDefault();
-                        alert('Silakan pilih serial return atau input serial baru!');
-                        return false;
-                    }
+        } else {
+            // Validasi serial number
+            if (sumber === 'Vendor') {
+                const serials = $('input[name="serial_numbers[]"]').filter(function() {
+                    return $(this).val().trim() !== '';
+                });
+                
+                console.log('Vendor Serials Count:', serials.length);
+                
+                if (serials.length === 0) {
+                    showError('Silakan isi minimal 1 serial number untuk barang dari Vendor!');
+                    return false;
                 }
-            }
-        } else if (jenisInventori === 'keluar') {
-            const perihal = $('#perihal').val();
-            if (!perihal) {
-                e.preventDefault();
-                alert('Silakan pilih perihal barang keluar!');
-                return false;
-            }
-
-            if (hasSerial) {
-                const selectedSerials = $('input[name="selected_serials[]"]:checked').length;
-                if (selectedSerials === 0) {
-                    e.preventDefault();
-                    alert('Silakan pilih minimal 1 serial number!');
+                
+                // Validasi tidak ada serial yang kosong
+                let hasEmptySerial = false;
+                serials.each(function() {
+                    if (!$(this).val().trim()) {
+                        hasEmptySerial = true;
+                        return false;
+                    }
+                });
+                
+                if (hasEmptySerial) {
+                    showError('Semua serial number harus diisi, tidak boleh ada yang kosong!');
+                    return false;
+                }
+                
+            } else if (sumber === 'Customer') {
+                const returnSerials = $('input[name="return_serials[]"]:checked').length;
+                const newSerials = $('input[name="serial_numbers[]"]').filter(function() {
+                    return $(this).val().trim() !== '';
+                }).length;
+                
+                console.log('Customer - Return:', returnSerials, 'New:', newSerials);
+                
+                if (returnSerials === 0 && newSerials === 0) {
+                    showError('Silakan pilih minimal 1 serial return ATAU input minimal 1 serial baru dari customer!');
                     return false;
                 }
             }
         }
+        
+    } else if (jenisInventori === 'keluar') {
+        const perihal = $('#perihal').val();
+        console.log('Validating Barang Keluar - Perihal:', perihal);
+        
+        if (!perihal) {
+            showError('Silakan pilih perihal barang keluar (Pemeliharaan/Penjualan/Instalasi)!');
+            $('#perihal').focus();
+            return false;
+        }
 
-        return true;
-    });
+        if (!hasSerial) {
+            // Validasi stok untuk barang tanpa serial
+            const stokValue = $('#stokKeluar').val();
+            console.log('Stok Keluar Value:', stokValue);
+            
+            if (!stokValue || parseInt(stokValue) < 1) {
+                showError('Silakan isi jumlah stok minimal 1!');
+                $('#stokKeluar').focus();
+                return false;
+            }
+        } else {
+            // Validasi serial number selection
+            const selectedSerials = $('input[name="selected_serials[]"]:checked').length;
+            console.log('Selected Serials Count:', selectedSerials);
+            
+            if (selectedSerials === 0) {
+                showError('Silakan pilih minimal 1 serial number yang akan keluar!');
+                return false;
+            }
+        }
+    }
+
+    console.log('=== VALIDATION PASSED ===');
+    
+    // Show loading state
+    submitBtn.prop('disabled', true).html(
+        '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...'
+    );
+    
+    // Submit form
+    form.off('submit').submit();
+    
+    return true;
+});
+
+// Helper function untuk menampilkan error
+function showError(message) {
+    // Hapus alert lama jika ada
+    $('.alert-validation-error').remove();
+    
+    // Buat alert baru
+    const alertHtml = `
+        <div class="alert alert-danger alert-dismissible fade show alert-validation-error" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            <strong>Validasi Gagal!</strong> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `;
+    
+    // Insert alert di atas form
+    $('#inventoryForm').prepend(alertHtml);
+    
+    // Scroll ke atas untuk lihat alert
+    $('html, body').animate({
+        scrollTop: $('#inventoryForm').offset().top - 100
+    }, 500);
+    
+    // Auto hide setelah 5 detik
+    setTimeout(function() {
+        $('.alert-validation-error').fadeOut('slow', function() {
+            $(this).remove();
+        });
+    }, 5000);
+    
+    console.error('Validation Error:', message);
+    }
 });
 </script>
 @endpush

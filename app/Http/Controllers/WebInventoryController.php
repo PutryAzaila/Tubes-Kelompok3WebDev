@@ -40,7 +40,7 @@ class WebInventoryController extends Controller
             'id_perangkat' => 'required|exists:perangkats,id',
             'jenis_inventori' => 'required|in:masuk,keluar',
             'kategori' => 'required|string|in:Non-Listrik,Listrik',
-            'has_serial' => 'required|boolean',
+            'has_serial' => 'required|in:0,1',
             'catatan' => 'nullable|string',
         ];
 
@@ -48,17 +48,19 @@ class WebInventoryController extends Controller
         if ($request->jenis_inventori === 'masuk') {
             $rules['sumber'] = 'required|string|in:Customer,Vendor';
             
-            // Jika tidak ada serial, wajib ada stok
-            if ($request->has_serial == 0) {
+            // PENTING: Jika tidak ada serial, stok HARUS ADA
+            if ($request->has_serial == '0') {
                 $rules['stok'] = 'required|integer|min:1';
+                Log::info('Validation: Stok is REQUIRED (no serial)');
             }
         } else {
             $rules['perihal'] = 'required|string|in:Pemeliharaan,Penjualan,Instalasi';
             $rules['alamat'] = 'nullable|string';
             
-            // Jika tidak ada serial, wajib ada stok
-            if ($request->has_serial == 0) {
+            // PENTING: Jika tidak ada serial, stok HARUS ADA
+            if ($request->has_serial == '0') {
                 $rules['stok'] = 'required|integer|min:1';
+                Log::info('Validation: Stok is REQUIRED (no serial)');
             }
         }
 
@@ -89,8 +91,35 @@ class WebInventoryController extends Controller
             Log::info('Transaction Committed Successfully');
             Log::info('=== INVENTORY STORE SUCCESS ===');
             
-            return redirect()->route('inventory.index')
-                ->with('success', 'Data inventori berhasil ditambahkan');
+            // Determine success message based on type
+            $jenisText = $request->jenis_inventori === 'masuk' ? 'masuk' : 'keluar';
+            $itemCount = 1; // default
+
+            if ($request->has_serial == '0') {
+                $itemCount = intval($request->stok);
+            } else {
+                if ($request->jenis_inventori === 'masuk') {
+                    if ($request->sumber === 'Vendor') {
+                        $itemCount = count(array_filter($request->serial_numbers ?? [], function($s) {
+                            return !empty(trim($s));
+                        }));
+                    } else {
+                        $returnCount = count($request->return_serials ?? []);
+                        $newCount = count(array_filter($request->serial_numbers ?? [], function($s) {
+                            return !empty(trim($s));
+                        }));
+                        $itemCount = $returnCount + $newCount;
+                    }
+                } else {
+                    $itemCount = count($request->selected_serials ?? []);
+                }
+            }
+
+            $perangkat = Perangkat::find($request->id_perangkat);
+            $perangkatName = $perangkat ? $perangkat->nama_perangkat : 'barang';
+
+            return redirect()->route('dashboard')
+                ->with('success', "✅ Berhasil! {$itemCount} unit {$perangkatName} telah ditambahkan sebagai barang {$jenisText}.");
                 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -100,23 +129,26 @@ class WebInventoryController extends Controller
             Log::error('Stack Trace: ' . $e->getTraceAsString());
             
             return redirect()->back()
-                ->with('error', 'Gagal menambahkan data: ' . $e->getMessage())
+                ->with('error', '❌ Gagal menyimpan data: ' . $e->getMessage())
                 ->withInput();
         }
     }
 
     private function handleBarangMasuk($request)
     {
-        Log::info('handleBarangMasuk - Sumber: ' . $request->sumber);
-        Log::info('handleBarangMasuk - Has Serial: ' . $request->has_serial);
+        Log::info('handleBarangMasuk - START');
+        Log::info('Sumber: ' . $request->sumber);
+        Log::info('Has Serial: ' . $request->has_serial);
+        
+        // Convert has_serial to boolean
+        $hasSerial = $request->has_serial == '1';
         
         if ($request->sumber === 'Vendor') {
-            if ($request->has_serial) {
+            if ($hasSerial) {
                 // VENDOR dengan Serial Numbers
                 Log::info('Vendor with Serial Numbers');
                 
                 $serialNumbers = $request->serial_numbers ?? [];
-                // Filter serial numbers yang tidak kosong
                 $serialNumbers = array_filter($serialNumbers, function($serial) {
                     return !empty(trim($serial));
                 });
@@ -136,8 +168,6 @@ class WebInventoryController extends Controller
                         'kategori' => $request->kategori,
                     ]);
 
-                    Log::info('Creating BarangMasuk for detail_id: ' . $detailBarang->id);
-
                     BarangMasuk::create([
                         'detail_barang_id' => $detailBarang->id,
                         'tanggal' => $request->tanggal,
@@ -147,48 +177,52 @@ class WebInventoryController extends Controller
                     ]);
                 }
             } else {
-                // VENDOR tanpa Serial - bulk quantity
+                // VENDOR tanpa Serial - PENTING: Cek stok
                 Log::info('Vendor without Serial - Bulk quantity');
-                Log::info('Stok value: ' . $request->stok);
+                Log::info('Stok value from request: ' . $request->stok);
                 
-                if (empty($request->stok) || $request->stok < 1) {
+                $stok = intval($request->stok);
+                
+                if (empty($stok) || $stok < 1) {
+                    Log::error('Stok empty or invalid: ' . $stok);
                     throw new \Exception('Jumlah stok wajib diisi dan minimal 1');
                 }
                 
+                Log::info('Stok after intval: ' . $stok);
+                
+                // firstOrCreate untuk avoid duplikasi
                 $detailBarang = DetailBarang::firstOrCreate([
                     'id_perangkat' => $request->id_perangkat,
                     'serial_number' => null,
                     'kategori' => $request->kategori,
                 ]);
 
-                Log::info('DetailBarang ID: ' . $detailBarang->id);
+                Log::info('DetailBarang created/found, ID: ' . $detailBarang->id);
 
-                BarangMasuk::create([
+                $barangMasuk = BarangMasuk::create([
                     'detail_barang_id' => $detailBarang->id,
                     'tanggal' => $request->tanggal,
-                    'jumlah' => $request->stok,
+                    'jumlah' => $stok,
                     'catatan_barang_masuk' => $request->catatan,
                     'status' => 'Vendor',
                 ]);
                 
-                Log::info('BarangMasuk created with stok: ' . $request->stok);
+                Log::info('BarangMasuk created successfully with ID: ' . $barangMasuk->id . ', jumlah: ' . $barangMasuk->jumlah);
             }
             
         } else {
             // CUSTOMER
             Log::info('Customer Source');
             
-            if ($request->has_serial) {
+            if ($hasSerial) {
                 $hasData = false;
                 
-                // Process RETURN serials (existing)
+                // Process RETURN serials
                 $returnSerials = $request->return_serials ?? [];
                 Log::info('Return Serials:', $returnSerials);
                 
                 if (!empty($returnSerials)) {
                     foreach ($returnSerials as $detailId) {
-                        Log::info('Creating BarangMasuk for return serial, detail_id: ' . $detailId);
-                        
                         BarangMasuk::create([
                             'detail_barang_id' => $detailId,
                             'tanggal' => $request->tanggal,
@@ -202,7 +236,6 @@ class WebInventoryController extends Controller
                 
                 // Process NEW serials from customer
                 $serialNumbers = $request->serial_numbers ?? [];
-                // Filter serial numbers yang tidak kosong
                 $serialNumbers = array_filter($serialNumbers, function($serial) {
                     return !empty(trim($serial));
                 });
@@ -211,8 +244,6 @@ class WebInventoryController extends Controller
                 
                 if (!empty($serialNumbers)) {
                     foreach ($serialNumbers as $serial) {
-                        Log::info('Creating new DetailBarang for customer serial: ' . $serial);
-                        
                         $detailBarang = DetailBarang::create([
                             'id_perangkat' => $request->id_perangkat,
                             'serial_number' => trim($serial),
@@ -234,13 +265,18 @@ class WebInventoryController extends Controller
                     throw new \Exception('Minimal pilih 1 serial return atau input 1 serial baru');
                 }
             } else {
-                // CUSTOMER tanpa Serial - bulk quantity
+                // CUSTOMER tanpa Serial - PENTING: Cek stok
                 Log::info('Customer without Serial - Bulk quantity');
-                Log::info('Stok value: ' . $request->stok);
+                Log::info('Stok value from request: ' . $request->stok);
                 
-                if (empty($request->stok) || $request->stok < 1) {
+                $stok = intval($request->stok);
+                
+                if (empty($stok) || $stok < 1) {
+                    Log::error('Stok empty or invalid: ' . $stok);
                     throw new \Exception('Jumlah stok wajib diisi dan minimal 1');
                 }
+                
+                Log::info('Stok after intval: ' . $stok);
                 
                 $detailBarang = DetailBarang::firstOrCreate([
                     'id_perangkat' => $request->id_perangkat,
@@ -248,26 +284,31 @@ class WebInventoryController extends Controller
                     'kategori' => $request->kategori,
                 ]);
 
-                BarangMasuk::create([
+                Log::info('DetailBarang created/found, ID: ' . $detailBarang->id);
+
+                $barangMasuk = BarangMasuk::create([
                     'detail_barang_id' => $detailBarang->id,
                     'tanggal' => $request->tanggal,
-                    'jumlah' => $request->stok,
+                    'jumlah' => $stok,
                     'catatan_barang_masuk' => $request->catatan,
                     'status' => 'Customer',
                 ]);
                 
-                Log::info('BarangMasuk created with stok: ' . $request->stok);
+                Log::info('BarangMasuk created successfully with ID: ' . $barangMasuk->id . ', jumlah: ' . $barangMasuk->jumlah);
             }
         }
         
-        Log::info('handleBarangMasuk completed');
+        Log::info('handleBarangMasuk - COMPLETED');
     }
 
     private function handleBarangKeluar($request)
     {
-        Log::info('handleBarangKeluar - Has Serial: ' . $request->has_serial);
+        Log::info('handleBarangKeluar - START');
+        Log::info('Has Serial: ' . $request->has_serial);
         
-        if ($request->has_serial) {
+        $hasSerial = $request->has_serial == '1';
+        
+        if ($hasSerial) {
             // Ada serial number - keluar per serial
             $selectedSerials = $request->selected_serials ?? [];
             Log::info('Selected Serials:', $selectedSerials);
@@ -277,8 +318,6 @@ class WebInventoryController extends Controller
             }
 
             foreach ($selectedSerials as $detailId) {
-                Log::info('Creating BarangKeluar for detail_id: ' . $detailId);
-                
                 BarangKeluar::create([
                     'detail_barang_id' => $detailId,
                     'tanggal' => $request->tanggal,
@@ -291,11 +330,16 @@ class WebInventoryController extends Controller
         } else {
             // Tidak ada serial number - keluar bulk
             Log::info('Barang Keluar without Serial - Bulk');
-            Log::info('Stok value: ' . $request->stok);
+            Log::info('Stok value from request: ' . $request->stok);
             
-            if (empty($request->stok) || $request->stok < 1) {
+            $stok = intval($request->stok);
+            
+            if (empty($stok) || $stok < 1) {
+                Log::error('Stok empty or invalid: ' . $stok);
                 throw new \Exception('Jumlah stok wajib diisi dan minimal 1');
             }
+            
+            Log::info('Stok after intval: ' . $stok);
             
             $detailBarang = DetailBarang::where('id_perangkat', $request->id_perangkat)
                 ->whereNull('serial_number')
@@ -315,23 +359,23 @@ class WebInventoryController extends Controller
             
             Log::info("Stock check - Masuk: $totalMasuk, Keluar: $totalKeluar, Available: $available");
 
-            if ($available < $request->stok) {
+            if ($available < $stok) {
                 throw new \Exception("Stok tidak mencukupi. Tersedia: {$available}");
             }
 
-            BarangKeluar::create([
+            $barangKeluar = BarangKeluar::create([
                 'detail_barang_id' => $detailBarang->id,
                 'tanggal' => $request->tanggal,
-                'jumlah' => $request->stok,
+                'jumlah' => $stok,
                 'catatan_barang_keluar' => $request->catatan,
                 'alamat' => $request->alamat ?? '',
                 'status' => $request->perihal,
             ]);
             
-            Log::info('BarangKeluar created with stok: ' . $request->stok);
+            Log::info('BarangKeluar created successfully with ID: ' . $barangKeluar->id . ', jumlah: ' . $barangKeluar->jumlah);
         }
         
-        Log::info('handleBarangKeluar completed');
+        Log::info('handleBarangKeluar - COMPLETED');
     }
 
     public function getAvailableSerials(Request $request)
@@ -405,60 +449,102 @@ class WebInventoryController extends Controller
 
     public function update(Request $request, $id, $type)
     {
-        $validator = Validator::make($request->all(), [
+        Log::info('=== INVENTORY UPDATE START ===');
+        Log::info('ID: ' . $id . ', Type: ' . $type);
+        Log::info('Request Data:', $request->all());
+        
+        $rules = [
             'tanggal' => 'required|date',
             'stok' => 'required|integer|min:1',
             'catatan' => 'nullable|string',
             'alamat' => 'nullable|string',
-        ]);
+        ];
+        
+        // Tambahkan validasi serial number jika ada
+        if ($request->has('serial_number')) {
+            $rules['serial_number'] = 'required|string|max:255';
+        }
+        
+        $validator = Validator::make($request->all(), $rules);
 
         if ($validator->fails()) {
+            Log::error('Validation Failed:', $validator->errors()->toArray());
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
 
         try {
+            DB::beginTransaction();
+            
             if ($type === 'masuk') {
-                $inventory = BarangMasuk::findOrFail($id);
+                $inventory = BarangMasuk::with('detailBarang')->findOrFail($id);
+                
+                // Update BarangMasuk
                 $inventory->update([
                     'tanggal' => $request->tanggal,
                     'jumlah' => $request->stok,
                     'catatan_barang_masuk' => $request->catatan,
                 ]);
+                
+                Log::info('BarangMasuk updated successfully');
+                
             } else {
-                $inventory = BarangKeluar::findOrFail($id);
+                $inventory = BarangKeluar::with('detailBarang')->findOrFail($id);
+                
+                // Update BarangKeluar
                 $inventory->update([
                     'tanggal' => $request->tanggal,
                     'jumlah' => $request->stok,
                     'catatan_barang_keluar' => $request->catatan,
                     'alamat' => $request->alamat ?? '',
                 ]);
+                
+                Log::info('BarangKeluar updated successfully');
             }
+            
+            // Update Serial Number jika ada perubahan
+            if ($request->has('serial_number') && $inventory->detailBarang) {
+                $oldSerial = $inventory->detailBarang->serial_number;
+                $newSerial = $request->serial_number;
+                
+                if ($oldSerial !== $newSerial) {
+                    // Cek apakah serial number baru sudah ada di database
+                    $existingSerial = DetailBarang::where('serial_number', $newSerial)
+                        ->where('id', '!=', $inventory->detailBarang->id)
+                        ->first();
+                    
+                    if ($existingSerial) {
+                        throw new \Exception('Serial number "' . $newSerial . '" sudah digunakan untuk barang lain!');
+                    }
+                    
+                    // Update serial number
+                    $inventory->detailBarang->update([
+                        'serial_number' => $newSerial
+                    ]);
+                    
+                    Log::info('Serial Number updated from "' . $oldSerial . '" to "' . $newSerial . '"');
+                }
+            }
+            
+            DB::commit();
+            Log::info('=== INVENTORY UPDATE SUCCESS ===');
 
-            return redirect()->route('inventory.index')
-                ->with('success', 'Data inventori berhasil diupdate');
+            $jenisText = $type === 'masuk' ? 'masuk' : 'keluar';
+            $perangkatName = $inventory->detailBarang->perangkat->nama_perangkat ?? 'barang';
+
+            return redirect()->route('dashboard')
+                ->with('success', "Berhasil! Data {$perangkatName} ({$jenisText}) telah diperbarui.");
+                
         } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('=== INVENTORY UPDATE ERROR ===');
+            Log::error('Error Message: ' . $e->getMessage());
+            Log::error('Error File: ' . $e->getFile() . ':' . $e->getLine());
+            
             return redirect()->back()
                 ->with('error', 'Gagal mengupdate data: ' . $e->getMessage())
                 ->withInput();
-        }
-    }
-
-    public function destroy($id, $type)
-    {
-        try {
-            if ($type === 'masuk') {
-                BarangMasuk::findOrFail($id)->delete();
-            } else {
-                BarangKeluar::findOrFail($id)->delete();
-            }
-
-            return redirect()->route('inventory.index')
-                ->with('success', 'Data inventori berhasil dihapus');
-        } catch (\Exception $e) {
-            return redirect()->back()
-                ->with('error', 'Gagal menghapus data: ' . $e->getMessage());
         }
     }
 }

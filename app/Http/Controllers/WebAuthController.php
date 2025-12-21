@@ -52,8 +52,9 @@ class WebAuthController extends Controller
             Auth::login($user, $request->filled('remember'));
             $request->session()->regenerate();
             
+            // FIXED: Redirect ke dashboard, bukan inventory
             return redirect()
-                ->intended('/dashboard')
+                ->route('dashboard')
                 ->with('success', 'Selamat datang, ' . $user->nama_lengkap . '!');
 
         } catch (ValidationException $e) {
