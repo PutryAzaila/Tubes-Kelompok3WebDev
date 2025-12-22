@@ -9,16 +9,17 @@ use App\Models\Perangkat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth;
 
 class DetailPurchaseOrderController extends Controller
 {
-    // GET /api/detail-purchase-orders/by-po/{id_po}
+    /**
+     * GET /api/detail-purchase-orders/by-po/{id_po}
+     */
     public function getByPurchaseOrder($id_po)
     {
         try {
             $purchaseOrder = PurchaseOrder::with('vendor')->find($id_po);
-
+            
             if (!$purchaseOrder) {
                 return response()->json([
                     'success' => false,
@@ -31,7 +32,6 @@ class DetailPurchaseOrderController extends Controller
                 ->orderBy('created_at', 'asc')
                 ->get();
 
-            // Format untuk tabel seperti di gambar
             $formattedDetails = $details->map(function ($detail, $index) {
                 return [
                     'no' => $index + 1,
@@ -39,8 +39,6 @@ class DetailPurchaseOrderController extends Controller
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
-
-            $totalItems = $details->sum('jumlah');
 
             return response()->json([
                 'success' => true,
@@ -52,9 +50,10 @@ class DetailPurchaseOrderController extends Controller
                         'vendor' => $purchaseOrder->vendor->nama_vendor ?? 'N/A',
                         'tanggal_pemesanan' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
                         'status' => $purchaseOrder->status,
+                        'created_at' => $purchaseOrder->created_at->format('d-m-Y H:i:s'),
                     ],
                     'table_data' => $formattedDetails,
-                    'total_items' => $totalItems . ' Unit',
+                    'total_items' => $details->sum('jumlah') . ' Unit',
                     'item_count' => $details->count(),
                 ]
             ], 200);
@@ -67,7 +66,9 @@ class DetailPurchaseOrderController extends Controller
         }
     }
 
-    // POST /api/detail-purchase-orders (Tambah item ke PO)
+    /**
+     * POST /api/detail-purchase-orders
+     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -86,8 +87,7 @@ class DetailPurchaseOrderController extends Controller
 
         try {
             DB::beginTransaction();
-
-            // Cek PO status
+            
             $purchaseOrder = PurchaseOrder::find($request->id_po);
             
             if (!$purchaseOrder) {
@@ -97,7 +97,6 @@ class DetailPurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Hanya bisa tambah item jika PO status Diajukan
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -105,26 +104,19 @@ class DetailPurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Cek apakah item sudah ada
             $existingDetail = DetailPurchaseOrder::where('id_po', $request->id_po)
                 ->where('id_perangkat', $request->id_perangkat)
                 ->first();
 
             if ($existingDetail) {
-                // Update jumlah jika sudah ada
                 $existingDetail->increment('jumlah', $request->jumlah);
                 $detail = $existingDetail;
             } else {
-                // Buat baru jika belum ada
-                $detail = DetailPurchaseOrder::create([
-                    'id_po' => $request->id_po,
-                    'id_perangkat' => $request->id_perangkat,
-                    'jumlah' => $request->jumlah,
-                ]);
+                $detail = DetailPurchaseOrder::create($request->all());
             }
 
             DB::commit();
-
+            
             return response()->json([
                 'success' => true,
                 'message' => 'Item berhasil ditambahkan ke Purchase Order',
@@ -140,7 +132,9 @@ class DetailPurchaseOrderController extends Controller
         }
     }
 
-    // PUT /api/detail-purchase-orders/{id} (Update item)
+    /**
+     * PUT /api/detail-purchase-orders/{id}
+     */
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
@@ -158,7 +152,7 @@ class DetailPurchaseOrderController extends Controller
 
         try {
             DB::beginTransaction();
-
+            
             $detail = DetailPurchaseOrder::with('purchaseOrder')->find($id);
 
             if (!$detail) {
@@ -168,7 +162,6 @@ class DetailPurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Hanya bisa update jika PO status Diajukan
             if ($detail->purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -176,12 +169,8 @@ class DetailPurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Update detail
-            $detail->update([
-                'id_perangkat' => $request->id_perangkat,
-                'jumlah' => $request->jumlah,
-            ]);
-
+            $detail->update($request->only(['id_perangkat', 'jumlah']));
+            
             DB::commit();
 
             return response()->json([
@@ -199,12 +188,14 @@ class DetailPurchaseOrderController extends Controller
         }
     }
 
-    // DELETE /api/detail-purchase-orders/{id} (Hapus item)
+    /**
+     * DELETE /api/detail-purchase-orders/{id}
+     */
     public function destroy($id)
     {
         try {
             DB::beginTransaction();
-
+            
             $detail = DetailPurchaseOrder::with('purchaseOrder')->find($id);
 
             if (!$detail) {
@@ -214,7 +205,6 @@ class DetailPurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Hanya bisa hapus jika PO status Diajukan
             if ($detail->purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -223,7 +213,7 @@ class DetailPurchaseOrderController extends Controller
             }
 
             $detail->delete();
-
+            
             DB::commit();
 
             return response()->json([
@@ -240,7 +230,9 @@ class DetailPurchaseOrderController extends Controller
         }
     }
 
-    // GET /api/detail-purchase-orders/check-stock/{id_perangkat}
+    /**
+     * GET /api/detail-purchase-orders/check-stock/{id_perangkat}
+     */
     public function checkStock($id_perangkat)
     {
         try {

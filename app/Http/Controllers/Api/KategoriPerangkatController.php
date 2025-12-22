@@ -6,8 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\KategoriPerangkat;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
-class KategoriPerangkatController extends Controller
+ class KategoriPerangkatController extends Controller
 {
     // GET /api/kategori-perangkat
     public function index()
