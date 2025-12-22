@@ -73,7 +73,7 @@ class DetailPurchaseOrderController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_po' => 'required|exists:purchase_orders,id',
-            'id_perangkat' => 'required|exists:perangkat,id',
+            'id_perangkat' => 'required|exists:perangkats,id',
             'jumlah' => 'required|integer|min:1',
         ]);
 
@@ -138,7 +138,7 @@ class DetailPurchaseOrderController extends Controller
     public function update(Request $request, $id)
     {
         $validator = Validator::make($request->all(), [
-            'id_perangkat' => 'required|exists:perangkat,id',
+            'id_perangkat' => 'required|exists:perangkats,id',
             'jumlah' => 'required|integer|min:1',
         ]);
 
