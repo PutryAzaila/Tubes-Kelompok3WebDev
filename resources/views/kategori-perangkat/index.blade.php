@@ -1,9 +1,9 @@
 @extends('layouts.dashboard')
 
-@section('title', 'Kategori Vendor')
+@section('title', 'Kategori Perangkat')
 
-@section('page-title', 'Kategori Vendor')
-@section('page-subtitle', 'Kelola kategori vendor inventaris')
+@section('page-title', 'Kategori Perangkat')
+@section('page-subtitle', 'Kelola kategori perangkat inventaris')
 
 @push('styles')
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -470,8 +470,8 @@
     <div class="col-12">
         <div class="page-header">
             <div class="page-header-content">
-                <h4><i class="fas fa-tags me-3"></i>Kategori Vendor</h4>
-                <p><i class="fas fa-info-circle me-2"></i>Kelola dan organisir kategori vendor inventaris dengan mudah dan efisien</p>
+                <h4><i class="fas fa-layer-group me-3"></i>Kategori Perangkat</h4>
+                <p><i class="fas fa-info-circle me-2"></i>Kelola dan organisir kategori perangkat inventaris dengan mudah dan efisien</p>
             </div>
         </div>
     </div>
@@ -481,18 +481,18 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-icon blue">
-                    <i class="fas fa-folder-open"></i>
+                    <i class="fas fa-tags"></i>
                 </div>
                 <div class="stat-label">Total Kategori</div>
-                <div class="stat-value">{{ $kategoris->count() }}</div>
+                <div class="stat-value">{{ $kategoriPerangkats->count() }}</div>
             </div>
             
             <div class="stat-card">
                 <div class="stat-icon orange">
-                    <i class="fas fa-store"></i>
+                    <i class="fas fa-laptop"></i>
                 </div>
-                <div class="stat-label">Total Vendor</div>
-                <div class="stat-value">{{ $kategoris->sum('vendors_count') }}</div>
+                <div class="stat-label">Total Perangkat</div>
+                <div class="stat-value">{{ $kategoriPerangkats->sum('perangkats_count') }}</div>
             </div>
         </div>
     </div>
@@ -529,9 +529,9 @@
         <div class="action-bar">
             <div class="search-box">
                 <i class="fas fa-search"></i>
-                <input type="text" class="form-control" id="searchInput" placeholder="Cari kategori vendor...">
+                <input type="text" class="form-control" id="searchInput" placeholder="Cari kategori perangkat...">
             </div>
-            <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
+            <a href="{{ route('kategori-perangkat.create') }}" class="btn btn-add">
                 <i class="fas fa-plus-circle"></i>Tambah Kategori
             </a>
         </div>
@@ -541,8 +541,8 @@
     <div class="col-12">
         <div class="table-container">
             <div class="table-header">
-                <h5><i class="fas fa-list me-2"></i>Daftar Kategori Vendor</h5>
-                <span class="filter-badge" id="resultCount">{{ $kategoris->count() }} Kategori</span>
+                <h5><i class="fas fa-list me-2"></i>Daftar Kategori Perangkat</h5>
+                <span class="filter-badge" id="resultCount">{{ $kategoriPerangkats->count() }} Kategori</span>
             </div>
             
             <div class="table-responsive">
@@ -551,18 +551,18 @@
                         <tr>
                             <th style="width: 8%;">No</th>
                             <th style="width: 42%;">Nama Kategori</th>
-                            <th style="width: 20%;" class="text-center">Jumlah Vendor</th>
+                            <th style="width: 20%;" class="text-center">Jumlah Perangkat</th>
                             <th style="width: 30%;" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
-                        @forelse($kategoris as $index => $kategori)
+                        @forelse($kategoriPerangkats as $index => $kategori)
                         <tr>
                             <td><strong>#{{ $index + 1 }}</strong></td>
                             <td>
                                 <div class="category-name">
                                     <div class="category-icon">
-                                        <i class="fas fa-tag"></i>
+                                        <i class="fas fa-layer-group"></i>
                                     </div>
                                     <div class="category-info">
                                         <h6>{{ $kategori->nama_kategori }}</h6>
@@ -571,16 +571,16 @@
                             </td>
                             <td class="text-center">
                                 <span class="badge-count">
-                                    <i class="fas fa-store-alt"></i>
-                                    {{ $kategori->vendors_count }}
+                                    <i class="fas fa-laptop"></i>
+                                    {{ $kategori->perangkats_count }}
                                 </span>
                             </td>
                             <td class="text-center">
                                 <div class="action-buttons">
-                                    <a href="{{ route('kategori-vendor.edit', $kategori->id) }}" class="btn-action btn-edit">
+                                    <a href="{{ route('kategori-perangkat.edit', $kategori->id) }}" class="btn-action btn-edit">
                                         <i class="fas fa-edit"></i>Edit
                                     </a>
-                                    <form action="{{ route('kategori-vendor.destroy', $kategori->id) }}" method="POST" class="d-inline delete-form">
+                                    <form action="{{ route('kategori-perangkat.destroy', $kategori->id) }}" method="POST" class="d-inline delete-form">
                                         @csrf
                                         @method('DELETE')
                                         <button type="button" class="btn-action btn-delete btn-delete-confirm">
@@ -598,8 +598,8 @@
                                         <i class="fas fa-inbox"></i>
                                     </div>
                                     <h5>Belum Ada Kategori</h5>
-                                    <p>Mulai dengan menambahkan kategori vendor pertama Anda</p>
-                                    <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
+                                    <p>Mulai dengan menambahkan kategori perangkat pertama Anda</p>
+                                    <a href="{{ route('kategori-perangkat.create') }}" class="btn btn-add">
                                         <i class="fas fa-plus-circle"></i>Tambah Kategori Sekarang
                                     </a>
                                 </div>
@@ -610,10 +610,10 @@
                 </table>
             </div>
             
-            @if($kategoris->count() > 0)
+            @if($kategoriPerangkats->count() > 0)
             <div class="pagination-container">
                 <div class="pagination-info">
-                    Menampilkan <strong>{{ $kategoris->count() }}</strong> kategori
+                    Menampilkan <strong>{{ $kategoriPerangkats->count() }}</strong> kategori
                 </div>
             </div>
             @endif
@@ -673,16 +673,10 @@ $(document).ready(function() {
         e.preventDefault();
         const form = $(this).closest('form');
         const categoryName = $(this).closest('tr').find('.category-info h6').text();
-        const vendorCount = $(this).closest('tr').find('.badge-count').text().match(/\d+/)[0];
-        
-        let warningMessage = '';
-        if (vendorCount > 0) {
-            warningMessage = `<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Perhatian: Kategori ini memiliki ${vendorCount} vendor terkait</small>`;
-        }
         
         Swal.fire({
             title: 'Konfirmasi Hapus',
-            html: `Apakah Anda yakin ingin menghapus kategori<br><strong>"${categoryName}"</strong>?${warningMessage}`,
+            html: `Apakah Anda yakin ingin menghapus kategori<br><strong>"${categoryName}"</strong>?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
@@ -722,7 +716,7 @@ $(document).ready(function() {
         // Ctrl/Cmd + N = New category
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
             e.preventDefault();
-            window.location.href = '{{ route("kategori-vendor.create") }}';
+            window.location.href = '{{ route("kategori-perangkat.create") }}';
         }
     });
 

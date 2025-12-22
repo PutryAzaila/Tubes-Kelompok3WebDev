@@ -3,40 +3,13 @@
 @section('title', 'Dashboard')
 
 @section('page-title', 'Dashboard')
-@section('page-subtitle', content: 'Ringkasan sistem hari ini')
+@section('page-subtitle', 'Ringkasan sistem hari ini')
 
-@section('content')
-<div class="row g-3 g-lg-4">
-    
-    <!-- Welcome Card -->
-    <div class="col-12">
-        <div class="welcome-card">
-            <div class="welcome-content">
-                <div class="welcome-text">
-                    <h2 class="welcome-title">
-                        Selamat Datang, <span class="text-gradient">{{ Auth::user()->nama_lengkap ?? 'Admin' }}</span> 👋
-                    </h2>
-                    <p class="welcome-subtitle">
-                        <span class="badge bg-gradient-primary me-2">
-                            <i class="fas fa-briefcase me-1"></i>
-                            {{ Auth::user()->jabatan ?? 'Administrator' }}
-                        </span>
-                        <span class="text-muted">
-                            {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}
-                        </span>
-                    </p>
-                    <p class="welcome-description">
-                        Selamat datang di sistem inventory. Kelola data perangkat, vendor, dan purchase order dengan mudah.
-                    </p>
-                </div>
-                <div class="welcome-illustration d-none d-lg-block">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-</div>
+@push('styles')
+<!-- Bootstrap 5 -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
 .welcome-card {
@@ -127,4 +100,60 @@
     }
 }
 </style>
+@endpush
+
+@section('content')
+<div class="row g-3 g-lg-4">
+    
+    <!-- Welcome Card -->
+    <div class="col-12">
+        <div class="welcome-card">
+            <div class="welcome-content">
+                <div class="welcome-text">
+                    <h2 class="welcome-title">
+                        Selamat Datang, <span class="text-gradient">{{ Auth::user()->nama_lengkap ?? 'Admin' }}</span> 👋
+                    </h2>
+                    <p class="welcome-subtitle">
+                        <span class="badge bg-gradient-primary me-2">
+                            <i class="fas fa-briefcase me-1"></i>
+                            {{ Auth::user()->jabatan ?? 'Administrator' }}
+                        </span>
+                        <span class="text-muted">
+                            {{ \Carbon\Carbon::now()->isoFormat('dddd, D MMMM YYYY') }}
+                        </span>
+                    </p>
+                    <p class="welcome-description">
+                        Selamat datang di sistem inventory. Kelola data perangkat, vendor, dan purchase order dengan mudah.
+                    </p>
+                </div>
+                <div class="welcome-illustration d-none d-lg-block">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
 @endsection
+
+@push('scripts')
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    console.log('✅ Dashboard loaded with jQuery!');
+    console.log('✅ jQuery version:', $.fn.jquery);
+    
+    // Test dropdown functionality
+    console.log('🔍 Checking navbar dropdown elements...');
+    console.log('Profile button exists:', $('#profileDropdownBtn').length > 0);
+    console.log('Profile dropdown exists:', $('#profileDropdownMenu').length > 0);
+    
+    // Add any dashboard-specific jQuery code here
+    // Example: animations, charts, etc.
+});
+</script>
+@endpush

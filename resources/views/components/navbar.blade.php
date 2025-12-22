@@ -53,7 +53,7 @@
                         <div class="dropdown-divider d-sm-none"></div>
 
                         <!-- Menu Items -->
-                        <a class="dropdown-item" href="#">
+                    <a class="dropdown-item" href="{{ route('profile.index') }}">
                             <i class="fas fa-user-circle"></i>
                             <span>Profil Saya</span>
                         </a>

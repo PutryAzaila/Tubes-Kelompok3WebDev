@@ -23,7 +23,7 @@ class PerangkatController extends Controller
             if ($search) {
                 $query->where(function($q) use ($search) {
                     $q->where('nama_perangkat', 'like', "%{$search}%")
-                    ->orWhere('catatan', 'like', "%{$search}%");
+                    ->orWhere('catatan_perangkat', 'like', "%{$search}%");
                 });
             }
             
@@ -94,8 +94,8 @@ class PerangkatController extends Controller
             $validator = Validator::make($request->all(), [
                 'id_kategori_perangkat' => 'required|exists:kategori_perangkats,id',
                 'nama_perangkat' => 'required|string|max:255',
-                'status' => 'required|in:rusak,hilang,retur,berfungsi',
-                'catatan' => 'nullable|string'
+                'status' => 'required|in:Rusak,Hilang,Return,Berfungsi',
+                'catatan_perangkat' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -110,7 +110,7 @@ class PerangkatController extends Controller
                 'id_kategori_perangkat',
                 'nama_perangkat',
                 'status',
-                'catatan'
+                'catatan_perangkat'
             ]));
 
             return response()->json([
@@ -144,8 +144,8 @@ class PerangkatController extends Controller
             $validator = Validator::make($request->all(), [
                 'id_kategori_perangkat' => 'sometimes|required|exists:kategori_perangkats,id',
                 'nama_perangkat' => 'sometimes|required|string|max:255',
-                'status' => 'sometimes|required|in:rusak,hilang,retur,berfungsi',
-                'catatan' => 'nullable|string'
+                'status' => 'sometimes|required|in:Rusak,Hilang,Return,Berfungsi',
+                'catatan_perangkat' => 'nullable|string'
             ]);
 
             if ($validator->fails()) {
@@ -160,7 +160,7 @@ class PerangkatController extends Controller
                 'id_kategori_perangkat',
                 'nama_perangkat',
                 'status',
-                'catatan'
+                'catatan_perangkat'
             ]));
 
             return response()->json([
@@ -212,10 +212,10 @@ class PerangkatController extends Controller
     {
         try {
             $totalDevices = Perangkat::count();
-            $availableDevices = Perangkat::where('status', 'berfungsi')->count();
-            $damagedDevices = Perangkat::where('status', 'rusak')->count();
-            $returDevices = Perangkat::where('status', 'retur')->count();
-            $missingDevices = Perangkat::where('status', 'hilang')->count();
+            $availableDevices = Perangkat::where('status', 'Berfungsi')->count();
+            $damagedDevices = Perangkat::where('status', 'Rusak')->count();
+            $returDevices = Perangkat::where('status', 'Return')->count();
+            $missingDevices = Perangkat::where('status', 'Hilang')->count();
 
             // Get devices by category
             $devicesByCategory = KategoriPerangkat::withCount('perangkat')->get();
@@ -251,9 +251,9 @@ class PerangkatController extends Controller
             $exportData = $perangkat->map(function($item) {
                 return [
                     'Nama Perangkat' => $item->nama_perangkat,
-                    'Kategori' => $item->KategoriPerangkat->nama_kategori ?? '-',
+                    'Kategori' => $item->kategoriPerangkat->nama_kategori ?? '-',
                     'Status' => ucfirst($item->status),
-                    'Catatan' => $item->catatan ?? '-',
+                    'Catatan' => $item->catatan_perangkat ?? '-',
                     'Created At' => $item->created_at->format('Y-m-d H:i:s')
                 ];
             });

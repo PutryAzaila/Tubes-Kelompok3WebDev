@@ -771,34 +771,35 @@ $(document).ready(function() {
         console.error('Validation Error:', message);
     }
 
-    // Helper function untuk menampilkan success modal
     function showSuccessModal(message) {
         $('#successModal').remove();
         
         const modalHtml = `
             <div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
-                    <div class="modal-content border-0 shadow-lg">
-                        <div class="modal-body text-center p-5">
-                            <div class="mb-4">
-                                <div class="success-checkmark mx-auto">
-                                    <div class="check-icon">
-                                        <span class="icon-line line-tip"></span>
-                                        <span class="icon-line line-long"></span>
-                                        <div class="icon-circle"></div>
-                                        <div class="icon-fix"></div>
-                                    </div>
-                                </div>
+                    <div class="modal-content" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 2rem; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2); overflow: hidden;">
+                        <div class="modal-body" style="padding: 3rem 2.5rem; text-align: center;">
+                            <!-- Icon Circle -->
+                            <div style="width: 100px; height: 100px; background: linear-gradient(135deg, #10b981, #34d399); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); animation: bounceIn 0.6s ease;">
+                                <i class="fas fa-check" style="font-size: 3rem; color: white;"></i>
                             </div>
-                            <h3 class="text-success mb-3">Berhasil!</h3>
-                            <p class="text-muted mb-4">${message}</p>
-                            <div class="d-flex gap-3 justify-content-center">
-                                <button type="button" class="btn btn-secondary px-4" id="btnAddMore">
-                                    <i class="fas fa-plus me-2"></i>Tambah Lagi
-                                </button>
-                                <a href="/inventory" class="btn btn-primary px-4">
-                                    <i class="fas fa-list me-2"></i>Lihat Data
+                            
+                            <!-- Success Text -->
+                            <h2 style="color: #1f2937; font-weight: 800; margin-bottom: 1rem; font-size: 1.75rem; animation: fadeIn 0.8s ease;">
+                                Data Tersimpan!
+                            </h2>
+                            <p style="color: #6b7280; font-size: 1rem; margin-bottom: 2.5rem; animation: fadeIn 1s ease;">
+                                ${message}
+                            </p>
+                            
+                            <!-- Action Buttons -->
+                            <div class="d-flex flex-column gap-3">
+                                <a href="/inventory" class="btn" style="background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border: none; padding: 1rem 2rem; border-radius: 1rem; font-weight: 600; font-size: 1rem; text-decoration: none; transition: all 0.3s ease;">
+                                    <i class="fas fa-list me-2"></i>Lihat Semua Data
                                 </a>
+                                <button type="button" class="btn" id="btnAddMore" style="background: white; color: #374151; border: 2px solid #e5e7eb; padding: 1rem 2rem; border-radius: 1rem; font-weight: 600; font-size: 1rem; transition: all 0.3s ease;">
+                                    <i class="fas fa-plus me-2"></i>Tambah Data Lagi
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -811,19 +812,25 @@ $(document).ready(function() {
         if (!$('#successModalStyles').length) {
             const styles = `
                 <style id="successModalStyles">
-                    .success-checkmark { width: 80px; height: 80px; margin: 0 auto; }
-                    .success-checkmark .check-icon { width: 80px; height: 80px; position: relative; border-radius: 50%; box-sizing: content-box; border: 4px solid #10b981; }
-                    .success-checkmark .check-icon::before { top: 3px; left: -2px; width: 30px; transform-origin: 100% 50%; border-radius: 100px 0 0 100px; }
-                    .success-checkmark .check-icon::after { top: 0; left: 30px; width: 60px; transform-origin: 0 50%; border-radius: 0 100px 100px 0; animation: rotate-circle 4.25s ease-in; }
-                    .success-checkmark .check-icon::before, .success-checkmark .check-icon::after { content: ''; height: 100px; position: absolute; background: #fff; transform: rotate(-45deg); }
-                    .success-checkmark .icon-line { height: 5px; background-color: #10b981; display: block; border-radius: 2px; position: absolute; z-index: 10; }
-                    .success-checkmark .icon-line.line-tip { top: 46px; left: 14px; width: 25px; transform: rotate(45deg); animation: icon-line-tip 0.75s; }
-                    .success-checkmark .icon-line.line-long { top: 38px; right: 8px; width: 47px; transform: rotate(-45deg); animation: icon-line-long 0.75s; }
-                    .success-checkmark .icon-circle { top: -4px; left: -4px; z-index: 10; width: 80px; height: 80px; border-radius: 50%; position: absolute; box-sizing: content-box; border: 4px solid rgba(16, 185, 129, .5); }
-                    .success-checkmark .icon-fix { top: 8px; width: 5px; left: 26px; z-index: 1; height: 85px; position: absolute; transform: rotate(-45deg); background-color: #fff; }
-                    @keyframes rotate-circle { 0% { transform: rotate(-45deg); } 5% { transform: rotate(-45deg); } 12% { transform: rotate(-405deg); } 100% { transform: rotate(-405deg); } }
-                    @keyframes icon-line-tip { 0% { width: 0; left: 1px; top: 19px; } 54% { width: 0; left: 1px; top: 19px; } 70% { width: 50px; left: -8px; top: 37px; } 84% { width: 17px; left: 21px; top: 48px; } 100% { width: 25px; left: 14px; top: 45px; } }
-                    @keyframes icon-line-long { 0% { width: 0; right: 46px; top: 54px; } 65% { width: 0; right: 46px; top: 54px; } 84% { width: 55px; right: 0px; top: 35px; } 100% { width: 47px; right: 8px; top: 38px; } }
+                    @keyframes bounceIn {
+                        0% { transform: scale(0); opacity: 0; }
+                        50% { transform: scale(1.1); }
+                        100% { transform: scale(1); opacity: 1; }
+                    }
+                    
+                    @keyframes fadeIn {
+                        from { opacity: 0; transform: translateY(10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    
+                    #successModal .btn:hover {
+                        transform: translateY(-3px);
+                        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                    }
+                    
+                    #successModal .modal-backdrop {
+                        backdrop-filter: blur(5px);
+                    }
                 </style>
             `;
             $('head').append(styles);
@@ -838,6 +845,7 @@ $(document).ready(function() {
             $('.select2').val('').trigger('change');
             $('.radio-card').removeClass('active');
             $('.conditional-section').removeClass('show');
+            $('.alert-validation-error').remove();
             $('html, body').animate({ scrollTop: 0 }, 500);
         });
     }
