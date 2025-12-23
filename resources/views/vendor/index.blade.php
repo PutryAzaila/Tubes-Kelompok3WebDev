@@ -660,7 +660,7 @@ body {
                 <p>Kelola informasi vendor dan supplier untuk kebutuhan pembelian</p>
             </div>
             <div>
-                {{-- HANYA ADMIN --}}
+                {{-- TOMBOL TAMBAH HANYA UNTUK ADMIN --}}
                 @role('admin')
                 <a href="{{ route('vendor.create') }}" class="btn btn-add">
                     <i class="fas fa-plus"></i>
@@ -754,6 +754,7 @@ body {
                             <th>KATEGORI</th>
                             <th>KONTAK</th>
                             <th>ALAMAT</th>
+                            {{-- KOLOM AKSI HANYA UNTUK ADMIN --}}
                             @role('admin')
                             <th class="text-end" width="100">AKSI</th>
                             @endrole
@@ -804,7 +805,7 @@ body {
                             </span>
                         </td>
                         
-                        {{-- HANYA ADMIN --}}
+                        {{-- TOMBOL AKSI HANYA UNTUK ADMIN --}}
                         @role('admin')
                         <td>
                             <div class="action-buttons">
@@ -838,7 +839,13 @@ body {
                     <i class="fas fa-box-open"></i>
                 </div>
                 <h4>Belum Ada Data Vendor</h4>
-                <p>@role('admin')Mulai kelola vendor Anda dengan menambahkan data vendor pertama@elseBelum ada data vendor tersedia@endrole</p>
+                <p>
+                    @role('admin')
+                    Mulai kelola vendor Anda dengan menambahkan data vendor pertama
+                    @else
+                    Belum ada data vendor tersedia
+                    @endrole
+                </p>
                 @role('admin')
                 <a href="{{ route('vendor.create') }}" class="btn btn-primary btn-empty">
                     <i class="fas fa-plus me-2"></i>Tambah Vendor
@@ -851,7 +858,6 @@ body {
 
 </div>
 @endsection
-
 @push('scripts')
 <!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>

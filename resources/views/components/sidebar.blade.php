@@ -100,8 +100,8 @@
             </div>
             @endrole
 
-            <!-- INVENTORY - MANAJER & NOC -->
-            @role('manajer', 'noc')
+            <!-- INVENTORY - MANAJER, ADMIN& NOC -->
+            @role('manajer', 'admin', 'noc')
             <a href="{{ route('inventory.index') }}"
                class="sidebar-nav-item {{ request()->is('inventory*') ? 'active' : '' }}">
                 <i class="fas fa-boxes-stacked"></i>

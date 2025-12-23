@@ -30,64 +30,61 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/profile/update-password', [WebProfileController::class, 'updatePassword'])->name('profile.password.update');
 });
 
-// ========== MANAJER - View Only (Vendor, Kategori Vendor, Perangkat, Kategori Perangkat) ==========
-Route::middleware(['auth', 'role:manajer'])->group(function () {
-    // Vendor - View Only
+// ========== ADMIN & MANAJER - View Access (Read Only) ==========
+Route::middleware(['auth', 'role:admin,manajer'])->group(function () {
+    // Vendor - View
     Route::get('/vendor', [WebVendorController::class, 'index'])->name('vendor.index');
     
-    // Kategori Vendor - View Only
+    // Kategori Vendor - View
     Route::get('/kategori-vendor', [WebKategoriVendorController::class, 'index'])->name('kategori-vendor.index');
     
-    // Kategori Perangkat - View Only
+    // Kategori Perangkat - View
     Route::get('/kategori-perangkat', [WebKategoriPerangkatController::class, 'index'])->name('kategori-perangkat.index');
     
-    // Perangkat - View Only
+    // Perangkat - View
     Route::get('/perangkat', [WebPerangkatController::class, 'index'])->name('perangkat.index');
     Route::get('/perangkat-statistics', [WebPerangkatController::class, 'statistics'])->name('perangkat.statistics');
     Route::get('/perangkat-export', [WebPerangkatController::class, 'export'])->name('perangkat.export');
+});
 
-    // PO - Approve/Reject (tetap)
+// ========== MANAJER ONLY - Approval Actions ==========
+Route::middleware(['auth', 'role:manajer'])->group(function () {
+    // PO - Approve/Reject
     Route::patch('/purchase-order/{id}/approve', [WebPurchaseOrderController::class, 'approve'])->name('purchase-order.approve');
     Route::patch('/purchase-order/{id}/reject', [WebPurchaseOrderController::class, 'reject'])->name('purchase-order.reject');
 });
 
-// ========== ADMIN - Full CRUD (Vendor, Kategori Vendor, Perangkat, Kategori Perangkat, PO) ==========
+// ========== ADMIN ONLY - Full CRUD ==========
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Vendor - Full CRUD
-    Route::get('/vendor', [WebVendorController::class, 'index'])->name('vendor.index');
+    // Vendor - CRUD (Create, Update, Delete saja, karena index sudah di atas)
     Route::get('/vendor/create', [WebVendorController::class, 'create'])->name('vendor.create');
     Route::post('/vendor', [WebVendorController::class, 'store'])->name('vendor.store');
     Route::get('/vendor/{id}/edit', [WebVendorController::class, 'edit'])->name('vendor.edit');
     Route::put('/vendor/{id}', [WebVendorController::class, 'update'])->name('vendor.update');
     Route::delete('/vendor/{id}', [WebVendorController::class, 'destroy'])->name('vendor.destroy');
 
-    // Kategori Vendor - Full CRUD
-    Route::get('/kategori-vendor', [WebKategoriVendorController::class, 'index'])->name('kategori-vendor.index');
+    // Kategori Vendor - CRUD
     Route::get('/kategori-vendor/create', [WebKategoriVendorController::class, 'create'])->name('kategori-vendor.create');
     Route::post('/kategori-vendor', [WebKategoriVendorController::class, 'store'])->name('kategori-vendor.store');
     Route::get('/kategori-vendor/{id}/edit', [WebKategoriVendorController::class, 'edit'])->name('kategori-vendor.edit');
     Route::put('/kategori-vendor/{id}', [WebKategoriVendorController::class, 'update'])->name('kategori-vendor.update');
     Route::delete('/kategori-vendor/{id}', [WebKategoriVendorController::class, 'destroy'])->name('kategori-vendor.destroy');
 
-    // Kategori Perangkat - Full CRUD
-    Route::get('/kategori-perangkat', [WebKategoriPerangkatController::class, 'index'])->name('kategori-perangkat.index');
+    // Kategori Perangkat - CRUD
     Route::get('/kategori-perangkat/create', [WebKategoriPerangkatController::class, 'create'])->name('kategori-perangkat.create');
     Route::post('/kategori-perangkat', [WebKategoriPerangkatController::class, 'store'])->name('kategori-perangkat.store');
     Route::get('/kategori-perangkat/{id}/edit', [WebKategoriPerangkatController::class, 'edit'])->name('kategori-perangkat.edit');
     Route::put('/kategori-perangkat/{id}', [WebKategoriPerangkatController::class, 'update'])->name('kategori-perangkat.update');
     Route::delete('/kategori-perangkat/{id}', [WebKategoriPerangkatController::class, 'destroy'])->name('kategori-perangkat.destroy');
 
-    // Perangkat - Full CRUD
-    Route::get('/perangkat', [WebPerangkatController::class, 'index'])->name('perangkat.index');
+    // Perangkat - CRUD
     Route::get('/perangkat/create', [WebPerangkatController::class, 'create'])->name('perangkat.create');
     Route::post('/perangkat', [WebPerangkatController::class, 'store'])->name('perangkat.store');
     Route::get('/perangkat/{id}/edit', [WebPerangkatController::class, 'edit'])->name('perangkat.edit');
     Route::put('/perangkat/{id}', [WebPerangkatController::class, 'update'])->name('perangkat.update');
     Route::delete('/perangkat/{id}', [WebPerangkatController::class, 'destroy'])->name('perangkat.destroy');
-    Route::get('/perangkat-statistics', [WebPerangkatController::class, 'statistics'])->name('perangkat.statistics');
-    Route::get('/perangkat-export', [WebPerangkatController::class, 'export'])->name('perangkat.export');
 
-    // PO - Full CRUD
+    // PO - CRUD
     Route::get('/purchase-order/create', [WebPurchaseOrderController::class, 'create'])->name('purchase-order.create');
     Route::post('/purchase-order', [WebPurchaseOrderController::class, 'store'])->name('purchase-order.store');
     Route::get('/purchase-order/{id}/edit', [WebPurchaseOrderController::class, 'edit'])->name('purchase-order.edit');
@@ -105,12 +102,12 @@ Route::middleware(['auth', 'role:noc'])->group(function () {
     Route::put('/inventory/{id}/{type}', [WebInventoryController::class, 'update'])->name('inventory.update');
 });
 
-// ========== MANAJER & NOC - Lihat Inventory ==========
-Route::middleware(['auth', 'role:manajer,noc'])->group(function () {
+// ========== MANAJER, ADMIN & NOC - Lihat Inventory ==========
+Route::middleware(['auth', 'role:manajer,admin,noc'])->group(function () {
     Route::get('/inventory', [WebInventoryController::class, 'index'])->name('inventory.index');
 });
 
-// ========== MANAJER, ADMIN, NOC - Lihat PO (Gabungan) ==========
+// ========== MANAJER, ADMIN, NOC - Lihat PO ==========
 Route::middleware(['auth', 'role:manajer,admin,noc'])->group(function () {
     Route::get('/purchase-order', [WebPurchaseOrderController::class, 'index'])->name('purchase-order.index');
     Route::get('/purchase-order/{id}', [WebPurchaseOrderController::class, 'show'])->name('purchase-order.show');

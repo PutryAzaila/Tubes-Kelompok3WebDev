@@ -5,6 +5,11 @@
 @section('page-subtitle', 'Kelola Purchase Order perusahaan')
 
 @push('styles')
+<!-- Bootstrap 5 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 <style>
 /* Welcome Header Card */
 .welcome-header-card {
@@ -73,39 +78,39 @@
 }
 
 .stat-card.stat-primary {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     color: white;
 }
 
 .stat-card.stat-primary::before {
-    background: #667eea;
+    background: #2563eb;
 }
 
 .stat-card.stat-warning {
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
     color: white;
 }
 
 .stat-card.stat-warning::before {
-    background: #f093fb;
+    background: #f97316;
 }
 
 .stat-card.stat-success {
-    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
     color: white;
 }
 
 .stat-card.stat-success::before {
-    background: #4facfe;
+    background: #10b981;
 }
 
 .stat-card.stat-danger {
-    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: white;
 }
 
 .stat-card.stat-danger::before {
-    background: #fa709a;
+    background: #ef4444;
 }
 
 .stat-icon-wrapper {
@@ -147,7 +152,7 @@
 }
 
 .card-modern .card-header {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
     border: none;
     padding: 1.25rem 1.5rem;
 }
@@ -259,26 +264,27 @@
     color: white;
 }
 
-/* Table Modern - FIXED */
+/* Table Modern - SUPER FIXED */
 .table-modern {
     margin: 0;
     width: 100%;
 }
 
 .table-modern thead {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
 }
 
 .table-modern thead th {
-    border: none;
-    font-weight: 600;
-    font-size: 0.875rem;
-    padding: 1.25rem 1rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: white !important; /* FIXED: Force white color */
-    white-space: nowrap;
-    vertical-align: middle;
+    border: none !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    padding: 1.25rem 1rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+    color: #ffffff !important; /* SUPER FIXED: Paksa warna putih */
+    background: transparent !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
 }
 
 .table-modern tbody tr {
@@ -786,8 +792,17 @@
 @endsection
 
 @push('scripts')
+<!-- jQuery (WAJIB LOAD DULUAN) -->
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
 $(document).ready(function() {
+    console.log('✅ Purchase Order page loaded');
+    console.log('✅ jQuery version:', $.fn.jquery);
+    console.log('✅ Bootstrap loaded:', typeof bootstrap !== 'undefined');
+    
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -804,10 +819,10 @@ $(document).ready(function() {
         applyFilters();
     });
     
-    // Apply Filters Function - FIXED
+    // Apply Filters Function
     function applyFilters() {
-        const statusFilter = $('#filterStatus').val(); // Tidak perlu toLowerCase()
-        const vendorFilter = $('#filterVendor').val(); // Tidak perlu toLowerCase()
+        const statusFilter = $('#filterStatus').val();
+        const vendorFilter = $('#filterVendor').val();
         const rows = $('#poTable tbody tr');
         let visibleCount = 0;
         
@@ -817,17 +832,17 @@ $(document).ready(function() {
             // Skip empty state row
             if ($row.attr('id') === 'emptyRow') return;
             
-            const rowStatus = $row.data('status'); // "Diajukan" / "Disetujui" / "Ditolak"
-            const rowVendor = $row.data('vendor'); // Nama vendor asli
+            const rowStatus = $row.data('status');
+            const rowVendor = $row.data('vendor');
             
             let showRow = true;
             
-            // Check status filter - FIXED: Exact match
+            // Check status filter
             if (statusFilter && rowStatus !== statusFilter) {
                 showRow = false;
             }
             
-            // Check vendor filter - FIXED: Exact match
+            // Check vendor filter
             if (vendorFilter && rowVendor !== vendorFilter) {
                 showRow = false;
             }

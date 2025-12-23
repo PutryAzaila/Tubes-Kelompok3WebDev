@@ -1,4 +1,3 @@
-
 @extends('layouts.dashboard')
 
 @section('title', 'Data Perangkat')
@@ -159,7 +158,7 @@
                         <th style="width: 30%;">Nama Perangkat</th>
                         <th style="width: 20%;">Kategori</th>
                         <th style="width: 15%;">Status</th>
-                        <th style="width: 20%;">Catatan</th>
+                        <th style="width: @role('admin')20%@else30%@endrole;">Catatan</th>
                         @role('admin')
                         <th style="width: 10%;" class="text-center">Aksi</th>
                         @endrole
@@ -227,13 +226,23 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="@role('admin')6@else5@endrole">
+                        @role('admin')
+                        <td colspan="6">
+                        @else
+                        <td colspan="5">
+                        @endrole
                             <div class="empty-state">
                                 <div class="empty-icon">
                                     <i class="fas fa-inbox"></i>
                                 </div>
                                 <h5>Tidak Ada Data</h5>
-                                <p>@role('admin')Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.@elseBelum ada data perangkat tersedia.@endrole</p>
+                                <p>
+                                    @role('admin')
+                                        Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.
+                                    @else
+                                        Belum ada data perangkat tersedia.
+                                    @endrole
+                                </p>
                                 @role('admin')
                                 <a href="{{ route('perangkat.create') }}" class="btn btn-primary-custom">
                                     <i class="fas fa-plus-circle me-2"></i>
@@ -260,13 +269,13 @@
         </div>
         @endif
     </div>
-</div>
 
-<!-- Hidden form for delete -->
-<form id="deleteForm" method="POST" style="display: none;">
-    @csrf
-    @method('DELETE')
-</form>
+    <!-- Hidden form for delete -->
+    <form id="deleteForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
+@endsection
 
 @push('styles')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -274,7 +283,7 @@
 
 <style>
 :root {
-    /* --primary-blue: #1e40af; */
+    --primary-blue: #1e40af;
     --primary-orange: #ea580c;
     --success-green: #059669;
     --danger-red: #dc2626;
@@ -292,7 +301,6 @@
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
-
 
 /* Page Header */
 .page-header {
@@ -999,7 +1007,7 @@ $(document).ready(function() {
                 
                 // Submit form
                 const form = $('#deleteForm');
-                form.attr('action', `/perangkat/${id}`);
+                form.attr('action', '/perangkat/' + id);
                 form.submit();
             }
         });
@@ -1010,7 +1018,7 @@ $(document).ready(function() {
         Swal.fire({
             icon: 'success',
             title: 'Berhasil!',
-            text: '{{ session("success") }}',
+            text: '{{ session('success') }}',
             timer: 3000,
             showConfirmButton: false,
             customClass: {
@@ -1025,7 +1033,7 @@ $(document).ready(function() {
         Swal.fire({
             icon: 'error',
             title: 'Gagal!',
-            text: '{{ session("error") }}',
+            text: '{{ session('error') }}',
             confirmButtonColor: '#dc2626',
             confirmButtonText: 'OK',
             customClass: {
@@ -1096,4 +1104,3 @@ $(document).ready(function() {
 }
 </style>
 @endpush
-@endsection

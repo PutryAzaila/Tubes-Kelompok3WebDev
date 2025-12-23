@@ -481,7 +481,7 @@
         <div class="stats-container">
             <div class="stat-card">
                 <div class="stat-icon blue">
-                    <i class="fas fa-tags"></i>
+                    <i class="fas fa-folder-open"></i>
                 </div>
                 <div class="stat-label">Total Kategori</div>
                 <div class="stat-value">{{ $kategoriPerangkats->count() }}</div>
@@ -556,6 +556,7 @@
                             <th style="width: 8%;">No</th>
                             <th style="width: 42%;">Nama Kategori</th>
                             <th style="width: 20%;" class="text-center">Jumlah Perangkat</th>
+                            {{-- Kolom Aksi - HANYA ADMIN yang bisa CRUD --}}
                             @role('admin')
                             <th style="width: 30%;" class="text-center">Aksi</th>
                             @endrole
@@ -582,7 +583,7 @@
                                 </span>
                             </td>
                             
-                            {{-- Kolom Aksi - HANYA ADMIN --}}
+                            {{-- Kolom Aksi - HANYA ADMIN yang bisa Edit & Hapus --}}
                             @role('admin')
                             <td class="text-center">
                                 <div class="action-buttons">
@@ -602,7 +603,12 @@
                         </tr>
                         @empty
                         <tr id="emptyRow">
-                            <td colspan="@role('admin')4@else3@endrole">
+                            {{-- Colspan disesuaikan dengan jumlah kolom --}}
+                            @role('admin')
+                            <td colspan="4">
+                            @else
+                            <td colspan="3">
+                            @endrole
                                 <div class="empty-state">
                                     <div class="empty-state-icon">
                                         <i class="fas fa-inbox"></i>
@@ -617,13 +623,14 @@
                                     </p>
                                     @role('admin')
                                     <a href="{{ route('kategori-perangkat.create') }}" class="btn btn-add">
-                                        <i class="fas fa-plus-circle"></i>Tambah Kategori Sekarang
+                                        <i class="fas fa-plus-circle"></i>
+                                        Tambah Kategori Sekarang
                                     </a>
                                     @endrole
                                 </div>
                             </td>
                         </tr>
-                        @endforelse
+                        @endempty
                     </tbody>
                 </table>
             </div>
@@ -664,7 +671,7 @@ $(document).ready(function() {
         // Show/hide empty state
         if (visibleRows === 0 && value !== '') {
             if ($('#noResultRow').length === 0) {
-                const colspan = @json(auth()->user()->hasRole('admin') ? 4 : 3);
+                const colspan = @role('admin')'4'@else'3'@endrole;
                 $('#tableBody').append(`
                     <tr id="noResultRow">
                         <td colspan="${colspan}">
@@ -693,10 +700,16 @@ $(document).ready(function() {
         e.preventDefault();
         const form = $(this).closest('form');
         const categoryName = $(this).closest('tr').find('.category-info h6').text();
+        const deviceCount = $(this).closest('tr').find('.badge-count').text().match(/\d+/)[0];
+        
+        let warningMessage = '';
+        if (deviceCount > 0) {
+            warningMessage = `<br><small class="text-danger"><i class="fas fa-exclamation-triangle me-1"></i>Perhatian: Kategori ini memiliki ${deviceCount} perangkat terkait</small>`;
+        }
         
         Swal.fire({
             title: 'Konfirmasi Hapus',
-            html: `Apakah Anda yakin ingin menghapus kategori<br><strong>"${categoryName}"</strong>?`,
+            html: `Apakah Anda yakin ingin menghapus kategori<br><strong>"${categoryName}"</strong>?${warningMessage}`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
@@ -728,14 +741,14 @@ $(document).ready(function() {
 
     // Keyboard shortcuts - DISESUAIKAN DENGAN ROLE
     $(document).on('keydown', function(e) {
-        // Ctrl/Cmd + K = Focus search
+        // Ctrl/Cmd + K = Focus search (Semua role)
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
             e.preventDefault();
             $('#searchInput').focus();
         }
         
-        @role('admin')
         // Ctrl/Cmd + N = New category (HANYA ADMIN)
+        @role('admin')
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
             e.preventDefault();
             window.location.href = '{{ route("kategori-perangkat.create") }}';

@@ -29,14 +29,13 @@ class AppServiceProvider extends ServiceProvider
             
             $userJabatan = strtolower(auth()->user()->jabatan ?? '');
             $allowedRoles = array_map('strtolower', $roles);
-            
+
             return in_array($userJabatan, $allowedRoles);
         });
 
-        // TAMBAHKAN KODE INI untuk memuat API routes
         Route::prefix('api')
              ->middleware('api')
-             ->namespace('App\Http\Controllers\Api') // Penting: namespace untuk controllers
+             ->namespace('App\Http\Controllers\Api') 
              ->group(base_path('routes/api.php'));
     }
 }

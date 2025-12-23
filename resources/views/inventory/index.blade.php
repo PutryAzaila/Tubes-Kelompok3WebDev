@@ -213,6 +213,11 @@
         color: white;
     }
 
+    .badge-admin {
+        background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+        color: white;
+    }
+
     .dtsp-searchPane {
         border-radius: 0.75rem !important;
         border: 1px solid #e0e0e0 !important;
@@ -265,14 +270,9 @@
                     <h1 class="mb-2"><i class="fas fa-boxes me-2"></i>Inventory Management</h1>
                     <p class="mb-0 opacity-75">Kelola data barang masuk dan keluar dengan mudah</p>
                 </div>
-                
-                <!-- Role Badge -->
-                <span class="badge-role badge-{{ strtolower(auth()->user()->role) }}">
-                    <i class="fas fa-user-tag me-1"></i>{{ strtoupper(auth()->user()->role) }}
-                </span>
 
                 <!-- Tombol Tambah Data - Hanya NOC -->
-                @if(auth()->user()->role === 'noc')
+                @if(strtoupper(auth()->user()->jabatan) === 'NOC')
                 <a href="{{ route('inventory.create') }}" class="btn btn-add">
                     <i class="fas fa-plus me-2"></i>Tambah Data
                 </a>
@@ -282,15 +282,20 @@
     </div>
 
     <!-- Access Info Alert -->
-    @if(auth()->user()->role === 'manajer')
+    @if(strtoupper(auth()->user()->jabatan) === 'MANAJER')
     <div class="access-info">
         <i class="fas fa-info-circle me-2"></i>
         <strong>Mode Tampilan:</strong> Anda login sebagai <strong>Manajer</strong> dengan hak akses <em>View Only</em> (Lihat Data Saja).
     </div>
-    @elseif(auth()->user()->role === 'noc')
+    @elseif(strtoupper(auth()->user()->jabatan) === 'NOC')
     <div class="access-info">
         <i class="fas fa-info-circle me-2"></i>
         <strong>Mode Input:</strong> Anda login sebagai <strong>NOC</strong> dengan hak akses <em>Tambah & Edit</em> data inventory.
+    </div>
+    @elseif(strtoupper(auth()->user()->jabatan) === 'ADMIN')
+    <div class="access-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Mode Tampilan:</strong> Anda login sebagai <strong>Admin</strong> dengan hak akses <em>View Only</em> (Lihat Data Saja).
     </div>
     @endif
 
@@ -428,15 +433,14 @@
                                     {{ $isMasuk ? ($item->catatan_barang_masuk ?? '-') : ($item->catatan_barang_keluar ?? '-') }}
                                 </td>
                                 <td class="text-center">
-                                    @if(auth()->user()->role === 'noc')
-                                        <!-- NOC: Bisa Edit -->
+                                    @if(strtoupper(auth()->user()->jabatan) === 'NOC')
                                         <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
                                             class="action-btn btn-edit" 
                                             title="Edit Data">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                    @elseif(auth()->user()->role === 'manajer')
-                                        <!-- Manajer: Hanya View (optional, bisa dikosongkan atau diberi icon view) -->
+                                    @elseif(strtoupper(auth()->user()->jabatan) === 'MANAJER' || strtoupper(auth()->user()->jabatan) === 'ADMIN')
+                                        <!-- Manajer: Hanya View -->
                                         <button class="action-btn btn-view" 
                                                 title="Lihat Saja (View Only)" 
                                                 disabled>

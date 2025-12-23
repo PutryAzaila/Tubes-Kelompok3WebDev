@@ -601,23 +601,34 @@
                             @endrole
                         </tr>
                         @empty
-                        <tr id="emptyRow">
-                            <td colspan="@role('admin')4@else3@endrole">
-                                <div class="empty-state">
-                                    <div class="empty-state-icon">
-                                        <i class="fas fa-inbox"></i>
+                            <tr id="emptyRow">
+                                @role('admin')
+                                <td colspan="4">
+                                @else
+                                <td colspan="3">
+                                @endrole
+                                    <div class="empty-state">
+                                        <div class="empty-state-icon">
+                                            <i class="fas fa-inbox"></i>
+                                        </div>
+                                        <h5>Belum Ada Kategori</h5>
+                                        <p>
+                                            @role('admin')
+                                            Mulai dengan menambahkan kategori vendor pertama Anda
+                                            @else
+                                            Belum ada data kategori vendor tersedia
+                                            @endrole
+                                        </p>
+                                        @role('admin')
+                                        <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
+                                            <i class="fas fa-plus-circle"></i>
+                                            Tambah Kategori Sekarang
+                                        </a>
+                                        @endrole
                                     </div>
-                                    <h5>Belum Ada Kategori</h5>
-                                    <p>@role('admin')Mulai dengan menambahkan kategori vendor pertama Anda@elseBelum ada data kategori vendor tersedia@endrole</p>
-                                    @role('admin')
-                                    <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
-                                        <i class="fas fa-plus-circle"></i>Tambah Kategori Sekarang
-                                    </a>
-                                    @endrole
-                                </div>
-                            </td>
-                        </tr>
-                        @endforelse
+                                </td>
+                            </tr>
+                            @endempty
                     </tbody>
                 </table>
             </div>

@@ -20,7 +20,9 @@ Route::middleware('auth:api')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/refresh', [AuthController::class, 'refresh']);
 
-    Route::apiResource('inventory', InventoryController::class);
+    Route::name('api.')->group(function () {
+        Route::apiResource('inventory', InventoryController::class);
+    });
     
     // Kategori Perangkat Routes (Protected)
     Route::prefix('kategori-perangkat')->group(function () {
