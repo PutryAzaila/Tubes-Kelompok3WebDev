@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route; // <-- Tambahkan ini
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -31,5 +32,11 @@ class AppServiceProvider extends ServiceProvider
             
             return in_array($userJabatan, $allowedRoles);
         });
+
+        // TAMBAHKAN KODE INI untuk memuat API routes
+        Route::prefix('api')
+             ->middleware('api')
+             ->namespace('App\Http\Controllers\Api') // Penting: namespace untuk controllers
+             ->group(base_path('routes/api.php'));
     }
 }
