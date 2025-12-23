@@ -187,6 +187,32 @@
         color: white;
     }
 
+    .btn-view {
+        background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        color: white;
+    }
+
+    .badge-role {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-noc {
+        background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+        color: white;
+    }
+
+    .badge-manajer {
+        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+        color: white;
+    }
+
     .dtsp-searchPane {
         border-radius: 0.75rem !important;
         border: 1px solid #e0e0e0 !important;
@@ -218,6 +244,14 @@
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    .access-info {
+        background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(59, 130, 246, 0.1) 100%);
+        border-left: 4px solid var(--transdata-blue);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
 </style>
 @endpush
 
@@ -226,17 +260,39 @@
     <!-- Page Header -->
     <div class="page-header mb-4">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
+            <div class="d-flex justify-content-between align-items-center position-relative">
                 <div>
                     <h1 class="mb-2"><i class="fas fa-boxes me-2"></i>Inventory Management</h1>
                     <p class="mb-0 opacity-75">Kelola data barang masuk dan keluar dengan mudah</p>
                 </div>
+                
+                <!-- Role Badge -->
+                <span class="badge-role badge-{{ strtolower(auth()->user()->role) }}">
+                    <i class="fas fa-user-tag me-1"></i>{{ strtoupper(auth()->user()->role) }}
+                </span>
+
+                <!-- Tombol Tambah Data - Hanya NOC -->
+                @if(auth()->user()->role === 'noc')
                 <a href="{{ route('inventory.create') }}" class="btn btn-add">
                     <i class="fas fa-plus me-2"></i>Tambah Data
                 </a>
+                @endif
             </div>
         </div>
     </div>
+
+    <!-- Access Info Alert -->
+    @if(auth()->user()->role === 'manajer')
+    <div class="access-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Mode Tampilan:</strong> Anda login sebagai <strong>Manajer</strong> dengan hak akses <em>View Only</em> (Lihat Data Saja).
+    </div>
+    @elseif(auth()->user()->role === 'noc')
+    <div class="access-info">
+        <i class="fas fa-info-circle me-2"></i>
+        <strong>Mode Input:</strong> Anda login sebagai <strong>NOC</strong> dengan hak akses <em>Tambah & Edit</em> data inventory.
+    </div>
+    @endif
 
     <!-- Alert Messages -->
     @if(session('success'))
@@ -372,11 +428,21 @@
                                     {{ $isMasuk ? ($item->catatan_barang_masuk ?? '-') : ($item->catatan_barang_keluar ?? '-') }}
                                 </td>
                                 <td class="text-center">
-                                    <!-- REMOVED: Delete button, only Edit -->
-                                    <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
-                                        class="action-btn btn-edit" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
+                                    @if(auth()->user()->role === 'noc')
+                                        <!-- NOC: Bisa Edit -->
+                                        <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
+                                            class="action-btn btn-edit" 
+                                            title="Edit Data">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    @elseif(auth()->user()->role === 'manajer')
+                                        <!-- Manajer: Hanya View (optional, bisa dikosongkan atau diberi icon view) -->
+                                        <button class="action-btn btn-view" 
+                                                title="Lihat Saja (View Only)" 
+                                                disabled>
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    @endif
                                 </td>
                             </tr>
                         @endforeach

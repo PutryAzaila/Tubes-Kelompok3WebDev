@@ -1,3 +1,4 @@
+
 @extends('layouts.dashboard')
 
 @section('title', 'Data Perangkat')
@@ -19,10 +20,13 @@
                     </div>
                 </div>
                 <div class="page-header-actions">
+                    {{-- Tombol Tambah - HANYA ADMIN --}}
+                    @role('admin')
                     <a href="{{ route('perangkat.create') }}" class="btn btn-primary-custom">
                         <i class="fas fa-plus-circle me-2"></i>
                         <span>Tambah Perangkat</span>
                     </a>
+                    @endrole
                 </div>
             </div>
         </div>
@@ -156,7 +160,9 @@
                         <th style="width: 20%;">Kategori</th>
                         <th style="width: 15%;">Status</th>
                         <th style="width: 20%;">Catatan</th>
+                        @role('admin')
                         <th style="width: 10%;" class="text-center">Aksi</th>
+                        @endrole
                     </tr>
                 </thead>
                 <tbody>
@@ -198,6 +204,9 @@
                         <td>
                             <div class="note-text">{{ Str::limit($item->catatan_perangkat, 50) ?: '-' }}</div>
                         </td>
+                        
+                        {{-- Kolom Aksi - HANYA ADMIN --}}
+                        @role('admin')
                         <td>
                             <div class="action-buttons">
                                 <a href="{{ route('perangkat.edit', $item->id) }}" 
@@ -214,20 +223,23 @@
                                 </button>
                             </div>
                         </td>
+                        @endrole
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6">
+                        <td colspan="@role('admin')6@else5@endrole">
                             <div class="empty-state">
                                 <div class="empty-icon">
                                     <i class="fas fa-inbox"></i>
                                 </div>
                                 <h5>Tidak Ada Data</h5>
-                                <p>Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.</p>
+                                <p>@role('admin')Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.@elseBelum ada data perangkat tersedia.@endrole</p>
+                                @role('admin')
                                 <a href="{{ route('perangkat.create') }}" class="btn btn-primary-custom">
                                     <i class="fas fa-plus-circle me-2"></i>
                                     <span>Tambah Perangkat</span>
                                 </a>
+                                @endrole
                             </div>
                         </td>
                     </tr>

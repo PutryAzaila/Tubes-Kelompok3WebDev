@@ -660,10 +660,13 @@ body {
                 <p>Kelola informasi vendor dan supplier untuk kebutuhan pembelian</p>
             </div>
             <div>
+                {{-- HANYA ADMIN --}}
+                @role('admin')
                 <a href="{{ route('vendor.create') }}" class="btn btn-add">
                     <i class="fas fa-plus"></i>
                     <span>Tambah Vendor</span>
                 </a>
+                @endrole
             </div>
         </div>
     </div>
@@ -751,77 +754,83 @@ body {
                             <th>KATEGORI</th>
                             <th>KONTAK</th>
                             <th>ALAMAT</th>
+                            @role('admin')
                             <th class="text-end" width="100">AKSI</th>
+                            @endrole
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($vendors as $index => $vendor)
-                        <tr>
-                            <td class="text-center fw-bold">
-                                {{ $index + 1 }}
-                            </td>
-                            <td>
-                                <div class="vendor-avatar">
-                                    <div class="vendor-icon">
-                                        <i class="fas fa-store"></i>
-                                    </div>
-                                    <div class="vendor-info">
-                                        <h6 class="mb-1">{{ $vendor->nama_vendor }}</h6>
-                                        <small>VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</small>
-                                    </div>
+                   <tbody>
+                    @foreach($vendors as $index => $vendor)
+                    <tr>
+                        <td class="text-center fw-bold">
+                            {{ $index + 1 }}
+                        </td>
+                        <td>
+                            <div class="vendor-avatar">
+                                <div class="vendor-icon">
+                                    <i class="fas fa-store"></i>
                                 </div>
-                            </td>
-                            <td>
-                                @php
-                                    $badgeClasses = ['badge-primary', 'badge-success', 'badge-warning', 'badge-info'];
-                                    $badgeClass = $badgeClasses[$index % 4];
-                                @endphp
-                                <span class="badge {{ $badgeClass }}">
-                                    <i class="fas fa-tag"></i>
-                                    {{ $vendor->kategori->nama_kategori ?? '-' }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="contact-info">
-                                    <i class="fas fa-phone"></i>
-                                    <span>{{ $vendor->no_telp_vendor }}</span>
+                                <div class="vendor-info">
+                                    <h6 class="mb-1">{{ $vendor->nama_vendor }}</h6>
+                                    <small>VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</small>
                                 </div>
-                                @if($vendor->email_vendor)
-                                <div class="contact-info">
-                                    <i class="fas fa-envelope"></i>
-                                    <span>{{ $vendor->email_vendor }}</span>
-                                </div>
-                                @endif
-                            </td>
-                            <td class="address-cell">
-                                <span class="address-text" title="{{ $vendor->alamat_vendor }}">
-                                    {{ $vendor->alamat_vendor }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <a href="{{ route('vendor.edit', $vendor->id) }}" 
-                                       class="btn btn-action btn-edit" 
-                                       title="Edit vendor">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <form action="{{ route('vendor.destroy', $vendor->id) }}" 
-                                          method="POST" 
-                                          class="d-inline delete-form">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" 
-                                                class="btn btn-action btn-delete" 
-                                                title="Hapus vendor">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                            </div>
+                        </td>
+                        <td>
+                            @php
+                                $badgeClasses = ['badge-primary', 'badge-success', 'badge-warning', 'badge-info'];
+                                $badgeClass = $badgeClasses[$index % 4];
+                            @endphp
+                            <span class="badge {{ $badgeClass }}">
+                                <i class="fas fa-tag"></i>
+                                {{ $vendor->kategori->nama_kategori ?? '-' }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="contact-info">
+                                <i class="fas fa-phone"></i>
+                                <span>{{ $vendor->no_telp_vendor }}</span>
+                            </div>
+                            @if($vendor->email_vendor)
+                            <div class="contact-info">
+                                <i class="fas fa-envelope"></i>
+                                <span>{{ $vendor->email_vendor }}</span>
+                            </div>
+                            @endif
+                        </td>
+                        <td class="address-cell">
+                            <span class="address-text" title="{{ $vendor->alamat_vendor }}">
+                                {{ $vendor->alamat_vendor }}
+                            </span>
+                        </td>
+                        
+                        {{-- HANYA ADMIN --}}
+                        @role('admin')
+                        <td>
+                            <div class="action-buttons">
+                                <a href="{{ route('vendor.edit', $vendor->id) }}" 
+                                class="btn btn-action btn-edit" 
+                                title="Edit vendor">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <form action="{{ route('vendor.destroy', $vendor->id) }}" 
+                                    method="POST" 
+                                    class="d-inline delete-form">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" 
+                                            class="btn btn-action btn-delete" 
+                                            title="Hapus vendor">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                        @endrole
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
             </div>
             @else
             <div class="empty-state">
@@ -829,10 +838,12 @@ body {
                     <i class="fas fa-box-open"></i>
                 </div>
                 <h4>Belum Ada Data Vendor</h4>
-                <p>Mulai kelola vendor Anda dengan menambahkan data vendor pertama</p>
+                <p>@role('admin')Mulai kelola vendor Anda dengan menambahkan data vendor pertama@elseBelum ada data vendor tersedia@endrole</p>
+                @role('admin')
                 <a href="{{ route('vendor.create') }}" class="btn btn-primary btn-empty">
                     <i class="fas fa-plus me-2"></i>Tambah Vendor
                 </a>
+                @endrole
             </div>
             @endif
         </div>
@@ -878,25 +889,26 @@ $(document).ready(function() {
         pageLength: 10,
         lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]],
         columnDefs: [
+            @role('admin')
             { orderable: false, targets: [5] },
+            @else
+            { orderable: false, targets: [] },
+            @endrole
             { className: "text-center", targets: [0] },
+            @role('admin')
             { className: "text-end", targets: [5] }
+            @endrole
         ],
         initComplete: function() {
-            // Style DataTables elements
             $('.dataTables_length select').addClass('form-select form-select-sm');
             $('.dataTables_filter input').addClass('form-control form-control-sm');
-            
-            // Move search box to our custom location
             $('.dataTables_filter').hide();
             
-            // Custom search functionality
             $('#searchInput').on('keyup', function() {
                 table.search(this.value).draw();
             });
         },
         drawCallback: function() {
-            // Add hover effect after each draw
             $('#vendorTable tbody tr').hover(
                 function() {
                     $(this).css('transform', 'translateX(4px)');
@@ -914,7 +926,8 @@ $(document).ready(function() {
         table.column(2).search(kategori).draw();
     });
 
-    // Delete Confirmation
+    // Delete Confirmation - HANYA UNTUK ADMIN
+    @role('admin')
     $(document).on('submit', '.delete-form', function(e) {
         e.preventDefault();
         var form = this;
@@ -953,7 +966,6 @@ $(document).ready(function() {
             }
         }).then((result) => {
             if (result.isConfirmed) {
-                // Show loading
                 Swal.fire({
                     title: 'Menghapus...',
                     text: 'Sedang menghapus data vendor',
@@ -964,11 +976,11 @@ $(document).ready(function() {
                     }
                 });
                 
-                // Submit form
                 form.submit();
             }
         });
     });
+    @endrole
 
     // Auto hide alerts after 5 seconds
     setTimeout(function() {
@@ -976,11 +988,13 @@ $(document).ready(function() {
     }, 5000);
 
     // Add click effect to action buttons
+    @role('admin')
     $(document).on('mousedown', '.btn-action', function() {
         $(this).css('transform', 'scale(0.95)');
     }).on('mouseup mouseleave', '.btn-action', function() {
         $(this).css('transform', '');
     });
+    @endrole
 
     console.log('✅ Vendor Management System Loaded');
     console.log('📊 Total Vendors:', {{ $vendors->count() }});

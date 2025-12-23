@@ -20,7 +20,7 @@
     <!-- Navigation -->
     <nav class="sidebar-nav">
         
-        <!-- Dashboard -->
+        <!-- Dashboard - SEMUA ROLE -->
         <a href="{{ route('dashboard') }}" 
            class="sidebar-nav-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <i class="fas fa-home"></i>
@@ -36,94 +36,90 @@
             <span class="section-text">Menu Utama</span>
         </div>
 
-        <!-- Menu Items -->
-        @php
-            $menus = [
-                [
-                    'label' => 'Perangkat',
-                    'icon' => 'fa-desktop',
-                    'url' => '/perangkat',
-                    'submenus' => [
-                        ['label' => 'Daftar Perangkat', 'url' => '/perangkat'],
-                        ['label' => 'Kategori Perangkat', 'url' => '/kategori-perangkat'],
-                    ]
-                ],
-                [
-                    'label' => 'Vendor',
-                    'icon' => 'fa-building',
-                    'url' => '/vendor',
-                    'submenus' => [
-                        ['label' => 'Daftar Vendor', 'url' => '/vendor'],
-                        ['label' => 'Kategori Vendor', 'url' => '/kategori-vendor'],
-                    ]
-                ],
-                [
-                    'label' => 'Inventory',
-                    'icon' => 'fa-boxes-stacked',
-                    'url' => '/inventory',
-                    'submenus' => []
-                ],
-                [
-                    'label' => 'Purchase Order',
-                    'icon' => 'fa-file-invoice',
-                    'url' => '/purchase-order',
-                    'submenus' => []
-                ],
-            ];
-            
-            function isMenuActive($menu) {
-                if (!empty($menu['submenus'])) {
-                    foreach ($menu['submenus'] as $submenu) {
-                        if (request()->is(ltrim($submenu['url'], '/') . '*')) {
-                            return true;
-                        }
-                    }
-                }
-                return request()->is(ltrim($menu['url'], '/') . '*');
-            }
-        @endphp
-
         <div class="nav-items">
-            @foreach ($menus as $menu)
-                @php
-                    $isActive = isMenuActive($menu);
-                    $hasSubmenus = !empty($menu['submenus']);
-                @endphp
-                
-                @if($hasSubmenus)
-                    <div class="nav-item-group">
-                        <button type="button"
-                                class="sidebar-nav-item nav-item-dropdown {{ $isActive ? 'active' : '' }}"
-                                onclick="toggleSubmenu(this)">
-                            <div class="nav-item-content">
-                                <i class="fas {{ $menu['icon'] }}"></i>
-                                <span class="nav-text">{{ $menu['label'] }}</span>
-                            </div>
-                            <i class="fas fa-chevron-down dropdown-icon"></i>
-                            <span class="nav-tooltip">{{ $menu['label'] }}</span>
-                        </button>
-                        
-                        <div class="submenu-container {{ $isActive ? 'show' : '' }}">
-                            <div class="submenu-items">
-                                @foreach ($menu['submenus'] as $submenu)
-                                    <a href="{{ url($submenu['url']) }}"
-                                       class="submenu-item {{ request()->is(ltrim($submenu['url'], '/') . '*') ? 'active' : '' }}">
-                                        <i class="fas fa-circle submenu-bullet"></i>
-                                        <span class="nav-text">{{ $submenu['label'] }}</span>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
+            
+            <!-- PERANGKAT - ADMIN & MANAJER -->
+            @role('admin', 'manajer')
+            <div class="nav-item-group">
+                <button type="button"
+                        class="sidebar-nav-item nav-item-dropdown {{ request()->is('perangkat*') || request()->is('kategori-perangkat*') ? 'active' : '' }}"
+                        onclick="toggleSubmenu(this)">
+                    <div class="nav-item-content">
+                        <i class="fas fa-desktop"></i>
+                        <span class="nav-text">Perangkat</span>
                     </div>
-                @else
-                    <a href="{{ url($menu['url']) }}"
-                       class="sidebar-nav-item {{ request()->is(ltrim($menu['url'], '/') . '*') ? 'active' : '' }}">
-                        <i class="fas {{ $menu['icon'] }}"></i>
-                        <span class="nav-text">{{ $menu['label'] }}</span>
-                        <span class="nav-tooltip">{{ $menu['label'] }}</span>
-                    </a>
-                @endif
-            @endforeach
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                    <span class="nav-tooltip">Perangkat</span>
+                </button>
+                
+                <div class="submenu-container {{ request()->is('perangkat*') || request()->is('kategori-perangkat*') ? 'show' : '' }}">
+                    <div class="submenu-items">
+                        <a href="{{ route('perangkat.index') }}"
+                           class="submenu-item {{ request()->is('perangkat*') && !request()->is('kategori-perangkat*') ? 'active' : '' }}">
+                            <i class="fas fa-circle submenu-bullet"></i>
+                            <span class="nav-text">Daftar Perangkat</span>
+                        </a>
+                        <a href="{{ route('kategori-perangkat.index') }}"
+                           class="submenu-item {{ request()->is('kategori-perangkat*') ? 'active' : '' }}">
+                            <i class="fas fa-circle submenu-bullet"></i>
+                            <span class="nav-text">Kategori Perangkat</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endrole
+
+            <!-- VENDOR - ADMIN & MANAJER -->
+            @role('admin', 'manajer')
+            <div class="nav-item-group">
+                <button type="button"
+                        class="sidebar-nav-item nav-item-dropdown {{ request()->is('vendor*') || request()->is('kategori-vendor*') ? 'active' : '' }}"
+                        onclick="toggleSubmenu(this)">
+                    <div class="nav-item-content">
+                        <i class="fas fa-building"></i>
+                        <span class="nav-text">Vendor</span>
+                    </div>
+                    <i class="fas fa-chevron-down dropdown-icon"></i>
+                    <span class="nav-tooltip">Vendor</span>
+                </button>
+                
+                <div class="submenu-container {{ request()->is('vendor*') || request()->is('kategori-vendor*') ? 'show' : '' }}">
+                    <div class="submenu-items">
+                        <a href="{{ route('vendor.index') }}"
+                           class="submenu-item {{ request()->is('vendor') || request()->is('vendor/*') && !request()->is('kategori-vendor*') ? 'active' : '' }}">
+                            <i class="fas fa-circle submenu-bullet"></i>
+                            <span class="nav-text">Daftar Vendor</span>
+                        </a>
+                        <a href="{{ route('kategori-vendor.index') }}"
+                           class="submenu-item {{ request()->is('kategori-vendor*') ? 'active' : '' }}">
+                            <i class="fas fa-circle submenu-bullet"></i>
+                            <span class="nav-text">Kategori Vendor</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endrole
+
+            <!-- INVENTORY - MANAJER & NOC -->
+            @role('manajer', 'noc')
+            <a href="{{ route('inventory.index') }}"
+               class="sidebar-nav-item {{ request()->is('inventory*') ? 'active' : '' }}">
+                <i class="fas fa-boxes-stacked"></i>
+                <span class="nav-text">Inventory</span>
+                <span class="nav-tooltip">Inventory</span>
+            </a>
+            @endrole
+
+            <!-- PURCHASE ORDER - MANAJER, ADMIN, NOC -->
+            @role('manajer', 'admin', 'noc')
+            <a href="{{ route('purchase-order.index') }}"
+               class="sidebar-nav-item {{ request()->is('purchase-order*') ? 'active' : '' }}">
+                <i class="fas fa-file-invoice"></i>
+                <span class="nav-text">Purchase Order</span>
+                <span class="nav-tooltip">Purchase Order</span>
+            </a>
+            @endrole
+
         </div>
     </nav>
 

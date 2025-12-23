@@ -531,9 +531,13 @@
                 <i class="fas fa-search"></i>
                 <input type="text" class="form-control" id="searchInput" placeholder="Cari kategori vendor...">
             </div>
+            
+            {{-- Tombol Tambah - HANYA ADMIN --}}
+            @role('admin')
             <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
                 <i class="fas fa-plus-circle"></i>Tambah Kategori
             </a>
+            @endrole
         </div>
     </div>
 
@@ -552,7 +556,9 @@
                             <th style="width: 8%;">No</th>
                             <th style="width: 42%;">Nama Kategori</th>
                             <th style="width: 20%;" class="text-center">Jumlah Vendor</th>
+                            @role('admin')
                             <th style="width: 30%;" class="text-center">Aksi</th>
+                            @endrole
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -575,6 +581,9 @@
                                     {{ $kategori->vendors_count }}
                                 </span>
                             </td>
+                            
+                            {{-- Kolom Aksi - HANYA ADMIN --}}
+                            @role('admin')
                             <td class="text-center">
                                 <div class="action-buttons">
                                     <a href="{{ route('kategori-vendor.edit', $kategori->id) }}" class="btn-action btn-edit">
@@ -589,19 +598,22 @@
                                     </form>
                                 </div>
                             </td>
+                            @endrole
                         </tr>
                         @empty
                         <tr id="emptyRow">
-                            <td colspan="4">
+                            <td colspan="@role('admin')4@else3@endrole">
                                 <div class="empty-state">
                                     <div class="empty-state-icon">
                                         <i class="fas fa-inbox"></i>
                                     </div>
                                     <h5>Belum Ada Kategori</h5>
-                                    <p>Mulai dengan menambahkan kategori vendor pertama Anda</p>
+                                    <p>@role('admin')Mulai dengan menambahkan kategori vendor pertama Anda@elseBelum ada data kategori vendor tersedia@endrole</p>
+                                    @role('admin')
                                     <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
                                         <i class="fas fa-plus-circle"></i>Tambah Kategori Sekarang
                                     </a>
+                                    @endrole
                                 </div>
                             </td>
                         </tr>
@@ -646,9 +658,10 @@ $(document).ready(function() {
         // Show/hide empty state
         if (visibleRows === 0 && value !== '') {
             if ($('#noResultRow').length === 0) {
+                const colspan = @role('admin')'4'@else'3'@endrole;
                 $('#tableBody').append(`
                     <tr id="noResultRow">
-                        <td colspan="4">
+                        <td colspan="${colspan}">
                             <div class="empty-state">
                                 <div class="empty-state-icon">
                                     <i class="fas fa-search"></i>
@@ -668,7 +681,8 @@ $(document).ready(function() {
         }
     });
 
-    // Delete confirmation with SweetAlert2
+    // Delete confirmation with SweetAlert2 - HANYA UNTUK ADMIN
+    @role('admin')
     $('.btn-delete-confirm').on('click', function(e) {
         e.preventDefault();
         const form = $(this).closest('form');
@@ -705,13 +719,14 @@ $(document).ready(function() {
             }
         });
     });
+    @endrole
 
     // Auto dismiss alerts
     setTimeout(function() {
         $('.alert').fadeOut('slow');
     }, 5000);
 
-    // Keyboard shortcuts
+    // Keyboard shortcuts - DISESUAIKAN DENGAN ROLE
     $(document).on('keydown', function(e) {
         // Ctrl/Cmd + K = Focus search
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
@@ -719,11 +734,13 @@ $(document).ready(function() {
             $('#searchInput').focus();
         }
         
-        // Ctrl/Cmd + N = New category
+        @role('admin')
+        // Ctrl/Cmd + N = New category (HANYA ADMIN)
         if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
             e.preventDefault();
             window.location.href = '{{ route("kategori-vendor.create") }}';
         }
+        @endrole
     });
 
     // Initialize tooltips
