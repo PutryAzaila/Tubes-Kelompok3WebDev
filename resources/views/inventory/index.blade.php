@@ -31,7 +31,7 @@
     }
 
     .page-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
         color: white;
         padding: 2rem 0;
         margin-bottom: 2rem;
@@ -318,61 +318,85 @@
     @php
         $totalMasuk = $data->whereInstanceOf(App\Models\BarangMasuk::class)->sum('jumlah');
         $totalKeluar = $data->whereInstanceOf(App\Models\BarangKeluar::class)->sum('jumlah');
-        $totalStok = $totalMasuk - $totalKeluar;
+        $totalStok = max(0, $totalMasuk - $totalKeluar); // Tidak boleh negatif
+        
+        // Menentukan status stok
+        $stokStatus = '';
+        $stokIcon = 'fa-box';
+        if ($totalStok === 0) {
+            $stokStatus = 'Stok Habis';
+            $stokIcon = 'fa-exclamation-triangle';
+        } elseif ($totalStok < 10) {
+            $stokStatus = 'Stok Menipis';
+            $stokIcon = 'fa-exclamation-circle';
+        } else {
+            $stokStatus = 'Stok Aman';
+            $stokIcon = 'fa-box';
+        }
     @endphp
-
-    <div class="row g-4 mb-4">
-        <div class="col-md-4">
-            <div class="card stats-card card-gradient-blue">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-2 opacity-75 fw-semibold">Total Barang Masuk</p>
-                            <h2 class="mb-0 fw-bold">{{ number_format($totalMasuk) }}</h2>
-                            <small class="opacity-75"><i class="fas fa-arrow-up me-1"></i>Unit masuk</small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-arrow-down"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card stats-card card-gradient-orange">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-2 opacity-75 fw-semibold">Total Barang Keluar</p>
-                            <h2 class="mb-0 fw-bold">{{ number_format($totalKeluar) }}</h2>
-                            <small class="opacity-75"><i class="fas fa-arrow-down me-1"></i>Unit keluar</small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-arrow-up"></i>
+        <div class="row g-4 mb-4">
+            <div class="col-md-4">
+                <div class="card stats-card card-gradient-blue">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-2 opacity-75 fw-semibold">Total Barang Masuk</p>
+                                <h2 class="mb-0 fw-bold">{{ number_format($totalMasuk) }}</h2>
+                                <small class="opacity-75"><i class="fas fa-arrow-down me-1"></i>Unit masuk</small>
+                            </div>
+                            <div class="stats-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <div class="col-md-4">
-            <div class="card stats-card card-gradient-green">
-                <div class="stats-card-body">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-2 opacity-75 fw-semibold">Total Stok</p>
-                            <h2 class="mb-0 fw-bold">{{ number_format($totalStok) }}</h2>
-                            <small class="opacity-75"><i class="fas fa-sync-alt me-1"></i>Masuk - Keluar</small>
-                        </div>
-                        <div class="stats-icon">
-                            <i class="fas fa-box"></i>
+            
+            <div class="col-md-4">
+                <div class="card stats-card card-gradient-orange">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-2 opacity-75 fw-semibold">Total Barang Keluar</p>
+                                <h2 class="mb-0 fw-bold">{{ number_format($totalKeluar) }}</h2>
+                                <small class="opacity-75"><i class="fas fa-arrow-up me-1"></i>Unit keluar</small>
+                            </div>
+                            <div class="stats-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="col-md-4">
+                <div class="card stats-card card-gradient-green">
+                    <div class="stats-card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-2 opacity-75 fw-semibold">Sisa Stok</p>
+                                <h2 class="mb-0 fw-bold">{{ number_format($totalStok) }}</h2>
+                                <small class="opacity-75">
+                                    <i class="fas {{ $stokIcon }} me-1"></i>{{ $stokStatus }}
+                                </small>
+                            </div>
+                            <div class="stats-icon">
+                                <i class="fas {{ $stokIcon }}"></i>
+                            </div>
+                        </div>
+                        
+                        @if($totalKeluar > $totalMasuk)
+                        <div class="mt-3 pt-3 border-top border-light border-opacity-25">
+                            <small class="opacity-75">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Ada selisih {{ number_format($totalKeluar - $totalMasuk) }} unit
+                            </small>
+                        </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
     <!-- Data Table -->
     <div class="card main-card">

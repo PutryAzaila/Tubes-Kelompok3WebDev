@@ -5,32 +5,24 @@
 @section('page-description', 'Kelola data perangkat inventory')
 
 @section('content')
-    <!-- Page Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="page-header">
-                <div class="page-header-content">
-                    <div class="page-header-icon">
-                        <i class="fas fa-laptop"></i>
-                    </div>
-                    <div>
-                        <h1 class="page-title">Data Perangkat</h1>
-                        <p class="page-subtitle">Kelola dan pantau semua perangkat inventory Anda</p>
-                    </div>
-                </div>
-                <div class="page-header-actions">
-                    {{-- Tombol Tambah - HANYA ADMIN --}}
-                    @role('admin')
-                    <a href="{{ route('perangkat.create') }}" class="btn btn-primary-custom">
+    <!-- Welcome Header Card -->
+    <div class="welcome-header-card mb-4">
+        <div class="welcome-header-content">
+            <div class="welcome-header-text">
+                <h2>Data Perangkat</h2>
+                <p>Kelola dan pantau semua perangkat inventory dengan mudah dan efisien</p>
+            </div>
+              @role('admin')
+                <div class="welcome-header-action mt-3">
+                    <a href="{{ route('perangkat.create') }}" class="btn btn-light-custom">
                         <i class="fas fa-plus-circle me-2"></i>
                         <span>Tambah Perangkat</span>
                     </a>
-                    @endrole
                 </div>
+                @endrole
             </div>
         </div>
-    </div>
-
+      
     <!-- Statistics Cards -->
     <div class="row g-3 mb-4">
         <div class="col-lg-3 col-md-6">
@@ -204,7 +196,6 @@
                             <div class="note-text">{{ Str::limit($item->catatan_perangkat, 50) ?: '-' }}</div>
                         </td>
                         
-                        {{-- Kolom Aksi - HANYA ADMIN --}}
                         @role('admin')
                         <td>
                             <div class="action-buttons">
@@ -283,8 +274,9 @@
 
 <style>
 :root {
-    --primary-blue: #1e40af;
-    --primary-orange: #ea580c;
+    --primary-blue: #1e3a8a;
+    --primary-blue-light: #2563eb;
+    --orange: #f97316;
     --success-green: #059669;
     --danger-red: #dc2626;
     --warning-yellow: #f59e0b;
@@ -302,21 +294,16 @@
     --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Page Header */
-.page-header {
-    background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
-    border-radius: 20px;
-    padding: 2.5rem;
-    box-shadow: var(--shadow-xl);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
+.welcome-header-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
     position: relative;
     overflow: hidden;
 }
 
-.page-header::before {
+.welcome-header-card::before {
     content: '';
     position: absolute;
     top: -50%;
@@ -327,55 +314,39 @@
     border-radius: 50%;
 }
 
-.page-header-content {
+.welcome-header-content {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    gap: 1.5rem;
     position: relative;
     z-index: 1;
 }
 
-.page-header-icon {
-    width: 70px;
-    height: 70px;
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2.5rem;
-    flex-shrink: 0;
-}
-
-.page-title {
-    font-size: 2rem;
+.welcome-header-text h2 {
+    font-size: 1.75rem;
     font-weight: 700;
     color: white;
     margin-bottom: 0.5rem;
 }
 
-.page-subtitle {
+.welcome-header-text p {
     color: rgba(255, 255, 255, 0.9);
-    font-size: 1.05rem;
     margin-bottom: 0;
+    font-size: 0.9375rem;
 }
-
-.page-header-actions {
+.welcome-header-action {
     position: relative;
     z-index: 1;
 }
 
-/* Button Primary Custom */
-.btn-primary-custom {
+.btn-light-custom {
     background: white;
-    color: var(--primary-orange);
+    color: var(--primary-blue);
     border: none;
-    padding: 1rem 2rem;
-    border-radius: 14px;
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 1.05rem;
+    font-size: 1rem;
     display: inline-flex;
     align-items: center;
     text-decoration: none;
@@ -383,10 +354,10 @@
     box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
-.btn-primary-custom:hover {
+.btn-light-custom:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
-    color: var(--primary-orange);
+    color: var(--primary-blue);
 }
 
 /* Statistics Cards */
@@ -492,7 +463,7 @@
 }
 
 .filter-label i {
-    color: var(--primary-orange);
+    color: var(--primary-blue);
 }
 
 .input-wrapper {
@@ -522,8 +493,8 @@
 
 .form-control-custom:focus {
     outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
 }
 
 .form-select-custom {
@@ -540,8 +511,8 @@
 
 .form-select-custom:focus {
     outline: none;
-    border-color: var(--primary-orange);
-    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
 }
 
 .filter-actions {
@@ -551,7 +522,7 @@
 
 .btn-filter {
     flex: 1;
-    background: linear-gradient(135deg, var(--primary-orange) 0%, #fb923c 100%);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
     color: white;
     border: none;
     padding: 0.875rem 1.5rem;
@@ -562,12 +533,12 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
 }
 
 .btn-filter:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4);
+    box-shadow: 0 6px 16px rgba(30, 58, 138, 0.4);
 }
 
 .btn-reset {
@@ -817,6 +788,27 @@
     margin-bottom: 1.5rem;
 }
 
+.btn-primary-custom {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
+    color: white;
+}
+
 /* Pagination */
 .pagination-wrapper {
     display: flex;
@@ -855,14 +847,14 @@
 }
 
 .pagination-links .page-link:hover {
-    background: var(--primary-orange);
-    border-color: var(--primary-orange);
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
     color: white;
 }
 
 .pagination-links .page-item.active .page-link {
-    background: linear-gradient(135deg, var(--primary-orange) 0%, #fb923c 100%);
-    border-color: var(--primary-orange);
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    border-color: var(--primary-blue);
     color: white;
 }
 

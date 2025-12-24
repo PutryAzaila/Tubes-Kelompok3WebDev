@@ -39,11 +39,6 @@
     font-size: 0.9375rem;
 }
 
-.welcome-header-illustration {
-    font-size: 4rem;
-    color: rgba(255, 255, 255, 0.2);
-}
-
 /* Statistics Cards */
 .stat-card {
     border: none;
@@ -550,9 +545,6 @@
                         <i class="fas fa-file-invoice me-2"></i>Purchase Order
                     </h2>
                     <p>Kelola pengajuan dan persetujuan Purchase Order dengan mudah dan efisien</p>
-                </div>
-                <div class="welcome-header-illustration">
-                    <i class="fas fa-clipboard-list"></i>
                 </div>
             </div>
         </div>

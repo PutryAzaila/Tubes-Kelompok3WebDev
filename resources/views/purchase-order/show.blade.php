@@ -158,94 +158,6 @@
     font-weight: 600;
 }
 
-/* Summary Box */
-.summary-box {
-    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-    border-radius: 14px;
-    padding: 1.5rem;
-    border: 2px solid #bfdbfe;
-    margin-top: 1.5rem;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 0.875rem 0;
-    border-bottom: 1px solid #dbeafe;
-}
-
-.summary-item:last-child {
-    border-bottom: none;
-}
-
-.summary-label {
-    color: #1e40af;
-    font-weight: 600;
-    font-size: 1rem;
-}
-
-.summary-value {
-    color: #1e3a8a;
-    font-weight: 700;
-    font-size: 1.5rem;
-}
-
-/* Action Buttons */
-.action-buttons-card {
-    background: white;
-    border-radius: 16px;
-    padding: 1.75rem;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-    margin-top: 1.5rem;
-}
-
-.btn-action-large {
-    width: 100%;
-    border: none;
-    border-radius: 12px;
-    padding: 1.125rem 1.5rem;
-    font-weight: 700;
-    font-size: 1rem;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: all 0.3s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 0.875rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-}
-
-.btn-action-large:last-child {
-    margin-bottom: 0;
-}
-
-.btn-action-large:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-}
-
-.btn-action-large.btn-success {
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-    color: white;
-}
-
-.btn-action-large.btn-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-}
-
-.btn-action-large.btn-warning {
-    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-    color: white;
-}
-
-.btn-action-large i {
-    font-size: 1.25rem;
-}
-
 /* Table Card */
 .table-card {
     background: white;
@@ -441,9 +353,9 @@
                         <i class="fas fa-file-invoice me-2"></i>
                         PO-{{ str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT) }}
                     </h2>
-                    <p>{{ $purchaseOrder->vendor->nama_vendor ?? 'N/A' }} • {{ date('d F Y', strtotime($purchaseOrder->tanggal_pemesanan)) }}</p>
+                    <p>{{ $purchaseOrder->vendor->nama_vendor ?? 'N/A' }} • {{ $dateInfo['value'] }}</p>
                 </div>
-               <div class="detail-header-actions">
+                <div class="detail-header-actions">
                     @role('manajer')
                         @if($purchaseOrder->status === 'Diajukan')
                             <button type="button" 
@@ -464,7 +376,7 @@
                     @role('admin')
                         @if($purchaseOrder->status === 'Diajukan')
                             <a href="{{ route('purchase-order.edit', $purchaseOrder->id) }}" 
-                            class="btn btn-header">
+                               class="btn btn-header">
                                 <i class="fas fa-edit me-2"></i>Edit
                             </a>
                         @endif
@@ -563,13 +475,13 @@
         <div class="info-card">
             <div class="info-card-header">
                 <div class="info-card-icon">
-                    <i class="fas fa-calendar"></i>
+                    <i class="fas {{ $dateInfo['icon'] }}"></i>
                 </div>
                 <h5 class="info-card-title">Tanggal</h5>
             </div>
             <div class="info-item">
-                <div class="info-label">Tanggal Pemesanan</div>
-                <div class="info-value">{{ date('d/m/Y', strtotime($purchaseOrder->tanggal_pemesanan)) }}</div>
+                <div class="info-label">{{ $dateInfo['label'] }}</div>
+                <div class="info-value">{{ $dateInfo['value'] }}</div>
             </div>
         </div>
     </div>
@@ -588,9 +500,8 @@
                     <thead>
                         <tr>
                             <th style="width: 8%;">No</th>
-                            <th style="width: 52%;">Nama Perangkat</th>
-                            <th style="width: 20%;">Merk</th>
-                            <th style="width: 20%;" class="text-center">Jumlah</th>
+                            <th style="width: 62%;">Nama Perangkat</th>
+                            <th style="width: 30%;" class="text-center">Jumlah</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -608,7 +519,6 @@
                                     </div>
                                 </div>
                             </td>
-                            <td>{{ $detail->perangkat->merk ?? 'N/A' }}</td>
                             <td class="text-center">
                                 <span class="quantity-badge">
                                     {{ $detail->jumlah }} Unit
@@ -619,7 +529,7 @@
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colspan="3" class="text-end">
+                            <td colspan="2" class="text-end">
                                 <i class="fas fa-calculator me-2"></i>Total Jumlah:
                             </td>
                             <td class="text-center">

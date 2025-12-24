@@ -36,6 +36,7 @@ class DetailPurchaseOrderController extends Controller
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
+                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
@@ -253,7 +254,6 @@ class DetailPurchaseOrderController extends Controller
                     'nama_perangkat' => $perangkat->nama_perangkat,
                     'stok_tersedia' => $perangkat->stok ?? 0,
                     'tipe' => $perangkat->tipe,
-                    'merk' => $perangkat->merk,
                 ]
             ], 200);
         } catch (\Exception $e) {

@@ -55,13 +55,12 @@ class PurchaseOrderController extends Controller
                     'date_formatted' => date('d-m-Y', strtotime($po->tanggal_pemesanan)),
                     'status' => $po->status,
                     'status_label' => $this->getStatusLabel($po->status),
-                    // Sesuai enum di migrasi: 'Diajukan', 'Disetujui','Ditolak'
-                    'can_edit' => $po->status === 'Diajukan', // Bisa edit hanya di Diajukan
-                    'can_delete' => $po->status === 'Diajukan', // Bisa hapus hanya di Diajukan
-                    'can_apply' => false, // Tidak ada status Draft di migrasi
-                    'can_approve' => $po->status === 'Diajukan', // Bisa approve dari Diajukan
-                    'can_reject' => $po->status === 'Diajukan', // Bisa reject dari Diajukan
-                    'can_revert' => false, // Tidak ada revert ke Draft
+                    'can_edit' => $po->status === 'Diajukan',
+                    'can_delete' => $po->status === 'Diajukan',
+                    'can_apply' => false,
+                    'can_approve' => $po->status === 'Diajukan',
+                    'can_reject' => $po->status === 'Diajukan',
+                    'can_revert' => false,
                     'total_items' => $totalItems,
                     'items_count' => $po->detailPO->count(),
                 ];
@@ -117,7 +116,6 @@ class PurchaseOrderController extends Controller
                 'id_vendor' => $request->id_vendor,
                 'id_karyawan' => Auth::id(),
                 'tanggal_pemesanan' => $request->tanggal_pemesanan,
-                // Langsung status Diajukan karena tidak ada Draft di migrasi
                 'status' => 'Diajukan',
             ]);
 
@@ -169,12 +167,28 @@ class PurchaseOrderController extends Controller
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
+                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
 
             // Total items
             $totalItems = $purchaseOrder->detailPO->sum('jumlah');
+
+            // Tentukan tanggal yang ditampilkan berdasarkan status
+            $dateLabel = '';
+            $dateValue = '';
+            
+            if ($purchaseOrder->status === 'Diajukan') {
+                $dateLabel = 'Tanggal Pengajuan';
+                $dateValue = date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan));
+            } elseif ($purchaseOrder->status === 'Disetujui') {
+                $dateLabel = 'Tanggal Disetujui';
+                $dateValue = date('d-m-Y H:i', strtotime($purchaseOrder->updated_at));
+            } elseif ($purchaseOrder->status === 'Ditolak') {
+                $dateLabel = 'Tanggal Ditolak';
+                $dateValue = date('d-m-Y H:i', strtotime($purchaseOrder->updated_at));
+            }
 
             return response()->json([
                 'success' => true,
@@ -183,12 +197,13 @@ class PurchaseOrderController extends Controller
                     'po_info' => [
                         'id' => $purchaseOrder->id,
                         'code' => 'PO-' . str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT),
-                        'date_of_apply' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
+                        'date_label' => $dateLabel,
+                        'date_value' => $dateValue,
+                        'tanggal_pengajuan' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
                         'status' => strtolower($purchaseOrder->status),
                         'status_label' => $this->getStatusLabel($purchaseOrder->status),
                         'vendor' => $purchaseOrder->vendor->nama_vendor ?? 'N/A',
                         'staff' => $purchaseOrder->karyawan->nama_lengkap ?? 'N/A',
-                        // Sesuai enum di migrasi
                         'can_edit' => $purchaseOrder->status === 'Diajukan',
                         'can_delete' => $purchaseOrder->status === 'Diajukan',
                         'can_apply' => false,
@@ -209,7 +224,7 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    // GET /api/purchase-orders/{id}/edit (untuk mengambil data edit)
+    // GET /api/purchase-orders/{id}/edit
     public function edit($id)
     {
         try {
@@ -222,7 +237,6 @@ class PurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Cek apakah PO bisa diedit (hanya Diajukan)
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -230,14 +244,13 @@ class PurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Format data untuk form edit
+            // Format data untuk form edit (tanpa merk)
             $formattedDetails = $purchaseOrder->detailPO->map(function ($detail) {
                 return [
                     'id_detail' => $detail->id,
                     'id_perangkat' => $detail->id_perangkat,
                     'nama_perangkat' => $detail->perangkat->nama_perangkat ?? 'N/A',
                     'tipe' => $detail->perangkat->tipe ?? 'N/A',
-                    'merk' => $detail->perangkat->merk ?? 'N/A',
                     'stok' => $detail->perangkat->stok ?? 0,
                     'jumlah' => $detail->jumlah,
                 ];
@@ -300,7 +313,6 @@ class PurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Hanya bisa update jika status Diajukan
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -358,7 +370,6 @@ class PurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Hanya bisa hapus jika status Diajukan
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -366,10 +377,7 @@ class PurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Hapus detail terlebih dahulu
             $purchaseOrder->detailPO()->delete();
-            
-            // Hapus PO
             $purchaseOrder->delete();
 
             DB::commit();
@@ -388,7 +396,7 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    // PATCH /api/purchase-orders/{id}/approve (Approve PO)
+    // PATCH /api/purchase-orders/{id}/approve
     public function approveStatus($id, Request $request)
     {
         try {
@@ -403,7 +411,6 @@ class PurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Validasi: hanya bisa approve dari Diajukan
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -411,16 +418,17 @@ class PurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Update status menjadi Disetujui
+            // Update status dan timestamp
             $purchaseOrder->update(['status' => 'Disetujui']);
 
             DB::commit();
 
-            // Format response untuk halaman detail
+            // Format response
             $formattedDetails = $purchaseOrder->detailPO->map(function ($detail, $index) {
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
+                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
@@ -433,19 +441,15 @@ class PurchaseOrderController extends Controller
                 'data' => [
                     'po_info' => [
                         'code' => 'PO-' . str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT),
-                        'date_of_apply' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
+                        'date_label' => 'Tanggal Disetujui',
+                        'date_value' => now()->format('d-m-Y H:i'),
+                        'tanggal_pengajuan' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
                         'status' => 'disetujui',
                         'vendor' => $purchaseOrder->vendor->nama_vendor ?? 'N/A',
                         'staff' => $purchaseOrder->karyawan->nama_lengkap ?? 'N/A',
                     ],
                     'table_data' => $formattedDetails,
                     'total_items' => $totalItems . ' Unit',
-                    'status_update' => [
-                        'old_status' => 'Diajukan',
-                        'new_status' => 'Disetujui',
-                        'updated_at' => now()->format('d-m-Y H:i:s'),
-                        'updated_by' => Auth::check() ? Auth::user()->nama_lengkap : 'System',
-                    ]
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -458,7 +462,7 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    // PATCH /api/purchase-orders/{id}/reject (Reject PO)
+    // PATCH /api/purchase-orders/{id}/reject
     public function rejectStatus($id, Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -485,7 +489,6 @@ class PurchaseOrderController extends Controller
                 ], 404);
             }
 
-            // Validasi: hanya bisa reject dari Diajukan
             if ($purchaseOrder->status !== 'Diajukan') {
                 return response()->json([
                     'success' => false,
@@ -493,16 +496,17 @@ class PurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Update status menjadi Ditolak
+            // Update status dan timestamp
             $purchaseOrder->update(['status' => 'Ditolak']);
 
             DB::commit();
 
-            // Format response untuk halaman detail
+            // Format response
             $formattedDetails = $purchaseOrder->detailPO->map(function ($detail, $index) {
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
+                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
@@ -515,20 +519,16 @@ class PurchaseOrderController extends Controller
                 'data' => [
                     'po_info' => [
                         'code' => 'PO-' . str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT),
-                        'date_of_apply' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
+                        'date_label' => 'Tanggal Ditolak',
+                        'date_value' => now()->format('d-m-Y H:i'),
+                        'tanggal_pengajuan' => date('d-m-Y', strtotime($purchaseOrder->tanggal_pemesanan)),
                         'status' => 'ditolak',
                         'vendor' => $purchaseOrder->vendor->nama_vendor ?? 'N/A',
                         'staff' => $purchaseOrder->karyawan->nama_lengkap ?? 'N/A',
+                        'reason' => $request->reason,
                     ],
                     'table_data' => $formattedDetails,
                     'total_items' => $totalItems . ' Unit',
-                    'status_update' => [
-                        'old_status' => 'Diajukan',
-                        'new_status' => 'Ditolak',
-                        'reason' => $request->reason,
-                        'updated_at' => now()->format('d-m-Y H:i:s'),
-                        'updated_by' => Auth::check() ? Auth::user()->nama_lengkap : 'System',
-                    ]
                 ]
             ], 200);
         } catch (\Exception $e) {
@@ -541,7 +541,7 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    // GET /api/purchase-orders/stats/dashboard (Untuk Dashboard)
+    // GET /api/purchase-orders/stats/dashboard
     public function getDashboardStats()
     {
         try {
@@ -580,11 +580,7 @@ class PurchaseOrderController extends Controller
         }
     }
 
-    // ==================== HELPER METHODS ====================
-
-    /**
-     * Get label untuk status
-     */
+    // Helper method
     private function getStatusLabel($status)
     {
         $labels = [

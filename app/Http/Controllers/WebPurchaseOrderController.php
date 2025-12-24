@@ -23,9 +23,7 @@ class WebPurchaseOrderController extends Controller
 
     public function create()
     {
-        // FIXED: Hapus filter status karena kolom tidak ada di tabel data_vendors
         $vendors = DataVendor::orderBy('nama_vendor')->get();
-        
         $perangkats = Perangkat::orderBy('nama_perangkat')->get();
 
         return view('purchase-order.create', compact('vendors', 'perangkats'));
@@ -76,7 +74,10 @@ class WebPurchaseOrderController extends Controller
         $purchaseOrder = PurchaseOrder::with(['vendor', 'karyawan', 'detailPO.perangkat'])
             ->findOrFail($id);
 
-        return view('purchase-order.show', compact('purchaseOrder'));
+        // Tentukan label dan value tanggal berdasarkan status
+        $dateInfo = $this->getDateInfo($purchaseOrder);
+
+        return view('purchase-order.show', compact('purchaseOrder', 'dateInfo'));
     }
 
     public function edit($id)
@@ -89,9 +90,7 @@ class WebPurchaseOrderController extends Controller
                 ->with('error', 'Purchase Order tidak dapat diedit karena status ' . $purchaseOrder->status);
         }
 
-        // FIXED: Hapus filter status
         $vendors = DataVendor::orderBy('nama_vendor')->get();
-        
         $perangkats = Perangkat::orderBy('nama_perangkat')->get();
 
         return view('purchase-order.edit', compact('purchaseOrder', 'vendors', 'perangkats'));
@@ -222,5 +221,33 @@ class WebPurchaseOrderController extends Controller
             return redirect()->back()
                 ->with('error', 'Gagal menolak Purchase Order: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Helper: Get date info berdasarkan status
+     */
+    private function getDateInfo($purchaseOrder)
+    {
+        $dateInfo = [
+            'label' => '',
+            'value' => '',
+            'icon' => '',
+        ];
+
+        if ($purchaseOrder->status === 'Diajukan') {
+            $dateInfo['label'] = 'Tanggal Pengajuan';
+            $dateInfo['value'] = date('d F Y', strtotime($purchaseOrder->tanggal_pemesanan));
+            $dateInfo['icon'] = 'fa-calendar-plus';
+        } elseif ($purchaseOrder->status === 'Disetujui') {
+            $dateInfo['label'] = 'Tanggal Disetujui';
+            $dateInfo['value'] = date('d F Y, H:i', strtotime($purchaseOrder->updated_at));
+            $dateInfo['icon'] = 'fa-calendar-check';
+        } elseif ($purchaseOrder->status === 'Ditolak') {
+            $dateInfo['label'] = 'Tanggal Ditolak';
+            $dateInfo['value'] = date('d F Y, H:i', strtotime($purchaseOrder->updated_at));
+            $dateInfo['icon'] = 'fa-calendar-times';
+        }
+
+        return $dateInfo;
     }
 }

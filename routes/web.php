@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\WebAuthController;
+use App\Http\Controllers\WebDashboardController;
 use App\Http\Controllers\WebInventoryController;
 use App\Http\Controllers\WebKategoriVendorController;
 use App\Http\Controllers\WebKategoriPerangkatController;
@@ -20,9 +21,7 @@ Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 
 // ========== SEMUA ROLE - Dashboard & Profile ==========
 Route::middleware(['auth'])->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [WebDashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/profile', [WebProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [WebProfileController::class, 'update'])->name('profile.update');
