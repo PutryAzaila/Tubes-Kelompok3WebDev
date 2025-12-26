@@ -19,11 +19,11 @@ class DetailBarang extends Model
 
     public function barangMasuk()
     {
-        return $this->hasOne(BarangMasuk::class);
+        return $this->hasMany(BarangMasuk::class);
     }
 
     public function barangKeluar()
     {
-        return $this->hasOne(BarangKeluar::class);
+        return $this->hasMany(BarangKeluar::class);
     }
 }

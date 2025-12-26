@@ -23,55 +23,50 @@ class WebDashboardController extends Controller
             ->whereYear('tanggal_pemesanan', Carbon::now()->year)
             ->count();
         
+        // ========================================
+        // HITUNG TOTAL STOK TERSEDIA (SAMA DENGAN INVENTORY)
+        // ========================================
+        $stockData = $this->calculateTotalStock();
+        
+        // Low stock items untuk informasi
         $lowStockItems = $this->getLowStockItems();
-        $lowStockCount = $lowStockItems->count();
+
+        Log::info('=== DEBUG DASHBOARD STOCK ===');
+        Log::info('Total Stock Available: ' . $stockData['total_available']);
+        Log::info('Low Stock Items Count: ' . $lowStockItems->count());
 
         $pendingPOs = collect();
         
         if (Auth::check()) {
             $user = Auth::user();
             
-            // Debug log
-            Log::info('DASHBOARD DEBUG');
-            Log::info('User ID: ' . $user->id);
-            Log::info('User Email: ' . $user->email);
-            Log::info('User Jabatan: ' . ($user->jabatan ?? 'NULL'));
-            
             if (isset($user->jabatan) && strtolower(trim($user->jabatan)) === 'manajer') {
-                Log::info('User IS manajer, querying pending POs...');
-                
                 $pendingPOs = PurchaseOrder::with(['vendor', 'detailPO.perangkat'])
                     ->where('status', 'Diajukan')
                     ->orderBy('tanggal_pemesanan', 'desc')
                     ->get();
-                
-                Log::info('Pending POs Count: ' . $pendingPOs->count());
-                
-                if ($pendingPOs->count() > 0) {
-                    Log::info('PO IDs: ' . $pendingPOs->pluck('id')->implode(', '));
-                } else {
-                    Log::warning('No pending POs found!');
-                    
-                    $allPOs = PurchaseOrder::all();
-                    Log::info('Total POs in DB: ' . $allPOs->count());
-                    Log::info('All statuses: ' . $allPOs->pluck('status')->unique()->implode(', '));
-                }
-            } else {
-                Log::info('User is NOT manajer (jabatan: ' . ($user->jabatan ?? 'NULL') . ')');
             }
         }
 
         $poChartData = $this->getPOChartData();
         $statusData = $this->getStatusChartData();
-        
         $recentActivities = $this->getUserRecentActivities();
 
         return view('dashboard', [
             'totalPerangkat' => $totalPerangkat,
             'totalVendor' => $totalVendor,
             'poThisMonth' => $poThisMonth,
-            'lowStockCount' => $lowStockCount,
+            
+            // Data stok baru (sama dengan inventory)
+            'totalStockAvailable' => $stockData['total_available'],
+            'totalStockIn' => $stockData['total_in'],
+            'totalStockOut' => $stockData['total_out'],
+            'stockPercentage' => $stockData['percentage'],
+            
+            // Low stock items (untuk informasi)
+            'lowStockCount' => $lowStockItems->count(),
             'lowStockItems' => $lowStockItems,
+            
             'pendingPOs' => $pendingPOs,
             'poChartLabels' => $poChartData['labels'],
             'poDiajukan' => $poChartData['diajukan'],
@@ -84,11 +79,52 @@ class WebDashboardController extends Controller
         ]);
     }
 
+    /**
+     * HITUNG TOTAL STOK TERSEDIA - SAMA DENGAN INVENTORY
+     */
+    private function calculateTotalStock()
+    {
+        Log::info('=== DASHBOARD: calculateTotalStock (MATCH INVENTORY) ===');
+        
+        $detailBarangs = DetailBarang::all();
+        
+        $totalIn = 0;
+        $totalOut = 0;
+        
+        foreach ($detailBarangs as $detail) {
+            $masuk = BarangMasuk::where('detail_barang_id', $detail->id)->sum('jumlah');
+            $keluar = BarangKeluar::where('detail_barang_id', $detail->id)->sum('jumlah');
+            
+            $totalIn += $masuk;
+            $totalOut += $keluar;
+        }
+        
+        $available = max(0, $totalIn - $totalOut);
+        
+        $percentage = 0;
+        if ($totalIn > 0) {
+            $percentage = round(($available / $totalIn) * 100, 1);
+        }
+        
+        Log::info("Stock Data => In: {$totalIn}, Out: {$totalOut}, Available: {$available}, Percentage: {$percentage}%");
+        
+        return [
+            'total_in' => $totalIn,
+            'total_out' => $totalOut,
+            'total_available' => $available,
+            'percentage' => $percentage,
+        ];
+    }
+
+    /**
+     * Low Stock Items - SAMA DENGAN INVENTORY
+     */
     private function getLowStockItems()
     {
-        $detailBarangs = DetailBarang::whereNull('serial_number')
-            ->with('perangkat')
-            ->get();
+        Log::info('=== DASHBOARD: getLowStockItems (MATCH INVENTORY) ===');
+        
+        $detailBarangs = DetailBarang::with('perangkat')->get();
+        Log::info('Total DetailBarang: ' . $detailBarangs->count());
 
         $lowStock = collect();
 
@@ -97,27 +133,60 @@ class WebDashboardController extends Controller
             $totalKeluar = BarangKeluar::where('detail_barang_id', $detail->id)->sum('jumlah');
             $stok = $totalMasuk - $totalKeluar;
 
-            if ($stok > 0) {
-                $isLowStock = false;
-                
-                if ($stok < 10) {
+            $isLowStock = false;
+            
+            if ($detail->serial_number !== null) {
+                // SERIAL: Tampilkan jika sudah keluar (out of stock)
+                if ($stok <= 0 && $totalMasuk > 0) {
                     $isLowStock = true;
+                    Log::info("✅ Serial Out: {$detail->perangkat->nama_perangkat} - {$detail->serial_number}");
                 }
-                elseif ($totalMasuk > 50 && $stok < ($totalMasuk * 0.2)) {
+            } else {
+                // NON-SERIAL: Tampilkan jika stok 1-5 saja (sangat rendah)
+                if ($stok > 0 && $stok <= 5) {
                     $isLowStock = true;
+                    Log::info("✅ Low Stock: {$detail->perangkat->nama_perangkat} (stok: {$stok})");
+                }
+                // Atau stok habis tapi pernah ada
+                elseif ($stok == 0 && $totalMasuk > 0) {
+                    $isLowStock = true;
+                    Log::info("✅ Empty Stock: {$detail->perangkat->nama_perangkat}");
+                }
+            }
+
+            if ($isLowStock) {
+                $item = clone $detail->perangkat;
+                $item->stok = $stok;
+                $item->serial_number = $detail->serial_number;
+                $item->detail_id = $detail->id;
+                
+                if ($detail->serial_number !== null) {
+                    $item->display_name = $detail->perangkat->nama_perangkat . " (SN: {$detail->serial_number})";
+                    $item->stock_type = 'serial';
+                    $item->status_badge = 'Habis';
+                    $item->badge_color = 'danger';
+                    $item->icon = 'barcode';
+                } else {
+                    $item->display_name = $detail->perangkat->nama_perangkat;
+                    $item->stock_type = 'bulk';
+                    $item->icon = 'box';
+                    
+                    if ($stok == 0) {
+                        $item->status_badge = 'Habis';
+                        $item->badge_color = 'danger';
+                    } else {
+                        $item->status_badge = 'Menipis';
+                        $item->badge_color = 'warning';
+                    }
                 }
                 
-                if ($isLowStock) {
-                    $item = $detail->perangkat;
-                    $item->stok = $stok;
-                    $item->tipe = $detail->kategori;
-                    $item->total_masuk = $totalMasuk; 
-                    $lowStock->push($item);
-                }
+                $lowStock->push($item);
             }
         }
 
-        return $lowStock->sortBy('stok')->take(5);
+        Log::info('Total Low Stock Items: ' . $lowStock->count());
+
+        return $lowStock->sortBy('stok')->take(10)->values();
     }
 
     private function getPOChartData()
@@ -166,7 +235,10 @@ class WebDashboardController extends Controller
 
     private function getUserRecentActivities()
     {
+        Log::info('=== STARTING getUserRecentActivities ===');
+        
         if (!Auth::check()) {
+            Log::warning('User not authenticated');
             return collect();
         }
 
@@ -203,8 +275,11 @@ class WebDashboardController extends Controller
             ]);
         }
 
+        // 2. Barang Masuk
         $barangMasukTable = (new BarangMasuk)->getTable();
-        if (DB::getSchemaBuilder()->hasColumn($barangMasukTable, 'user_id')) {
+        $hasMasukUserId = DB::getSchemaBuilder()->hasColumn($barangMasukTable, 'user_id');
+
+        if ($hasMasukUserId) {
             $userMasuk = BarangMasuk::with(['detailBarang.perangkat'])
                 ->where('user_id', $userId)
                 ->orderBy('tanggal', 'desc')
@@ -221,10 +296,29 @@ class WebDashboardController extends Controller
                     'timestamp' => Carbon::parse($masuk->tanggal),
                 ]);
             }
+        } else {
+            $recentMasuk = BarangMasuk::with(['detailBarang.perangkat'])
+                ->orderBy('tanggal', 'desc')
+                ->take(3)
+                ->get();
+
+            foreach ($recentMasuk as $masuk) {
+                $activities->push([
+                    'type' => 'primary',
+                    'icon' => 'arrow-down',
+                    'title' => 'Barang Masuk',
+                    'description' => $masuk->jumlah . ' unit ' . ($masuk->detailBarang->perangkat->nama_perangkat ?? 'N/A'),
+                    'time' => Carbon::parse($masuk->tanggal)->diffForHumans(),
+                    'timestamp' => Carbon::parse($masuk->tanggal),
+                ]);
+            }
         }
 
+        // 3. Barang Keluar
         $barangKeluarTable = (new BarangKeluar)->getTable();
-        if (DB::getSchemaBuilder()->hasColumn($barangKeluarTable, 'user_id')) {
+        $hasKeluarUserId = DB::getSchemaBuilder()->hasColumn($barangKeluarTable, 'user_id');
+
+        if ($hasKeluarUserId) {
             $userKeluar = BarangKeluar::with(['detailBarang.perangkat'])
                 ->where('user_id', $userId)
                 ->orderBy('tanggal', 'desc')
@@ -241,8 +335,25 @@ class WebDashboardController extends Controller
                     'timestamp' => Carbon::parse($keluar->tanggal),
                 ]);
             }
+        } else {
+            $recentKeluar = BarangKeluar::with(['detailBarang.perangkat'])
+                ->orderBy('tanggal', 'desc')
+                ->take(3)
+                ->get();
+
+            foreach ($recentKeluar as $keluar) {
+                $activities->push([
+                    'type' => 'warning',
+                    'icon' => 'arrow-up',
+                    'title' => 'Barang Keluar',
+                    'description' => $keluar->jumlah . ' unit ' . ($keluar->detailBarang->perangkat->nama_perangkat ?? 'N/A'),
+                    'time' => Carbon::parse($keluar->tanggal)->diffForHumans(),
+                    'timestamp' => Carbon::parse($keluar->tanggal),
+                ]);
+            }
         }
 
+        // 4. Aktivitas Manajer
         $user = Auth::user();
         if (isset($user->jabatan) && strtolower(trim($user->jabatan)) === 'manajer') {
             $approvedPOs = PurchaseOrder::with(['vendor'])

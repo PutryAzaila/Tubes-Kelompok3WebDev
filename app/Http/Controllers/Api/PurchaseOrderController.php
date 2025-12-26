@@ -167,7 +167,6 @@ class PurchaseOrderController extends Controller
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
-                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
@@ -244,13 +243,11 @@ class PurchaseOrderController extends Controller
                 ], 400);
             }
 
-            // Format data untuk form edit (tanpa merk)
             $formattedDetails = $purchaseOrder->detailPO->map(function ($detail) {
                 return [
                     'id_detail' => $detail->id,
                     'id_perangkat' => $detail->id_perangkat,
                     'nama_perangkat' => $detail->perangkat->nama_perangkat ?? 'N/A',
-                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'stok' => $detail->perangkat->stok ?? 0,
                     'jumlah' => $detail->jumlah,
                 ];
@@ -428,7 +425,6 @@ class PurchaseOrderController extends Controller
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
-                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });
@@ -506,7 +502,6 @@ class PurchaseOrderController extends Controller
                 return [
                     'no' => $index + 1,
                     'nama_product' => $detail->perangkat->nama_perangkat ?? 'N/A',
-                    'tipe' => $detail->perangkat->tipe ?? 'N/A',
                     'amount' => $detail->jumlah . ' Unit',
                 ];
             });

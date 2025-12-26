@@ -451,7 +451,7 @@ function addItem() {
                             <label class="form-label-modern">Perangkat</label>
                             <select class="form-select form-select-modern" name="items[${itemCount}][id_perangkat]" required onchange="updateSummary()">
                                 <option value="">-- Pilih Perangkat --</option>
-                                ${perangkats.map(p => `<option value="${p.id}">${p.nama_perangkat} - ${p.merk}</option>`).join('')}
+                                ${perangkats.map(p => `<option value="${p.id}">${p.nama_perangkat}</option>`).join('')}
                             </select>
                         </div>
                         <div class="col-md-5 mb-3">

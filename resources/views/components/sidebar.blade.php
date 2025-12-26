@@ -1,4 +1,3 @@
-{{-- resources/views/components/sidebar.blade.php --}}
 <aside id="sidebar" class="sidebar">
     
     <!-- Logo Section -->

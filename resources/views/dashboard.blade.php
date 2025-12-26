@@ -688,19 +688,18 @@
     </div>
 
     <div class="col-xl-3 col-md-6">
-        <div class="stat-card stat-danger">
+        <div class="stat-card stat-success">
             <div class="stat-icon-wrapper">
-                <i class="fas fa-exclamation-triangle stat-icon"></i>
+                <i class="fas fa-cubes stat-icon"></i>
             </div>
-            <div class="stat-label">Stok Rendah</div>
-            <div class="stat-value">{{ $lowStockCount ?? 0 }}</div>
-            <div class="stat-trend trend-down">
-                <i class="fas fa-arrow-down"></i>
-                <span>Perlu restock</span>
+            <div class="stat-label">Total Stok Tersedia</div>
+            <div class="stat-value">{{ number_format($totalStockAvailable ?? 0) }}</div>
+            <div class="stat-trend" style="color: #10b981;">
+                <i class="fas fa-percentage"></i>
+                <span>{{ $stockPercentage ?? 0 }}% dari total masuk</span>
             </div>
         </div>
     </div>
-
     <!-- Charts Row -->
     <div class="col-lg-8">
         <div class="chart-card">
@@ -730,73 +729,36 @@
         </div>
     </div>
 
-    <!-- Recent Activity & Low Stock -->
-    <div class="col-lg-8">
-        <div class="activity-card">
-            <div class="activity-header">
-                <h5 class="activity-title">
-                    <i class="fas fa-history"></i>
-                    Aktivitas Terbaru
-                </h5>
-            </div>
-            <div class="activity-body">
-                @forelse($recentActivities ?? [] as $activity)
-                <div class="activity-item">
-                    <div class="activity-icon icon-{{ $activity['type'] ?? 'primary' }}">
-                        <i class="fas fa-{{ $activity['icon'] ?? 'circle' }}"></i>
-                    </div>
-                    <div class="activity-content">
-                        <div class="activity-title-text">{{ $activity['title'] }}</div>
-                        <div class="activity-description">{{ $activity['description'] }}</div>
-                        <div class="activity-time">
-                            <i class="fas fa-clock me-1"></i>{{ $activity['time'] }}
-                        </div>
+<div class="col-12">
+    <div class="activity-card">
+        <div class="activity-header">
+            <h5 class="activity-title">
+                <i class="fas fa-history"></i>
+                Aktivitas Terbaru
+            </h5>
+        </div>
+        <div class="activity-body">
+            @forelse($recentActivities ?? [] as $activity)
+            <div class="activity-item">
+                <div class="activity-icon icon-{{ $activity['type'] ?? 'primary' }}">
+                    <i class="fas fa-{{ $activity['icon'] ?? 'circle' }}"></i>
+                </div>
+                <div class="activity-content">
+                    <div class="activity-title-text">{{ $activity['title'] }}</div>
+                    <div class="activity-description">{{ $activity['description'] }}</div>
+                    <div class="activity-time">
+                        <i class="fas fa-clock me-1"></i>{{ $activity['time'] }}
                     </div>
                 </div>
-                @empty
-                <div class="text-center py-4">
-                    <i class="fas fa-inbox fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
-                    <p class="text-muted">Belum ada aktivitas</p>
-                </div>
-                @endforelse
             </div>
+            @empty
+            <div class="text-center py-5">
+                <i class="fas fa-inbox fa-3x text-muted mb-3" style="opacity: 0.3;"></i>
+                <p class="text-muted">Belum ada aktivitas</p>
+            </div>
+            @endforelse
         </div>
     </div>
-
-    <div class="col-lg-4">
-        <div class="alert-card">
-            <div class="alert-header">
-                <h5 class="alert-title">
-                    <i class="fas fa-exclamation-circle"></i>
-                    Stok Rendah
-                </h5>
-            </div>
-            <div class="alert-body">
-                @forelse($lowStockItems ?? [] as $item)
-                <div class="alert-item">
-                    <div class="alert-item-info">
-                        <div class="alert-item-icon">
-                            <i class="fas fa-box"></i>
-                        </div>
-                        <div class="alert-item-text">
-                            <h6>{{ $item->nama_perangkat }}</h6>
-                            <p>{{ $item->tipe ?? 'N/A' }}</p>
-                        </div>
-                    </div>
-                    <div class="alert-item-stock">
-                        {{ $item->stok }} Unit
-                    </div>
-                </div>
-                @empty
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-3x text-success mb-3" style="opacity: 0.3;"></i>
-                    <p class="text-muted">Semua stok aman</p>
-                </div>
-                @endforelse
-            </div>
-        </div>
-    </div>
-
 </div>
 @endsection
 

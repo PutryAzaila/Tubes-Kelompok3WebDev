@@ -515,7 +515,6 @@
                                     </div>
                                     <div class="item-details">
                                         <h6>{{ $detail->perangkat->nama_perangkat ?? 'N/A' }}</h6>
-                                        <p>{{ $detail->perangkat->tipe ?? '-' }}</p>
                                     </div>
                                 </div>
                             </td>

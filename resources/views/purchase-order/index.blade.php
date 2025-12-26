@@ -760,9 +760,6 @@
                                         </div>
                                         <h5 class="empty-state-title">Belum ada Purchase Order</h5>
                                         <p class="empty-state-text">Mulai dengan membuat Purchase Order pertama Anda</p>
-                                        <a href="{{ route('purchase-order.create') }}" class="btn btn-primary btn-modern">
-                                            <i class="fas fa-plus me-2"></i>Buat PO Pertama
-                                        </a>
                                     </div>
                                 </td>
                             </tr>

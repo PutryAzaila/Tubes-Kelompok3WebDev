@@ -22,11 +22,24 @@ Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
 // ========== SEMUA ROLE - Dashboard & Profile ==========
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [WebDashboardController::class, 'index'])->name('dashboard');
+    
+   Route::prefix('profile')->middleware(['auth'])->group(function () {
+    Route::get('/', [WebProfileController::class, 'index'])
+            ->name('profile.index');
 
-    Route::get('/profile', [WebProfileController::class, 'index'])->name('profile.index');
-    Route::put('/profile', [WebProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [WebProfileController::class, 'updatePassword'])->name('profile.update.password');
-    Route::put('/profile/update-password', [WebProfileController::class, 'updatePassword'])->name('profile.password.update');
+        // halaman edit profil (termasuk ganti password)
+        Route::get('/edit', [WebProfileController::class, 'edit'])
+            ->name('profile.edit');
+
+        // update data profil
+        Route::put('/', [WebProfileController::class, 'update'])
+            ->name('profile.update');
+
+        // update password (form ada di halaman edit)
+        Route::put('/password', [WebProfileController::class, 'updatePassword'])
+            ->name('profile.password.update');
+
+});
 });
 
 // ========== ADMIN & MANAJER - View Access (Read Only) ==========
@@ -55,7 +68,7 @@ Route::middleware(['auth', 'role:manajer'])->group(function () {
 
 // ========== ADMIN ONLY - Full CRUD ==========
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    // Vendor - CRUD (Create, Update, Delete saja, karena index sudah di atas)
+    // Vendor - CRUD
     Route::get('/vendor/create', [WebVendorController::class, 'create'])->name('vendor.create');
     Route::post('/vendor', [WebVendorController::class, 'store'])->name('vendor.store');
     Route::get('/vendor/{id}/edit', [WebVendorController::class, 'edit'])->name('vendor.edit');
@@ -91,19 +104,20 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/purchase-order/{id}', [WebPurchaseOrderController::class, 'destroy'])->name('purchase-order.destroy');
 });
 
-// ========== NOC ONLY - Inventory Input/Update ==========
-Route::middleware(['auth', 'role:noc'])->group(function () {
-    Route::get('/inventory/create', [WebInventoryController::class, 'create'])->name('inventory.create');
-    Route::get('/inventory/available-serials', [WebInventoryController::class, 'getAvailableSerials'])->name('inventory.available-serials');
-    Route::get('/inventory/returnable-serials', [WebInventoryController::class, 'getReturnableSerials'])->name('inventory.returnable-serials');
-    Route::post('/inventory', [WebInventoryController::class, 'store'])->name('inventory.store');    
-    Route::get('/inventory/{id}/edit/{type}', [WebInventoryController::class, 'edit'])->name('inventory.edit');
-    Route::put('/inventory/{id}/{type}', [WebInventoryController::class, 'update'])->name('inventory.update');
-});
-
 // ========== MANAJER, ADMIN & NOC - Lihat Inventory ==========
 Route::middleware(['auth', 'role:manajer,admin,noc'])->group(function () {
     Route::get('/inventory', [WebInventoryController::class, 'index'])->name('inventory.index');
+    
+    Route::get('/inventory/available-serials', [WebInventoryController::class, 'getAvailableSerials'])->name('inventory.available-serials');
+    Route::get('/inventory/returnable-serials', [WebInventoryController::class, 'getReturnableSerials'])->name('inventory.returnable-serials');
+});
+
+// ========== NOC ONLY - Inventory Input/Update ==========
+Route::middleware(['auth', 'role:noc'])->group(function () {
+    Route::get('/inventory/create', [WebInventoryController::class, 'create'])->name('inventory.create');
+    Route::post('/inventory', [WebInventoryController::class, 'store'])->name('inventory.store');    
+    Route::get('/inventory/{id}/edit/{type}', [WebInventoryController::class, 'edit'])->name('inventory.edit');
+    Route::put('/inventory/{id}/{type}', [WebInventoryController::class, 'update'])->name('inventory.update');
 });
 
 // ========== MANAJER, ADMIN, NOC - Lihat PO ==========

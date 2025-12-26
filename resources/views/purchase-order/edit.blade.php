@@ -456,7 +456,7 @@ function addItem(perangkatId = '', jumlah = 1) {
                                 <option value="">-- Pilih Perangkat --</option>
                                 ${perangkats.map(p => `
                                     <option value="${p.id}" ${p.id == perangkatId ? 'selected' : ''}>
-                                        ${p.nama_perangkat} - ${p.merk}
+                                        ${p.nama_perangkat} 
                                     </option>
                                 `).join('')}
                             </select>

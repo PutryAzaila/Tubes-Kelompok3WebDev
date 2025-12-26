@@ -101,7 +101,7 @@
     }
 
     .btn-add {
-        background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
         border: none;
         color: white;
         padding: 0.75rem 2rem;
@@ -313,27 +313,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     @endif
-
-    <!-- Statistics Cards -->
-    @php
-        $totalMasuk = $data->whereInstanceOf(App\Models\BarangMasuk::class)->sum('jumlah');
-        $totalKeluar = $data->whereInstanceOf(App\Models\BarangKeluar::class)->sum('jumlah');
-        $totalStok = max(0, $totalMasuk - $totalKeluar); // Tidak boleh negatif
-        
-        // Menentukan status stok
-        $stokStatus = '';
-        $stokIcon = 'fa-box';
-        if ($totalStok === 0) {
-            $stokStatus = 'Stok Habis';
-            $stokIcon = 'fa-exclamation-triangle';
-        } elseif ($totalStok < 10) {
-            $stokStatus = 'Stok Menipis';
-            $stokIcon = 'fa-exclamation-circle';
-        } else {
-            $stokStatus = 'Stok Aman';
-            $stokIcon = 'fa-box';
-        }
-    @endphp
+        <!-- Statistics Cards -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
                 <div class="card stats-card card-gradient-blue">
@@ -374,7 +354,7 @@
                     <div class="stats-card-body">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <p class="mb-2 opacity-75 fw-semibold">Sisa Stok</p>
+                                <p class="mb-2 opacity-75 fw-semibold">Sisa Stok Tersedia</p>
                                 <h2 class="mb-0 fw-bold">{{ number_format($totalStok) }}</h2>
                                 <small class="opacity-75">
                                     <i class="fas {{ $stokIcon }} me-1"></i>{{ $stokStatus }}
@@ -385,11 +365,19 @@
                             </div>
                         </div>
                         
-                        @if($totalKeluar > $totalMasuk)
+                        {{-- Info tambahan jika ada item out of stock --}}
+                        @if(isset($itemsOutOfStock) && $itemsOutOfStock > 0)
                         <div class="mt-3 pt-3 border-top border-light border-opacity-25">
                             <small class="opacity-75">
                                 <i class="fas fa-info-circle me-1"></i>
-                                Ada selisih {{ number_format($totalKeluar - $totalMasuk) }} unit
+                                {{ $itemsOutOfStock }} item habis, {{ $itemsWithStock ?? 0 }} item tersedia
+                            </small>
+                        </div>
+                        @else
+                        <div class="mt-3 pt-3 border-top border-light border-opacity-25">
+                            <small class="opacity-75">
+                                <i class="fas fa-check-circle me-1"></i>
+                                {{ $itemsWithStock ?? 0 }} item memiliki stok
                             </small>
                         </div>
                         @endif
@@ -397,7 +385,6 @@
                 </div>
             </div>
         </div>
-
     <!-- Data Table -->
     <div class="card main-card">
         <div class="card-header-custom">
@@ -420,61 +407,65 @@
                             <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        @foreach($data as $index => $item)
+                        <tbody>
                             @php
-                                $isMasuk = $item instanceof App\Models\BarangMasuk;
-                                $type = $isMasuk ? 'masuk' : 'keluar';
+                                $rowNumber = 1;
                             @endphp
-                            <tr>
-                                <td class="fw-semibold">{{ $index + 1 }}</td>
-                                <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
-                                <td>
-                                    @if($isMasuk)
-                                        <span class="badge badge-modern badge-masuk">
-                                            <i class="fas fa-arrow-down me-1"></i>Masuk
+                            
+                            @foreach($data as $item)
+                                @php
+                                    $isMasuk = $item instanceof App\Models\BarangMasuk;
+                                    $type = $isMasuk ? 'masuk' : 'keluar';
+                                @endphp
+                                <tr>
+                                    <td class="fw-semibold">{{ $rowNumber++ }}</td>
+                                    <td>{{ date('d/m/Y', strtotime($item->tanggal)) }}</td>
+                                    <td>
+                                        @if($isMasuk)
+                                            <span class="badge badge-modern badge-masuk">
+                                                <i class="fas fa-arrow-down me-1"></i>Masuk
+                                            </span>
+                                        @else
+                                            <span class="badge badge-modern badge-keluar">
+                                                <i class="fas fa-arrow-up me-1"></i>Keluar
+                                            </span>
+                                        @endif
+                                    </td>
+                                    <td class="fw-semibold">{{ $item->detailBarang->perangkat->nama_perangkat ?? '-' }}</td>
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            {{ $item->detailBarang->kategori ?? '-' }}
                                         </span>
-                                    @else
-                                        <span class="badge badge-modern badge-keluar">
-                                            <i class="fas fa-arrow-up me-1"></i>Keluar
+                                    </td>
+                                    <td><code>{{ $item->detailBarang->serial_number ?? '-' }}</code></td>
+                                    <td class="fw-bold text-primary">{{ $item->jumlah }}</td>
+                                    <td>
+                                        <span class="badge bg-info">
+                                            {{ $item->status }}
                                         </span>
-                                    @endif
-                                </td>
-                                <td class="fw-semibold">{{ $item->detailBarang->perangkat->nama_perangkat ?? '-' }}</td>
-                                <td>
-                                    <span class="badge bg-primary">
-                                        {{ $item->detailBarang->kategori ?? '-' }}
-                                    </span>
-                                </td>
-                                <td><code>{{ $item->detailBarang->serial_number ?? '-' }}</code></td>
-                                <td class="fw-bold text-primary">{{ $item->jumlah }}</td>
-                                <td>
-                                    <span class="badge bg-info">
-                                        {{ $item->status }}
-                                    </span>
-                                </td>
-                                <td class="text-muted small">
-                                    {{ $isMasuk ? ($item->catatan_barang_masuk ?? '-') : ($item->catatan_barang_keluar ?? '-') }}
-                                </td>
-                                <td class="text-center">
-                                    @if(strtoupper(auth()->user()->jabatan) === 'NOC')
-                                        <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
-                                            class="action-btn btn-edit" 
-                                            title="Edit Data">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    @elseif(strtoupper(auth()->user()->jabatan) === 'MANAJER' || strtoupper(auth()->user()->jabatan) === 'ADMIN')
-                                        <!-- Manajer: Hanya View -->
-                                        <button class="action-btn btn-view" 
-                                                title="Lihat Saja (View Only)" 
-                                                disabled>
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    @endif
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
+                                    </td>
+                                    <td class="text-muted small">
+                                        {{ $isMasuk ? ($item->catatan_barang_masuk ?? '-') : ($item->catatan_barang_keluar ?? '-') }}
+                                    </td>
+                                    <td class="text-center">
+                                        @if(strtoupper(auth()->user()->jabatan) === 'NOC')
+                                            <a href="{{ route('inventory.edit', [$item->id, $type]) }}" 
+                                                class="action-btn btn-edit" 
+                                                title="Edit Data">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        @elseif(strtoupper(auth()->user()->jabatan) === 'MANAJER' || strtoupper(auth()->user()->jabatan) === 'ADMIN')
+                                            <!-- Manajer/Admin: Hanya View -->
+                                            <button class="action-btn btn-view" 
+                                                    title="Lihat Saja (View Only)" 
+                                                    disabled>
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
                 </table>
             </div>
         </div>

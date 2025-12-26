@@ -5,478 +5,679 @@
 @section('page-description', 'Tambahkan data barang masuk atau keluar')
 
 @push('styles')
-<!-- Bootstrap 5 -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- Select2 -->
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
 
 <style>
-    :root {
-        --transdata-blue: #1e3a8a;
-        --transdata-orange: #f97316;
-        --transdata-gray: #6b7280;
-    }
+/* Page Header */
+.page-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+}
 
-    body {
-        background: #f8f9fa;
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    }
+.page-header h4 {
+    color: white;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
 
-    .page-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        color: white;
-        padding: 2rem 0;
-        margin-bottom: 2rem;
-        border-radius: 1rem;
-        box-shadow: 0 10px 30px rgba(30, 58, 138, 0.3);
-    }
+.page-header p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+}
 
-    .form-card {
-        border: none;
-        border-radius: 1.5rem;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        overflow: hidden;
-        background: white;
-    }
+.breadcrumb-custom {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 0;
+}
 
-    .form-card-header {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        color: white;
-        padding: 2rem;
-        border: none;
-    }
+.breadcrumb-custom .breadcrumb-item {
+    color: rgba(255, 255, 255, 0.8);
+}
 
-    .form-card-body {
-        padding: 2.5rem;
-    }
+.breadcrumb-custom .breadcrumb-item + .breadcrumb-item::before {
+    color: rgba(255, 255, 255, 0.6);
+}
 
-    .form-label {
-        font-weight: 600;
-        color: var(--transdata-gray);
-        margin-bottom: 0.75rem;
-        font-size: 0.9rem;
-    }
+.breadcrumb-custom .breadcrumb-item.active {
+    color: white;
+    font-weight: 600;
+}
 
-    .form-control, .form-select {
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 0.875rem 1rem;
-        font-size: 0.95rem;
-        transition: all 0.3s ease;
-    }
+.breadcrumb-custom a {
+    color: white;
+    text-decoration: none;
+    transition: all 0.2s;
+}
 
-    .form-control:focus, .form-select:focus {
-        border-color: var(--transdata-blue);
-        box-shadow: 0 0 0 0.25rem rgba(30, 58, 138, 0.15);
-    }
+.breadcrumb-custom a:hover {
+    color: #fbbf24;
+}
 
-    .section-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--transdata-blue);
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 3px solid var(--transdata-orange);
-        display: inline-block;
-    }
+/* Card Styles */
+.card-custom {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: none;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
 
-    .radio-card {
-        border: 2px solid #e5e7eb;
-        border-radius: 1rem;
+.card-header-custom {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    padding: 1.25rem 1.5rem;
+    border: none;
+}
+
+.card-header-custom h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+.card-body-custom {
+    padding: 2rem;
+}
+
+/* Form Elements */
+.form-label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.required-label::after {
+    content: ' *';
+    color: #dc2626;
+}
+
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.15);
+}
+
+.form-control.is-invalid {
+    border-color: #dc2626;
+}
+
+.form-control.is-invalid:focus {
+    box-shadow: 0 0 0 0.2rem rgba(220, 38, 38, 0.15);
+}
+
+.invalid-feedback {
+    display: block;
+    color: #dc2626;
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+}
+
+.form-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-top: 0.375rem;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #e5e7eb;
+}
+
+/* Radio Cards */
+.radio-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    height: 100%;
+}
+
+.radio-card:hover {
+    border-color: #2563eb;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+}
+
+.radio-card.active {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.radio-checkmark {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0;
+    transition: all 0.3s ease;
+}
+
+.radio-card.active .radio-checkmark {
+    opacity: 1;
+}
+
+/* Serial Number Sections */
+.serial-input-group {
+    background: #f9fafb;
+    border: 2px dashed #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.serial-checkbox-item {
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.serial-checkbox-item:hover {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.05);
+}
+
+.serial-checkbox-item.selected {
+    border-color: #2563eb;
+    background: rgba(37, 99, 235, 0.1);
+}
+
+/* Buttons */
+.btn-submit {
+    background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
+    color: white;
+    border: none;
+    padding: 0.625rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+    color: white;
+}
+
+.btn-cancel {
+    background: white;
+    color: #6b7280;
+    border: 1px solid #e5e7eb;
+    padding: 0.625rem 2rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #f9fafb;
+    color: #374151;
+    border-color: #d1d5db;
+}
+
+.btn-add-serial {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    border: none;
+    color: white;
+    padding: 0.5rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-remove-serial {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Info Badge */
+.info-badge {
+    background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+/* Conditional Sections */
+.conditional-section {
+    display: none !important;
+}
+
+.conditional-section.show {
+    display: block !important;
+}
+
+/* Alerts */
+.alert-custom {
+    border-radius: 12px;
+    border: none;
+    padding: 1rem 1.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    color: white;
+}
+
+/* Info Card */
+.info-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border: none;
+    overflow: hidden;
+}
+
+.info-card-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    padding: 1rem 1.25rem;
+    border: none;
+}
+
+.info-card-header h6 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 0;
+    font-size: 0.95rem;
+}
+
+.info-card-body {
+    padding: 1.25rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .card-body-custom {
         padding: 1.5rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-    }
-
-    .radio-card:hover {
-        border-color: var(--transdata-blue);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(30, 58, 138, 0.15);
-    }
-
-    .radio-card.active {
-        border-color: var(--transdata-blue);
-        background: rgba(30, 58, 138, 0.05);
-    }
-
-    .radio-checkmark {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        width: 30px;
-        height: 30px;
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        opacity: 0;
-        transition: all 0.3s ease;
-    }
-
-    .radio-card.active .radio-checkmark {
-        opacity: 1;
-    }
-
-    .serial-input-group {
-        background: #f9fafb;
-        border: 2px dashed #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        margin-bottom: 0.75rem;
-    }
-
-    .serial-checkbox-item {
-        border: 2px solid #e5e7eb;
-        border-radius: 0.75rem;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s ease;
-        cursor: pointer;
-    }
-
-    .serial-checkbox-item:hover {
-        border-color: var(--transdata-blue);
-        background: rgba(30, 58, 138, 0.05);
-    }
-
-    .serial-checkbox-item.selected {
-        border-color: var(--transdata-blue);
-        background: rgba(30, 58, 138, 0.1);
-    }
-
-    .btn-add-serial {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        border: none;
-        color: white;
-        padding: 0.5rem 1.5rem;
-        border-radius: 0.5rem;
-        font-weight: 600;
-    }
-
-    .btn-remove-serial {
-        background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-        border: none;
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-    }
-
-    .btn-submit {
-        background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-        border: none;
-        color: white;
-        padding: 1rem 3rem;
-        border-radius: 0.75rem;
-        font-weight: 600;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-    }
-
-    .btn-submit:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-        color: white;
-    }
-
-    .conditional-section {
-        display: none !important;
     }
     
-    .conditional-section.show {
-        display: block !important;
+    .page-header {
+        padding: 1.5rem;
     }
-
-    .info-badge {
-        background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
-        color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        font-size: 0.85rem;
-        display: inline-block;
-        margin-bottom: 1rem;
+    
+    .action-buttons {
+        flex-direction: column;
     }
+    
+    .btn-submit, .btn-cancel {
+        width: 100%;
+    }
+}
 </style>
 @endpush
 
 @section('content')
-<div class="container-fluid px-4 animate-fade-in">
+<div class="row g-4">
     <!-- Page Header -->
-    <div class="page-header mb-4">
-        <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-2"><i class="fas fa-plus-circle me-2"></i>Tambah Data Inventory</h1>
-                    <p class="mb-0 opacity-75">Isi formulir di bawah untuk menambahkan data barang</p>
-                </div>
-                <a href="{{ route('inventory.index') }}" class="btn btn-light">
-                    <i class="fas fa-arrow-left me-2"></i>Kembali
-                </a>
-            </div>
+    <div class="col-12">
+        <div class="page-header">
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb breadcrumb-custom">
+                    <li class="breadcrumb-item">
+                        <a href="{{ route('inventory.index') }}">
+                            <i class="fas fa-box me-1"></i>Inventory
+                        </a>
+                    </li>
+                    <li class="breadcrumb-item active">Tambah Data</li>
+                </ol>
+            </nav>
+            <h4><i class="fas fa-plus-circle me-2"></i>Tambah Data Inventory</h4>
+            <p>Isi formulir di bawah untuk menambahkan data barang masuk atau keluar</p>
         </div>
     </div>
 
+    <!-- Alert Messages -->
+    @if ($errors->any())
+    <div class="col-12">
+        <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
+            <strong><i class="fas fa-exclamation-circle me-2"></i>Terdapat kesalahan!</strong>
+            <ul class="mb-0 mt-2">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+    @endif
+
     <!-- Form Card -->
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="card form-card">
-                <div class="form-card-header">
-                    <h4 class="mb-0"><i class="fas fa-edit me-2"></i>Form Data Inventory</h4>
+    <div class="col-12 col-lg-8">
+        <form action="{{ url('/inventory') }}" method="POST" id="inventoryForm">
+            @csrf
+
+            <!-- Jenis Transaksi Card -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h5><i class="fas fa-exchange-alt me-2"></i>Jenis Transaksi</h5>
                 </div>
-                <div class="form-card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            <strong>Terdapat kesalahan!</strong>
-                            <ul class="mb-0 mt-2">
-                                @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
+                <div class="card-body-custom">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="radio-card" id="cardMasuk">
+                                <input type="radio" name="jenis_inventori" value="masuk" class="d-none" required>
+                                <div class="radio-card-body">
+                                    <div class="mb-2">
+                                        <i class="fas fa-arrow-down fa-2x text-success"></i>
+                                    </div>
+                                    <h5 class="mb-2">Barang Masuk</h5>
+                                    <p class="text-muted mb-0 small">Catat barang yang masuk ke inventory</p>
+                                </div>
+                                <div class="radio-checkmark">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </label>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="radio-card" id="cardKeluar">
+                                <input type="radio" name="jenis_inventori" value="keluar" class="d-none" required>
+                                <div class="radio-card-body">
+                                    <div class="mb-2">
+                                        <i class="fas fa-arrow-up fa-2x text-warning"></i>
+                                    </div>
+                                    <h5 class="mb-2">Barang Keluar</h5>
+                                    <p class="text-muted mb-0 small">Catat barang yang keluar dari inventory</p>
+                                </div>
+                                <div class="radio-checkmark">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Informasi Dasar Card -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h5><i class="fas fa-info-circle me-2"></i>Informasi Dasar</h5>
+                </div>
+                <div class="card-body-custom">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="tanggal" class="form-label required-label">
+                                <i class="fas fa-calendar-alt me-2"></i>Tanggal
+                            </label>
+                            <input type="date" class="form-control" id="tanggal" name="tanggal" 
+                                value="{{ old('tanggal', date('Y-m-d')) }}" required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="id_perangkat" class="form-label required-label">
+                                <i class="fas fa-box me-2"></i>Perangkat
+                            </label>
+                            <select class="form-select select2" id="id_perangkat" name="id_perangkat" required>
+                                <option value="">-- Pilih Perangkat --</option>
+                                @foreach($perangkats as $perangkat)
+                                    <option value="{{ $perangkat->id }}">{{ $perangkat->nama_perangkat }}</option>
                                 @endforeach
-                            </ul>
+                            </select>
                         </div>
-                    @endif
 
-                    <form action="{{ url('/inventory') }}" method="POST" id="inventoryForm">
-                        @csrf
+                        <div class="col-md-6">
+                            <label for="kategori" class="form-label required-label">
+                                <i class="fas fa-tag me-2"></i>Kategori
+                            </label>
+                            <select class="form-select" id="kategori" name="kategori" required>
+                                <option value="">-- Pilih Kategori --</option>
+                                <option value="Listrik">Listrik</option>
+                                <option value="Non-Listrik">Non-Listrik</option>
+                            </select>
+                        </div>
 
-                        <!-- Jenis Transaksi -->
-                        <div class="mb-5">
-                            <h5 class="section-title">
-                                <i class="fas fa-exchange-alt me-2"></i>Jenis Transaksi
-                            </h5>
-                            <div class="row g-3">
-                                <div class="col-md-6">
-                                    <label class="radio-card" id="cardMasuk">
-                                        <input type="radio" name="jenis_inventori" value="masuk" class="d-none" required>
-                                        <div class="radio-card-body">
-                                            <div class="mb-2">
-                                                <i class="fas fa-arrow-down fa-2x text-success"></i>
-                                            </div>
-                                            <h5 class="mb-2">Barang Masuk</h5>
-                                            <p class="text-muted mb-0 small">Catat barang yang masuk ke inventory</p>
-                                        </div>
-                                        <div class="radio-checkmark">
-                                            <i class="fas fa-check"></i>
-                                        </div>
-                                    </label>
+                        <div class="col-md-6">
+                            <label class="form-label required-label">
+                                <i class="fas fa-barcode me-2"></i>Ada Serial Number?
+                            </label>
+                            <div class="d-flex gap-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="has_serial" id="hasSerialYes" value="1" required>
+                                    <label class="form-check-label" for="hasSerialYes">Ya</label>
                                 </div>
-                                <div class="col-md-6">
-                                    <label class="radio-card" id="cardKeluar">
-                                        <input type="radio" name="jenis_inventori" value="keluar" class="d-none" required>
-                                        <div class="radio-card-body">
-                                            <div class="mb-2">
-                                                <i class="fas fa-arrow-up fa-2x text-warning"></i>
-                                            </div>
-                                            <h5 class="mb-2">Barang Keluar</h5>
-                                            <p class="text-muted mb-0 small">Catat barang yang keluar dari inventory</p>
-                                        </div>
-                                        <div class="radio-checkmark">
-                                            <i class="fas fa-check"></i>
-                                        </div>
-                                    </label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="has_serial" id="hasSerialNo" value="0" required>
+                                    <label class="form-check-label" for="hasSerialNo">Tidak</label>
                                 </div>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Informasi Dasar -->
-                        <div class="mb-5">
-                            <h5 class="section-title">
-                                <i class="fas fa-info-circle me-2"></i>Informasi Dasar
-                            </h5>
-                            <div class="row g-4">
-                                <div class="col-md-6">
-                                    <label for="tanggal" class="form-label">
-                                        <i class="fas fa-calendar-alt me-2"></i>Tanggal
-                                    </label>
-                                    <input type="date" class="form-control" id="tanggal" name="tanggal" 
-                                        value="{{ old('tanggal', date('Y-m-d')) }}" required>
-                                </div>
+            <!-- Barang Masuk Section -->
+            <div id="barangMasukSection" class="conditional-section">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <h5><i class="fas fa-arrow-circle-down me-2"></i>Detail Barang Masuk</h5>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="mb-4">
+                            <label for="sumber" class="form-label required-label">
+                                <i class="fas fa-building me-2"></i>Sumber
+                            </label>
+                            <select class="form-select" id="sumber" name="sumber">
+                                <option value="">-- Pilih Sumber --</option>
+                                <option value="Vendor">Vendor (Barang Baru)</option>
+                                <option value="Customer">Customer (Return/Titip Baru)</option>
+                            </select>
+                        </div>
 
-                                <div class="col-md-6">
-                                    <label for="id_perangkat" class="form-label">
-                                        <i class="fas fa-box me-2"></i>Perangkat
-                                    </label>
-                                    <select class="form-select select2" id="id_perangkat" name="id_perangkat" required>
-                                        <option value="">-- Pilih Perangkat --</option>
-                                        @foreach($perangkats as $perangkat)
-                                            <option value="{{ $perangkat->id }}">{{ $perangkat->nama_perangkat }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
+                <!-- Serial Number Section for Masuk -->
+                <div id="serialMasukSection" class="conditional-section">
+                    <!-- Vendor: Input Baru -->
+                    <div id="vendorSerialSection" class="conditional-section">
+                        <div class="info-badge">
+                            <i class="fas fa-info-circle me-2"></i>Vendor: Input serial number baru
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Jumlah Barang</label>
+                            <input type="number" class="form-control" id="jumlahVendor" min="1" value="1">
+                        </div>
+                        <div id="serialInputsVendor"></div>
+                    </div>
 
-                                <div class="col-md-6">
-                                    <label for="kategori" class="form-label">
-                                        <i class="fas fa-tag me-2"></i>Kategori
-                                    </label>
-                                    <select class="form-select" id="kategori" name="kategori" required>
-                                        <option value="">-- Pilih Kategori --</option>
-                                        <option value="Listrik">Listrik</option>
-                                        <option value="Non-Listrik">Non-Listrik</option>
-                                    </select>
-                                </div>
+                    <!-- Customer: Return ONLY (no more "Tambah Serial Baru") -->
+                    <div id="customerSerialSection" class="conditional-section">
+                        <div class="info-badge">
+                            <i class="fas fa-undo me-2"></i>Customer: Pilih barang yang akan dikembalikan
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label required-label">Serial Number Return</label>
+                            <div id="returnSerialsContainer"></div>
+                        </div>
+                    </div>
+                </div>
+                        <!-- Stok untuk Non-Serial -->
+                        <div id="stokMasukSection" class="conditional-section">
+                            <label for="stokMasuk" class="form-label required-label">
+                                <i class="fas fa-cubes me-2"></i>Jumlah/Stok
+                            </label>
+                            <input type="number" class="form-control" id="stokMasuk" name="stok" min="1" value="1">
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                                <div class="col-md-6">
-                                    <label class="form-label">
-                                        <i class="fas fa-barcode me-2"></i>Ada Serial Number?
-                                    </label>
-                                    <div class="d-flex gap-3">
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="has_serial" id="hasSerialYes" value="1" required>
-                                            <label class="form-check-label" for="hasSerialYes">Ya</label>
-                                        </div>
-                                        <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="has_serial" id="hasSerialNo" value="0" required>
-                                            <label class="form-check-label" for="hasSerialNo">Tidak</label>
-                                        </div>
-                                    </div>
-                                </div>
+            <!-- Barang Keluar Section -->
+            <div id="barangKeluarSection" class="conditional-section">
+                <div class="card-custom">
+                    <div class="card-header-custom">
+                        <h5><i class="fas fa-arrow-circle-up me-2"></i>Detail Barang Keluar</h5>
+                    </div>
+                    <div class="card-body-custom">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label for="perihal" class="form-label required-label">
+                                    <i class="fas fa-clipboard-list me-2"></i>Perihal
+                                </label>
+                                <select class="form-select" id="perihal" name="perihal">
+                                    <option value="">-- Pilih Perihal --</option>
+                                    <option value="Pemeliharaan">Pemeliharaan</option>
+                                    <option value="Penjualan">Penjualan</option>
+                                    <option value="Instalasi">Instalasi</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="alamat" class="form-label">
+                                    <i class="fas fa-map-marker-alt me-2"></i>Alamat Tujuan
+                                </label>
+                                <input type="text" class="form-control" id="alamat" name="alamat" 
+                                    placeholder="Masukkan alamat tujuan">
                             </div>
                         </div>
 
-                        <!-- Barang Masuk Section -->
-                        <div id="barangMasukSection" class="conditional-section mb-5">
-                            <h5 class="section-title">
-                                <i class="fas fa-arrow-circle-down me-2"></i>Detail Barang Masuk
-                            </h5>
-                            
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-12">
-                                    <label for="sumber" class="form-label">
-                                        <i class="fas fa-building me-2"></i>Sumber
-                                    </label>
-                                    <select class="form-select" id="sumber" name="sumber">
-                                        <option value="">-- Pilih Sumber --</option>
-                                        <option value="Vendor">Vendor (Barang Baru)</option>
-                                        <option value="Customer">Customer (Return/Titip Baru)</option>
-                                    </select>
-                                </div>
+                        <!-- Serial Number Section for Keluar -->
+                        <div id="serialKeluarSection" class="conditional-section">
+                            <div class="info-badge">
+                                <i class="fas fa-info-circle me-2"></i>Pilih serial number yang akan keluar
                             </div>
-
-                            <!-- Serial Number Section for Masuk -->
-                            <div id="serialMasukSection" class="conditional-section">
-                                <!-- Vendor: Input Baru -->
-                                <div id="vendorSerialSection" class="conditional-section">
-                                    <div class="info-badge">
-                                        <i class="fas fa-info-circle me-2"></i>Vendor: Input serial number baru
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Jumlah Barang</label>
-                                        <input type="number" class="form-control" id="jumlahVendor" min="1" value="1">
-                                    </div>
-                                    <div id="serialInputsVendor"></div>
-                                </div>
-
-                                <!-- Customer: Return atau Baru -->
-                                <div id="customerSerialSection" class="conditional-section">
-                                    <div class="info-badge">
-                                        <i class="fas fa-info-circle me-2"></i>Customer: Pilih serial return atau input baru
-                                    </div>
-                                    
-                                    <!-- Return Serials -->
-                                    <div class="mb-4">
-                                        <label class="form-label">Serial Number Return (Opsional)</label>
-                                        <div id="returnSerialsContainer"></div>
-                                    </div>
-
-                                    <!-- New Serials from Customer -->
-                                    <div>
-                                        <label class="form-label">Serial Number Baru dari Customer (Opsional)</label>
-                                        <div class="mb-3">
-                                            <button type="button" class="btn btn-add-serial" id="btnAddCustomerSerial">
-                                                <i class="fas fa-plus me-2"></i>Tambah Serial Baru
-                                            </button>
-                                        </div>
-                                        <div id="serialInputsCustomer"></div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Stok untuk Non-Serial -->
-                            <div id="stokMasukSection" class="conditional-section">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label for="stokMasuk" class="form-label">
-                                            <i class="fas fa-cubes me-2"></i>Jumlah/Stok
-                                        </label>
-                                        <input type="number" class="form-control" id="stokMasuk" name="stok" min="1" value="1">
-                                    </div>
-                                </div>
-                            </div>
+                            <div id="availableSerialsContainer"></div>
                         </div>
 
-                        <!-- Barang Keluar Section -->
-                        <div id="barangKeluarSection" class="conditional-section mb-5">
-                            <h5 class="section-title">
-                                <i class="fas fa-arrow-circle-up me-2"></i>Detail Barang Keluar
-                            </h5>
-                            <div class="row g-4 mb-4">
-                                <div class="col-md-6">
-                                    <label for="perihal" class="form-label">
-                                        <i class="fas fa-clipboard-list me-2"></i>Perihal
-                                    </label>
-                                    <select class="form-select" id="perihal" name="perihal">
-                                        <option value="">-- Pilih Perihal --</option>
-                                        <option value="Pemeliharaan">Pemeliharaan</option>
-                                        <option value="Penjualan">Penjualan</option>
-                                        <option value="Instalasi">Instalasi</option>
-                                    </select>
-                                </div>
-
-                                <div class="col-md-6">
-                                    <label for="alamat" class="form-label">
-                                        <i class="fas fa-map-marker-alt me-2"></i>Alamat Tujuan
-                                    </label>
-                                    <input type="text" class="form-control" id="alamat" name="alamat" 
-                                        placeholder="Masukkan alamat tujuan">
-                                </div>
-                            </div>
-
-                            <!-- Serial Number Section for Keluar -->
-                            <div id="serialKeluarSection" class="conditional-section">
-                                <div class="info-badge">
-                                    <i class="fas fa-info-circle me-2"></i>Pilih serial number yang akan keluar
-                                </div>
-                                <div id="availableSerialsContainer"></div>
-                            </div>
-
-                            <!-- Stok untuk Non-Serial -->
-                            <div id="stokKeluarSection" class="conditional-section">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <label for="stokKeluar" class="form-label">
-                                            <i class="fas fa-cubes me-2"></i>Jumlah/Stok
-                                        </label>
-                                        <input type="number" class="form-control" id="stokKeluar" name="stok" min="1" value="1">
-                                        <small class="text-muted">Stok tersedia: <span id="availableStock">-</span></small>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Stok untuk Non-Serial -->
+                        <div id="stokKeluarSection" class="conditional-section">
+                            <label for="stokKeluar" class="form-label required-label">
+                                <i class="fas fa-cubes me-2"></i>Jumlah/Stok
+                            </label>
+                            <input type="number" class="form-control" id="stokKeluar" name="stok" min="1" value="1">
+                            <small class="form-text">Stok tersedia: <span id="availableStock">-</span></small>
                         </div>
+                    </div>
+                </div>
+            </div>
 
-                        <!-- Catatan -->
-                        <div class="mb-5">
-                            <h5 class="section-title">
-                                <i class="fas fa-sticky-note me-2"></i>Catatan Tambahan
-                            </h5>
-                            <textarea class="form-control" id="catatan" name="catatan" rows="4" 
-                                placeholder="Tambahkan catatan atau keterangan tambahan..."></textarea>
-                        </div>
+            <!-- Catatan Card -->
+            <div class="card-custom">
+                <div class="card-header-custom">
+                    <h5><i class="fas fa-sticky-note me-2"></i>Catatan Tambahan</h5>
+                </div>
+                <div class="card-body-custom">
+                    <textarea class="form-control" id="catatan" name="catatan" rows="4" 
+                        placeholder="Tambahkan catatan atau keterangan tambahan..."></textarea>
+                </div>
+            </div>
 
-                        <!-- Action Buttons -->
-                        <div class="d-flex justify-content-end gap-3 pt-4 border-top">
-                            <a href="{{ route('inventory.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-times me-2"></i>Batal
-                            </a>
-                            <button type="submit" class="btn btn-submit">
-                                <i class="fas fa-save me-2"></i>Simpan Data
-                            </button>
-                        </div>
-                    </form>
+            <!-- Action Buttons -->
+            <div class="card-custom">
+                <div class="card-body-custom">
+                    <div class="action-buttons">
+                        <button type="submit" class="btn btn-submit">
+                            <i class="fas fa-save me-2"></i>Simpan Data
+                        </button>
+                        <a href="{{ route('inventory.index') }}" class="btn btn-cancel">
+                            <i class="fas fa-arrow-left me-2"></i>Kembali
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Info Sidebar -->
+    <div class="col-12 col-lg-4">
+        <div class="info-card">
+            <div class="info-card-header">
+                <h6><i class="fas fa-lightbulb me-2"></i>Panduan Pengisian</h6>
+            </div>
+            <div class="info-card-body">
+                <div class="mb-3">
+                    <h6 class="text-primary mb-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-check-circle me-2"></i>Barang Masuk
+                    </h6>
+                    <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Pilih sumber: Vendor atau Customer</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Vendor: Input serial number baru</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Customer: Pilih return atau input baru</small>
+                        </li>
+                    </ul>
+                </div>
+                
+                <hr>
+                
+                <div>
+                    <h6 class="text-primary mb-2" style="font-size: 0.9rem;">
+                        <i class="fas fa-check-circle me-2"></i>Barang Keluar
+                    </h6>
+                    <ul class="list-unstyled mb-0" style="font-size: 0.85rem;">
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Pilih perihal barang keluar</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Untuk serial: Pilih dari yang tersedia</small>
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-chevron-right me-2 text-muted"></i>
+                            <small>Untuk non-serial: Input jumlah stok</small>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-card mt-3">
+            <div class="info-card-header">
+                <h6><i class="fas fa-info-circle me-2"></i>Informasi Penting</h6>
+            </div>
+            <div class="info-card-body">
+                <div class="alert alert-info mb-0" style="font-size: 0.85rem; border-radius: 8px;">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <strong>Catatan:</strong><br>
+                    Pastikan semua data telah diisi dengan benar sebelum menyimpan. 
+                    Data yang sudah disimpan tidak dapat diubah.
                 </div>
             </div>
         </div>
@@ -632,44 +833,97 @@ $(document).ready(function() {
         $('#customerSerial' + id).remove();
     };
 
-    // Load Returnable Serials
-    function loadReturnableSerials() {
-        const perangkatId = $('#id_perangkat').val();
-        const kategori = $('#kategori').val();
+// TAMBAHKAN SCRIPT INI ke bagian loadReturnableSerials() di create.blade.php
 
-        if (!perangkatId || !kategori) return;
+function loadReturnableSerials() {
+    const perangkatId = $('#id_perangkat').val();
+    const kategori = $('#kategori').val();
 
-        $.get('/inventory/returnable-serials', {
-            id_perangkat: perangkatId,
-            kategori: kategori
-        }, function(response) {
-            const container = $('#returnSerialsContainer');
-            container.empty();
+    if (!perangkatId || !kategori) return;
 
-            if (response.data.length === 0) {
-                container.html('<p class="text-muted">Tidak ada serial number yang dapat dikembalikan</p>');
-                return;
+    $.get('/inventory/returnable-serials', {
+        id_perangkat: perangkatId,
+        kategori: kategori
+    }, function(response) {
+        const container = $('#returnSerialsContainer');
+        container.empty();
+
+        if (response.data.length === 0) {
+            container.html(`
+                <div class="alert alert-info" style="border-radius: 8px;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Tidak ada barang yang sedang keluar/disewa untuk dikembalikan
+                </div>
+            `);
+            return;
+        }
+
+        // Tambahkan header info
+        container.append(`
+            <div class="alert alert-success mb-3" style="border-radius: 8px;">
+                <i class="fas fa-undo me-2"></i>
+                <strong>Ditemukan ${response.data.length} barang yang sedang disewa/keluar</strong><br>
+                <small>Pilih barang yang akan dikembalikan:</small>
+            </div>
+        `);
+
+        response.data.forEach(item => {
+            // Format tanggal jika ada
+            let dateInfo = '';
+            if (item.last_out_date) {
+                const date = new Date(item.last_out_date);
+                dateInfo = date.toLocaleDateString('id-ID', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: 'numeric' 
+                });
             }
 
-            response.data.forEach(item => {
-                container.append(`
-                    <div class="serial-checkbox-item">
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="return_serials[]" 
-                                value="${item.id}" id="return${item.id}">
-                            <label class="form-check-label" for="return${item.id}">
-                                <strong>${item.serial_number}</strong>
-                                <span class="badge bg-warning ms-2">Keluar: ${item.out_stock}</span>
-                            </label>
-                        </div>
+            container.append(`
+                <div class="serial-checkbox-item">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="return_serials[]" 
+                            value="${item.id}" id="return${item.id}">
+                        <label class="form-check-label d-flex flex-column" for="return${item.id}">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <strong style="font-size: 1rem;">${item.serial_number}</strong>
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-arrow-up me-1"></i>Keluar: ${item.out_stock}
+                                </span>
+                            </div>
+                            <small class="text-muted">
+                                <i class="fas fa-calendar me-1"></i>Keluar terakhir: ${dateInfo || 'N/A'}
+                                ${item.last_out_status ? ` | <i class="fas fa-tag me-1"></i>${item.last_out_status}` : ''}
+                            </small>
+                            ${item.last_out_alamat ? `
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>${item.last_out_alamat}
+                                </small>
+                            ` : ''}
+                        </label>
                     </div>
-                `);
-            });
-        }).fail(function(xhr) {
-            console.error('Error loading returnable serials:', xhr);
+                </div>
+            `);
         });
-    }
 
+        // Enable click on card
+        $('.serial-checkbox-item').on('click', function(e) {
+            if (e.target.type !== 'checkbox') {
+                const checkbox = $(this).find('input[type="checkbox"]');
+                checkbox.prop('checked', !checkbox.prop('checked'));
+            }
+            $(this).toggleClass('selected', $(this).find('input[type="checkbox"]').prop('checked'));
+        });
+    }).fail(function(xhr) {
+        console.error('Error loading returnable serials:', xhr);
+        $('#returnSerialsContainer').html(`
+            <div class="alert alert-danger" style="border-radius: 8px;">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                Gagal memuat data. Silakan coba lagi.
+            </div>
+        `);
+    });
+}
     // Load Available Serials
     function loadAvailableSerials() {
         const perangkatId = $('#id_perangkat').val();
