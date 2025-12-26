@@ -12,17 +12,17 @@
                 <h2>Data Perangkat</h2>
                 <p>Kelola dan pantau semua perangkat inventory dengan mudah dan efisien</p>
             </div>
-              @role('admin')
-                <div class="welcome-header-action mt-3">
-                    <a href="{{ route('perangkat.create') }}" class="btn btn-light-custom">
-                        <i class="fas fa-plus-circle me-2"></i>
-                        <span>Tambah Perangkat</span>
-                    </a>
-                </div>
-                @endrole
+            @role('admin')
+            <div class="welcome-header-action mt-3">
+                <a href="{{ route('perangkat.create') }}" class="btn btn-light-custom">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    <span>Tambah Perangkat</span>
+                </a>
             </div>
+            @endrole
         </div>
-      
+    </div>
+    
     <!-- Statistics Cards -->
     <div class="row g-3 mb-4">
         <div class="col-lg-3 col-md-6">
@@ -160,19 +160,33 @@
                     @forelse($perangkat as $index => $item)
                     <tr>
                         <td>
-                            <div class="table-number">{{ $perangkat->firstItem() + $index }}</div>
+                            <div class="table-number" style="background: linear-gradient(135deg, {{ $index % 2 == 0 ? '#dbeafe' : '#e5e7eb' }} 0%, {{ $index % 2 == 0 ? '#bfdbfe' : '#d1d5db' }} 100%); color: {{ $index % 2 == 0 ? '#1e3a8a' : '#4b5563' }};">
+                                {{ $perangkat->firstItem() + $index }}
+                            </div>
                         </td>
                         <td>
                             <div class="device-info">
-                                <div class="device-name">{{ $item->nama_perangkat }}</div>
-                                <div class="device-meta">
+                                <div class="device-name" style="color: {{ $index % 2 == 0 ? '#1f2937' : '#374151' }};">
+                                    {{ $item->nama_perangkat }}
+                                </div>
+                                <div class="device-meta" style="color: {{ $index % 2 == 0 ? '#6b7280' : '#9ca3af' }};">
                                     <i class="fas fa-clock"></i>
                                     <span>{{ $item->created_at->format('d M Y') }}</span>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div class="category-badge">
+                            @php
+                                $categoryColors = [
+                                    1 => ['bg' => 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', 'text' => '#1e3a8a'],
+                                    2 => ['bg' => 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', 'text' => '#0369a1'],
+                                    3 => ['bg' => 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)', 'text' => '#7c3aed'],
+                                    4 => ['bg' => 'linear-gradient(135deg, #fef7ff 0%, #fce7f3 100%)', 'text' => '#db2777'],
+                                    5 => ['bg' => 'linear-gradient(135deg, #fefce8 0%, #fef9c3 100%)', 'text' => '#a16207'],
+                                ];
+                                $color = $categoryColors[$item->id_kategori_perangkat] ?? ['bg' => 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)', 'text' => '#4b5563'];
+                            @endphp
+                            <div class="category-badge" style="{{ $color['bg'] }}; color: {{ $color['text'] }};">
                                 <i class="fas fa-tag"></i>
                                 <span>{{ $item->kategoriPerangkat->nama_kategori ?? '-' }}</span>
                             </div>
@@ -180,20 +194,42 @@
                         <td>
                             @php
                                 $statusConfig = [
-                                    'Berfungsi' => ['class' => 'status-available', 'icon' => 'fa-check-circle'],
-                                    'Rusak' => ['class' => 'status-damaged', 'icon' => 'fa-exclamation-triangle'],
-                                    'Hilang' => ['class' => 'status-missing', 'icon' => 'fa-question-circle'],
-                                    'Return' => ['class' => 'status-return', 'icon' => 'fa-undo']
+                                    'Berfungsi' => [
+                                        'bg' => 'linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%)',
+                                        'text' => '#065f46',
+                                        'icon' => 'fa-check-circle'
+                                    ],
+                                    'Rusak' => [
+                                        'bg' => 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
+                                        'text' => '#991b1b',
+                                        'icon' => 'fa-exclamation-triangle'
+                                    ],
+                                    'Hilang' => [
+                                        'bg' => 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                                        'text' => '#92400e',
+                                        'icon' => 'fa-question-circle'
+                                    ],
+                                    'Return' => [
+                                        'bg' => 'linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%)',
+                                        'text' => '#5b21b6',
+                                        'icon' => 'fa-undo'
+                                    ]
                                 ];
-                                $config = $statusConfig[$item->status] ?? ['class' => 'status-default', 'icon' => 'fa-circle'];
+                                $config = $statusConfig[$item->status] ?? [
+                                    'bg' => 'linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%)',
+                                    'text' => '#4b5563',
+                                    'icon' => 'fa-circle'
+                                ];
                             @endphp
-                            <span class="status-badge {{ $config['class'] }}">
+                            <span class="status-badge" style="{{ $config['bg'] }}; color: {{ $config['text'] }};">
                                 <i class="fas {{ $config['icon'] }}"></i>
                                 <span>{{ $item->status }}</span>
                             </span>
                         </td>
                         <td>
-                            <div class="note-text">{{ Str::limit($item->catatan_perangkat, 50) ?: '-' }}</div>
+                            <div class="note-text" style="color: {{ $index % 2 == 0 ? '#4b5563' : '#6b7280' }};">
+                                {{ Str::limit($item->catatan_perangkat, 50) ?: '-' }}
+                            </div>
                         </td>
                         
                         @role('admin')
@@ -201,14 +237,16 @@
                             <div class="action-buttons">
                                 <a href="{{ route('perangkat.edit', $item->id) }}" 
                                    class="btn-action btn-edit" 
-                                   title="Edit">
+                                   title="Edit"
+                                   style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button type="button" 
                                         class="btn-action btn-delete" 
                                         data-id="{{ $item->id }}"
                                         data-name="{{ $item->nama_perangkat }}"
-                                        title="Hapus">
+                                        title="Hapus"
+                                        style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b;">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -226,8 +264,8 @@
                                 <div class="empty-icon">
                                     <i class="fas fa-inbox"></i>
                                 </div>
-                                <h5>Tidak Ada Data</h5>
-                                <p>
+                                <h5 style="color: #1f2937;">Tidak Ada Data</h5>
+                                <p style="color: #6b7280;">
                                     @role('admin')
                                         Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.
                                     @else
@@ -269,6 +307,7 @@
 @endsection
 
 @push('styles')
+<link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 
@@ -281,13 +320,17 @@
     --danger-red: #dc2626;
     --warning-yellow: #f59e0b;
     --purple: #8b5cf6;
+    --cyan: #06b6d4;
     --gray-50: #f9fafb;
     --gray-100: #f3f4f6;
     --gray-200: #e5e7eb;
     --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
     --gray-600: #4b5563;
     --gray-700: #374151;
     --gray-800: #1f2937;
+    --gray-900: #111827;
     --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
@@ -334,6 +377,7 @@
     margin-bottom: 0;
     font-size: 0.9375rem;
 }
+
 .welcome-header-action {
     position: relative;
     z-index: 1;
@@ -588,6 +632,7 @@
     margin-bottom: 0;
 }
 
+/* Table Styles */
 .table-responsive {
     overflow-x: auto;
 }
@@ -598,43 +643,93 @@
     border-spacing: 0;
 }
 
+.table-custom thead {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+}
+
 .table-custom thead th {
-    background: var(--gray-50);
-    color: var(--gray-700);
+    color: white;
     font-weight: 600;
     text-transform: uppercase;
     font-size: 0.8125rem;
     letter-spacing: 0.05em;
     padding: 1.25rem 1.5rem;
-    border-bottom: 2px solid var(--gray-200);
+    border: none;
     white-space: nowrap;
+    position: relative;
 }
 
-.table-custom tbody td {
-    padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid var(--gray-100);
-    vertical-align: middle;
+.table-custom thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.table-custom thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.table-custom thead th::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.table-custom thead th:last-child::after {
+    display: none;
 }
 
 .table-custom tbody tr {
     transition: all 0.2s ease;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.table-custom tbody tr:nth-child(even) {
+    background: linear-gradient(135deg, rgba(249, 250, 251, 0.5) 0%, rgba(243, 244, 246, 0.5) 100%);
+}
+
+.table-custom tbody tr:nth-child(odd) {
+    background: white;
 }
 
 .table-custom tbody tr:hover {
-    background: var(--gray-50);
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    transform: translateX(4px);
+}
+
+.table-custom tbody td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+    border: none;
+    position: relative;
+}
+
+.table-custom tbody td::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: var(--gray-200);
+}
+
+.table-custom tbody td:last-child::after {
+    display: none;
 }
 
 .table-number {
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    color: var(--gray-700);
     font-size: 0.95rem;
+    margin: 0 auto;
 }
 
 .device-info {
@@ -645,7 +740,6 @@
 
 .device-name {
     font-weight: 600;
-    color: var(--gray-800);
     font-size: 1rem;
 }
 
@@ -653,7 +747,6 @@
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--gray-600);
     font-size: 0.875rem;
 }
 
@@ -666,11 +759,15 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.625rem 1rem;
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
     border-radius: 10px;
-    color: var(--primary-blue);
     font-weight: 600;
     font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.category-badge:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow);
 }
 
 .status-badge {
@@ -682,30 +779,15 @@
     font-weight: 600;
     font-size: 0.875rem;
     white-space: nowrap;
+    transition: all 0.3s ease;
 }
 
-.status-available {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #065f46;
-}
-
-.status-damaged {
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    color: #991b1b;
-}
-
-.status-missing {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #92400e;
-}
-
-.status-return {
-    background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%);
-    color: #5b21b6;
+.status-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
 .note-text {
-    color: var(--gray-600);
     font-size: 0.9375rem;
     line-height: 1.5;
 }
@@ -778,12 +860,10 @@
 .empty-state h5 {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--gray-800);
     margin-bottom: 0.75rem;
 }
 
 .empty-state p {
-    color: var(--gray-600);
     font-size: 1rem;
     margin-bottom: 1.5rem;
 }
@@ -844,16 +924,17 @@
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s ease;
+    background: white;
 }
 
 .pagination-links .page-link:hover {
-    background: var(--primary-blue);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
     border-color: var(--primary-blue);
     color: white;
 }
 
 .pagination-links .page-item.active .page-link {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
     border-color: var(--primary-blue);
     color: white;
 }
@@ -861,6 +942,7 @@
 .pagination-links .page-item.disabled .page-link {
     opacity: 0.5;
     cursor: not-allowed;
+    background: var(--gray-100);
 }
 
 /* Responsive */
@@ -871,17 +953,13 @@
 }
 
 @media (max-width: 992px) {
-    .page-header {
+    .welcome-header-content {
         flex-direction: column;
         text-align: center;
     }
     
-    .page-header-content {
-        flex-direction: column;
-    }
-    
-    .page-title {
-        font-size: 1.75rem;
+    .welcome-header-action {
+        margin-top: 1rem;
     }
     
     .filter-actions {
@@ -895,17 +973,11 @@
 }
 
 @media (max-width: 768px) {
-    .page-header {
+    .welcome-header-card {
         padding: 1.5rem;
     }
     
-    .page-header-icon {
-        width: 60px;
-        height: 60px;
-        font-size: 2rem;
-    }
-    
-    .page-title {
+    .welcome-header-text h2 {
         font-size: 1.5rem;
     }
     
@@ -936,6 +1008,11 @@
         padding: 1rem;
     }
     
+    .table-custom thead th::after,
+    .table-custom tbody td::after {
+        display: none;
+    }
+    
     .pagination-wrapper {
         flex-direction: column;
         align-items: center;
@@ -949,6 +1026,12 @@
     
     .btn-action {
         width: 100%;
+    }
+    
+    .category-badge,
+    .status-badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
     }
 }
 </style>
@@ -1044,6 +1127,7 @@ $(document).ready(function() {
 .swal-custom-popup {
     border-radius: 20px !important;
     padding: 2rem !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
 }
 
 .swal-custom-title {
@@ -1093,6 +1177,18 @@ $(document).ready(function() {
 
 .swal2-icon {
     border-width: 3px !important;
+}
+
+.swal2-success .swal2-success-ring {
+    border-color: rgba(5, 150, 105, 0.3) !important;
+}
+
+.swal2-success [class^=swal2-success-line] {
+    background-color: #059669 !important;
+}
+
+.swal2-error [class^=swal2-x-mark-line] {
+    background-color: #dc2626 !important;
 }
 </style>
 @endpush

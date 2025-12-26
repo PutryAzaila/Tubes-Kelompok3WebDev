@@ -5,6 +5,7 @@
 @section('page-subtitle', 'Kelola Purchase Order perusahaan')
 
 @push('styles')
+<link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
 <!-- Bootstrap 5 CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Font Awesome -->

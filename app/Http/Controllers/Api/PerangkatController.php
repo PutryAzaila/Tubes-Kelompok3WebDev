@@ -241,35 +241,4 @@ class PerangkatController extends Controller
             ], 500);
         }
     }
-
-    // GET /api/perangkats/export
-    public function export(Request $request)
-    {
-        try {
-            $perangkat = Perangkat::with('kategoriPerangkat')->get();
-
-            $exportData = $perangkat->map(function($item) {
-                return [
-                    'Nama Perangkat' => $item->nama_perangkat,
-                    'Kategori' => $item->kategoriPerangkat->nama_kategori ?? '-',
-                    'Status' => ucfirst($item->status),
-                    'Catatan' => $item->catatan_perangkat ?? '-',
-                    'Created At' => $item->created_at->format('Y-m-d H:i:s')
-                ];
-            });
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Data prepared for export',
-                'data' => $exportData
-            ], 200);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to export data',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
 }

@@ -37,7 +37,6 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('perangkat')->group(function () {
         Route::get('/', [PerangkatController::class, 'index']);
         Route::get('/statistics', [PerangkatController::class, 'statistics']);
-        Route::get('/export', [PerangkatController::class, 'export']);
         Route::get('/{id}', [PerangkatController::class, 'show']);
         Route::post('/', [PerangkatController::class, 'store']);
         Route::put('/{id}', [PerangkatController::class, 'update']);

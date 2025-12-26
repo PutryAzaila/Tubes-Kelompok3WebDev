@@ -57,20 +57,6 @@
                             <i class="fas fa-user-circle"></i>
                             <span>Profil Saya</span>
                         </a>
-
-                        <div class="dropdown-divider"></div>
-
-                        <!-- Logout -->
-                        <form action="{{ route('logout') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="dropdown-item text-danger">
-                                <i class="fas fa-sign-out-alt"></i>
-                                <span>Keluar</span>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
             </div>
         </div>
     </div>

@@ -55,8 +55,6 @@ Route::middleware(['auth', 'role:admin,manajer'])->group(function () {
     
     // Perangkat - View
     Route::get('/perangkat', [WebPerangkatController::class, 'index'])->name('perangkat.index');
-    Route::get('/perangkat-statistics', [WebPerangkatController::class, 'statistics'])->name('perangkat.statistics');
-    Route::get('/perangkat-export', [WebPerangkatController::class, 'export'])->name('perangkat.export');
 });
 
 // ========== MANAJER ONLY - Approval Actions ==========
