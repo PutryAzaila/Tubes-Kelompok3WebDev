@@ -11,6 +11,12 @@
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+<!-- jsPDF & jsPDF-AutoTable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+<!-- SheetJS for Excel -->
+<script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
 <style>
 /* Welcome Header Card */
 .welcome-header-card {
@@ -531,6 +537,28 @@
         flex-direction: column;
     }
 }
+/* Export Buttons */
+.btn-group .btn-modern {
+    border-radius: 0;
+}
+
+.btn-group .btn-modern:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+.btn-group .btn-modern:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+.btn-success.btn-modern {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.btn-danger.btn-modern {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
 </style>
 @endpush
 
@@ -648,6 +676,16 @@
                         <i class="fas fa-redo me-2"></i>Reset
                     </button>
                 </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <!-- Tombol Export -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-success btn-modern" onclick="exportToExcel()">
+                            <i class="fas fa-file-excel me-2"></i>Export Excel
+                        </button>
+                        <button type="button" class="btn btn-danger btn-modern" onclick="exportToPDF()">
+                            <i class="fas fa-file-pdf me-2"></i>Export PDF
+                        </button>
+                    </div>
                 @role('admin')
                 <a href="{{ route('purchase-order.create') }}" class="btn btn-primary btn-modern">
                     <i class="fas fa-plus me-2"></i>Buat PO Baru
@@ -884,6 +922,215 @@ function confirmDelete(id) {
         form.action = `/purchase-order/${id}`;
         form.submit();
     }
+}
+// Export to Excel
+function exportToExcel() {
+    const table = document.getElementById('poTable');
+    const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => {
+        return row.style.display !== 'none' && !row.id.includes('Row');
+    });
+    
+    if (rows.length === 0) {
+        alert('Tidak ada data untuk di-export!');
+        return;
+    }
+    
+    const data = [
+        ['No', 'Kode PO', 'Vendor', 'Staff', 'Tanggal', 'Jumlah Items', 'Status']
+    ];
+    
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        data.push([
+            index + 1,
+            cells[1].textContent.trim(),
+            cells[2].querySelector('.avatar-text').textContent.trim(),
+            cells[3].textContent.trim(),
+            cells[4].textContent.trim(),
+            cells[5].textContent.trim(),
+            cells[6].textContent.trim()
+        ]);
+    });
+    
+    const ws = XLSX.utils.aoa_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Purchase Orders');
+    
+    // Auto width columns
+    const maxWidth = data.reduce((acc, row) => {
+        row.forEach((cell, i) => {
+            const len = cell.toString().length;
+            acc[i] = Math.max(acc[i] || 10, len + 2);
+        });
+        return acc;
+    }, []);
+    ws['!cols'] = maxWidth.map(w => ({ width: w }));
+    
+    const fileName = `Purchase_Orders_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+    
+    console.log('✅ Excel exported:', fileName);
+}
+
+// Export to PDF - Modern Style (sama seperti Inventory)
+function exportToPDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('l', 'mm', 'a4'); // landscape
+    
+    const table = document.getElementById('poTable');
+    const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => {
+        return row.style.display !== 'none' && !row.id.includes('Row');
+    });
+    
+    if (rows.length === 0) {
+        alert('Tidak ada data untuk di-export!');
+        return;
+    }
+    
+    const tableData = rows.map((row, index) => {
+        const cells = row.querySelectorAll('td');
+        return [
+            index + 1,
+            cells[1].textContent.trim(),
+            cells[2].querySelector('.avatar-text').textContent.trim(),
+            cells[3].textContent.trim(),
+            cells[4].textContent.trim(),
+            cells[5].textContent.trim(),
+            cells[6].textContent.trim()
+        ];
+    });
+    
+    // Calculate statistics
+    const totalPO = tableData.length;
+    const totalDiajukan = tableData.filter(row => row[6].includes('Diajukan')).length;
+    const totalDisetujui = tableData.filter(row => row[6].includes('Disetujui')).length;
+    const totalDitolak = tableData.filter(row => row[6].includes('Ditolak')).length;
+    
+    // Page width for centering
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // === HEADER SECTION ===
+    // Background Header
+    doc.setFillColor(30, 58, 138);
+    doc.rect(0, 0, pageWidth, 40, 'F');
+    
+    // Main Title
+    doc.setFontSize(24);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(255, 255, 255);
+    doc.text('PURCHASE ORDER REPORT', pageWidth / 2, 15, { align: 'center' });
+    
+    // Subtitle
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text('Laporan Daftar Purchase Order', pageWidth / 2, 22, { align: 'center' });
+    
+    // Export Date
+    const currentDate = new Date().toLocaleDateString('id-ID', { 
+        weekday: 'long', 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric' 
+    });
+    doc.setFontSize(10);
+    doc.text(`Tanggal Export: ${currentDate}`, pageWidth / 2, 28, { align: 'center' });
+    
+    // Divider line
+    doc.setDrawColor(255, 255, 255);
+    doc.setLineWidth(0.5);
+    doc.line(40, 32, pageWidth - 40, 32);
+    
+    // === STATISTICS TEXT ===
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'normal');
+    doc.text(
+        `Total PO: ${totalPO}  |  Diajukan: ${totalDiajukan}  |  Disetujui: ${totalDisetujui}  |  Ditolak: ${totalDitolak}`, 
+        pageWidth / 2, 
+        37, 
+        { align: 'center' }
+    );
+    
+    // Reset colors
+    doc.setTextColor(0, 0, 0);
+    
+    // === TABLE SECTION ===
+    doc.autoTable({
+        head: [['No', 'Kode PO', 'Vendor', 'Staff', 'Tanggal', 'Items', 'Status']],
+        body: tableData,
+        startY: 45,
+        theme: 'striped',
+        styles: {
+            fontSize: 9,
+            cellPadding: 3,
+            halign: 'center',
+            valign: 'middle',
+            lineColor: [220, 220, 220],
+            lineWidth: 0.1
+        },
+        headStyles: {
+            fillColor: [30, 58, 138],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            halign: 'center',
+            fontSize: 10,
+            cellPadding: 4
+        },
+        alternateRowStyles: {
+            fillColor: [248, 249, 250]
+        },
+        columnStyles: {
+            0: { cellWidth: 15, halign: 'center' },
+            1: { cellWidth: 35, halign: 'center' },
+            2: { cellWidth: 60, halign: 'left' },
+            3: { cellWidth: 50, halign: 'left' },
+            4: { cellWidth: 30, halign: 'center' },
+            5: { cellWidth: 25, halign: 'center' },
+            6: { cellWidth: 30, halign: 'center' }
+        },
+        didDrawPage: function(data) {
+            // === FOOTER SECTION ===
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const footerY = pageHeight - 15;
+            
+            // Footer background
+            doc.setFillColor(248, 249, 250);
+            doc.rect(0, footerY - 5, pageWidth, 20, 'F');
+            
+            // Divider line
+            doc.setDrawColor(220, 220, 220);
+            doc.setLineWidth(0.3);
+            doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
+            
+            // Page number
+            doc.setFontSize(9);
+            doc.setFont(undefined, 'bold');
+            doc.setTextColor(30, 58, 138);
+            const pageNum = doc.internal.getCurrentPageInfo().pageNumber;
+            const totalPages = doc.internal.getNumberOfPages();
+            doc.text(`Halaman ${pageNum} dari ${totalPages}`, pageWidth / 2, footerY, { align: 'center' });
+            
+            // Footer info
+            doc.setFontSize(8);
+            doc.setFont(undefined, 'normal');
+            doc.setTextColor(107, 114, 128);
+            doc.text('Generated by Purchase Order Management System', pageWidth / 2, footerY + 5, { align: 'center' });
+            
+            // Timestamp
+            const timestamp = new Date().toLocaleString('id-ID', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            doc.text(`Dicetak pada: ${currentDate} pukul ${timestamp}`, pageWidth / 2, footerY + 9, { align: 'center' });
+        },
+        margin: { left: (pageWidth - 245) / 2, right: (pageWidth - 245) / 2 }
+    });
+    
+    // Save PDF
+    const fileName = `Purchase_Orders_${new Date().toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    console.log('✅ PDF exported:', fileName);
 }
 </script>
 @endpush
