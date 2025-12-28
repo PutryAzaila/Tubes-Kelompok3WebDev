@@ -723,13 +723,6 @@
                                                 title="Edit Data">
                                                 <i class="fas fa-edit"></i>
                                             </a>
-                                        @elseif(strtoupper(auth()->user()->jabatan) === 'MANAJER' || strtoupper(auth()->user()->jabatan) === 'ADMIN')
-                                            <!-- Manajer/Admin: Hanya View -->
-                                            <button class="action-btn btn-view" 
-                                                    title="Lihat Saja (View Only)" 
-                                                    disabled>
-                                                <i class="fas fa-eye"></i>
-                                            </button>
                                         @endif
                                     </td>
                                 </tr>
