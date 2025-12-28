@@ -200,8 +200,8 @@ class WebPerangkatController extends Controller
             
             $perangkat->delete();
 
-            return redirect()->route('perangkat.index')
-                ->with('success', "Perangkat '{$nama}' berhasil dihapus!");
+        return redirect()->route('perangkat.index')
+        ->with('success', "Perangkat {$perangkat->nama_perangkat} berhasil dihapus!");
 
         } catch (\Exception $e) {
             return redirect()->route('perangkat.index')

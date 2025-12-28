@@ -63,6 +63,7 @@ class PurchaseOrderController extends Controller
                     'can_revert' => false,
                     'total_items' => $totalItems,
                     'items_count' => $po->detailPO->count(),
+                    'alasan_penolakan' => $po->alasan_penolakan,
                 ];
             });
 
@@ -209,6 +210,7 @@ class PurchaseOrderController extends Controller
                         'can_approve' => $purchaseOrder->status === 'Diajukan',
                         'can_reject' => $purchaseOrder->status === 'Diajukan',
                         'can_revert' => false,
+                        'alasan_penolakan' => $purchaseOrder->alasan_penolakan,
                     ],
                     'table_data' => $formattedDetails,
                     'total_items' => $totalItems . ' Unit',
@@ -493,8 +495,10 @@ class PurchaseOrderController extends Controller
             }
 
             // Update status dan timestamp
-            $purchaseOrder->update(['status' => 'Ditolak']);
-
+            $purchaseOrder->update([
+                'status' => 'Ditolak',
+                'alasan_penolakan' => $request->reason, 
+            ]);
             DB::commit();
 
             // Format response

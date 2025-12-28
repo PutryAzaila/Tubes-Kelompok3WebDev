@@ -5,6 +5,9 @@
 @section('page-subtitle', 'PO-' . str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT))
 
 @push('styles')
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<!-- Bootstrap 5 Bundle (includes Popper) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <style>
 /* Header Card */
 .detail-header-card {
@@ -281,34 +284,6 @@
     color: #991b1b;
 }
 
-/* Modal Custom */
-.modal-content {
-    border-radius: 20px;
-    border: none;
-}
-
-.modal-header-danger {
-    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-    color: white;
-    border: none;
-    border-radius: 20px 20px 0 0;
-    padding: 1.5rem;
-}
-
-.modal-header-danger h5 {
-    font-weight: 700;
-    margin: 0;
-}
-
-.modal-body {
-    padding: 2rem;
-}
-
-.modal-footer {
-    border-top: 2px solid #f3f4f6;
-    padding: 1.5rem;
-}
-
 /* Responsive */
 @media (max-width: 991px) {
     .detail-header-card {
@@ -485,6 +460,20 @@
             </div>
         </div>
     </div>
+     <!-- Alasan Penolakan (Tampilkan jika PO Ditolak) -->
+    @if($purchaseOrder->status === 'Ditolak' && $purchaseOrder->alasan_penolakan)
+    <div class="col-12">
+        <div class="alert-custom alert-danger">
+            <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+            <div style="flex: 1;">
+                <strong style="font-size: 1.1rem;">Alasan Penolakan:</strong>
+                <p style="margin: 0.5rem 0 0 0; font-size: 1rem; line-height: 1.6;">
+                    {{ $purchaseOrder->alasan_penolakan }}
+                </p>
+            </div>
+        </div>
+    </div>
+    @endif
 
     <!-- Table Items -->
     <div class="col-12">
@@ -544,42 +533,57 @@
     </div>
 </div>
 
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1">
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header modal-header-danger">
-                <h5>
-                    <i class="fas fa-times-circle me-2"></i>Tolak Purchase Order
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
+        <div class="modal-content" style="border: none; border-radius: 1.25rem; overflow: hidden;">
             <form action="{{ route('purchase-order.reject', $purchaseOrder->id) }}" method="POST">
                 @csrf
                 @method('PATCH')
-                <div class="modal-body">
-                    <p class="mb-3"><strong>Apakah Anda yakin ingin menolak Purchase Order ini?</strong></p>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Alasan Penolakan (Opsional)</label>
+                <div class="modal-body p-5">
+                    <!-- Icon Header -->
+                    <div class="text-center mb-4">
+                        <div class="d-inline-flex align-items-center justify-content-center" 
+                             style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+                            <i class="fas fa-times-circle" style="font-size: 3rem; color: #ef4444;"></i>
+                        </div>
+                    </div>
+                    
+                    <!-- Title & Description -->
+                    <h4 class="fw-bold text-center mb-3" style="color: #1e3a8a;">Tolak Purchase Order?</h4>
+                    <p class="text-muted text-center mb-4">
+                        Apakah Anda yakin ingin menolak Purchase Order ini?<br>
+                        <strong>PO-{{ str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT) }}</strong>
+                    </p>
+                    
+                    <!-- Reason Input -->
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold" style="color: #374151;">
+                            <i class="fas fa-comment-dots me-2"></i>Alasan Penolakan (Opsional)
+                        </label>
                         <textarea class="form-control" 
                                   name="reason" 
                                   rows="4" 
-                                  placeholder="Masukkan alasan penolakan..."
-                                  style="border-radius: 10px; border: 2px solid #e5e7eb;"></textarea>
+                                  placeholder="Tuliskan alasan penolakan untuk dokumentasi..."
+                                  style="border-radius: 0.75rem; border: 2px solid #e5e7eb; padding: 1rem; resize: none; font-size: 0.9375rem;"></textarea>
+                        <small class="text-muted">
+                            <i class="fas fa-info-circle me-1"></i>Alasan ini akan dicatat dalam sistem
+                        </small>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" 
-                            class="btn btn-secondary" 
-                            data-bs-dismiss="modal"
-                            style="border-radius: 10px; padding: 0.75rem 1.5rem;">
-                        Batal
-                    </button>
-                    <button type="submit" 
-                            class="btn btn-danger"
-                            style="border-radius: 10px; padding: 0.75rem 1.5rem;">
-                        <i class="fas fa-times-circle me-2"></i>Ya, Tolak
-                    </button>
+                    
+                    <!-- Action Buttons -->
+                    <div class="d-flex gap-3">
+                        <button type="button" 
+                                class="btn btn-secondary flex-fill px-4 py-3" 
+                                data-bs-dismiss="modal"
+                                style="border-radius: 0.75rem; font-weight: 600; font-size: 1rem;">
+                            <i class="fas fa-arrow-left me-2"></i>Batal
+                        </button>
+                        <button type="submit" 
+                                class="btn btn-danger flex-fill px-4 py-3"
+                                style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; border-radius: 0.75rem; font-weight: 600; font-size: 1rem;">
+                            <i class="fas fa-times-circle me-2"></i>Ya, Tolak
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -592,14 +596,52 @@
     @method('PATCH')
 </form>
 
+<!-- Modal Konfirmasi Approve -->
+<div class="modal fade" id="approveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 1.25rem; overflow: hidden;">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981;"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3" style="color: #1e3a8a;">Setujui Purchase Order?</h4>
+                <p class="text-muted mb-4">
+                    Apakah Anda yakin ingin menyetujui Purchase Order ini?<br>
+                    <strong>PO-{{ str_pad($purchaseOrder->id, 3, '0', STR_PAD_LEFT) }}</strong>
+                </p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <button type="button" class="btn btn-secondary px-4 py-2" data-bs-dismiss="modal" 
+                            style="border-radius: 0.75rem; font-weight: 600;">
+                        <i class="fas fa-times me-2"></i>Batal
+                    </button>
+                    <button type="button" class="btn btn-success px-4 py-2" onclick="submitApprove()" 
+                            style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: none; border-radius: 0.75rem; font-weight: 600;">
+                        <i class="fas fa-check-circle me-2"></i>Ya, Setujui
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
 <script>
 function confirmApprove() {
-    if (confirm('Apakah Anda yakin ingin menyetujui Purchase Order ini?')) {
-        document.getElementById('approveForm').submit();
-    }
+    const approveModal = new bootstrap.Modal(document.getElementById('approveModal'));
+    approveModal.show();
+}
+
+function submitApprove() {
+    // Tutup modal
+    const approveModal = bootstrap.Modal.getInstance(document.getElementById('approveModal'));
+    approveModal.hide();
+    
+    // Submit form
+    document.getElementById('approveForm').submit();
 }
 </script>
 @endpush

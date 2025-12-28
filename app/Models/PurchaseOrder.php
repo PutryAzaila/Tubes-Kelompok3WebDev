@@ -13,6 +13,7 @@ class PurchaseOrder extends Model
         'id_karyawan',
         'tanggal_pemesanan',
         'status',
+        'alasan_penolakan',
     ];
 
     // PurchaseOrder -> DataVendor (Many to One)

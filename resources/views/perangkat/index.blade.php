@@ -141,7 +141,6 @@
                 <p>Total {{ $perangkat->total() }} perangkat ditemukan</p>
             </div>
         </div>
-        
         <div class="table-responsive">
             <table class="table-custom">
                 <thead>
@@ -265,19 +264,6 @@
                                     <i class="fas fa-inbox"></i>
                                 </div>
                                 <h5 style="color: #1f2937;">Tidak Ada Data</h5>
-                                <p style="color: #6b7280;">
-                                    @role('admin')
-                                        Tidak ada perangkat yang ditemukan. Tambahkan perangkat baru untuk memulai.
-                                    @else
-                                        Belum ada data perangkat tersedia.
-                                    @endrole
-                                </p>
-                                @role('admin')
-                                <a href="{{ route('perangkat.create') }}" class="btn btn-primary-custom">
-                                    <i class="fas fa-plus-circle me-2"></i>
-                                    <span>Tambah Perangkat</span>
-                                </a>
-                                @endrole
                             </div>
                         </td>
                     </tr>

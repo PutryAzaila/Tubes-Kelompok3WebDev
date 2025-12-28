@@ -1,682 +1,33 @@
 @extends('layouts.dashboard')
 
 @section('title', 'Data Vendor')
-
 @section('page-title', 'Data Vendor')
-@section('page-subtitle', 'Kelola data vendor dan supplier')
-
-@push('styles')
-<link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
-<!-- Bootstrap 5 -->
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<!-- Font Awesome -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<!-- DataTables -->
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
-<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.bootstrap5.min.css">
-
-<style>
-/* ===== VARIABLES ===== */
-:root {
-    --primary: #2563eb;
-    --primary-dark: #1e40af;
-    --primary-light: #dbeafe;
-    --success: #10b981;
-    --warning: #f59e0b;
-    --danger: #ef4444;
-    --info: #06b6d4;
-    --gray-50: #f8fafc;
-    --gray-100: #f1f5f9;
-    --gray-200: #e2e8f0;
-    --gray-300: #cbd5e1;
-    --gray-400: #94a3b8;
-    --gray-500: #64748b;
-    --gray-600: #475569;
-    --gray-700: #334155;
-    --gray-800: #1e293b;
-    --gray-900: #0f172a;
-}
-
-/* ===== RESET & BASE ===== */
-body {
-    background-color: var(--gray-50);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-}
-
-/* ===== HEADER ===== */
-.page-header {
-    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
-    border-radius: 16px;
-    padding: 2.5rem 2rem;
-    margin-bottom: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.15);
-}
-
-.page-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-}
-
-.header-content {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 1.5rem;
-    position: relative;
-    z-index: 2;
-}
-
-.header-text h1 {
-    color: white;
-    font-size: 1.875rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.header-text h1 i {
-    background: rgba(255, 255, 255, 0.2);
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(10px);
-}
-
-.header-text p {
-    color: rgba(255, 255, 255, 0.9);
-    margin: 0;
-    font-size: 1rem;
-    max-width: 600px;
-}
-
-.btn-add {
-    background: white;
-    color: var(--primary);
-    border: none;
-    padding: 0.875rem 1.75rem;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 0.9375rem;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    white-space: nowrap;
-}
-
-.btn-add:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    color: var(--primary-dark);
-}
-
-.btn-add i {
-    font-size: 1.1rem;
-}
-
-/* ===== ALERTS ===== */
-.alert-modern {
-    border: none;
-    border-radius: 12px;
-    padding: 1.25rem 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    border-left: 4px solid transparent;
-}
-
-.alert-success {
-    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-    border-left-color: var(--success);
-    color: #065f46;
-}
-
-.alert-danger {
-    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-    border-left-color: var(--danger);
-    color: #991b1b;
-}
-
-.alert-modern i {
-    font-size: 1.25rem;
-    margin-right: 0.75rem;
-}
-
-.alert-modern .alert-body {
-    flex: 1;
-}
-
-/* ===== STATS CARDS ===== */
-.stats-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.25rem;
-    margin-bottom: 2rem;
-}
-
-.stat-card {
-    background: white;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--gray-200);
-    transition: transform 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.stat-card-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-    font-size: 1.25rem;
-}
-
-.stat-card-icon.primary {
-    background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-    color: var(--primary);
-}
-
-.stat-card-icon.success {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: var(--success);
-}
-
-.stat-card h3 {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--gray-800);
-    margin-bottom: 0.25rem;
-}
-
-.stat-card p {
-    color: var(--gray-500);
-    margin: 0;
-    font-size: 0.875rem;
-}
-
-/* ===== FILTER SECTION ===== */
-.filter-section {
-    background: white;
-    border-radius: 16px;
-    padding: 1.75rem;
-    margin-bottom: 2rem;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--gray-200);
-}
-
-.filter-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1.25rem;
-    flex-wrap: wrap;
-    gap: 1rem;
-}
-
-.filter-header h3 {
-    color: var(--gray-800);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.filter-header h3 i {
-    color: var(--primary);
-}
-
-.search-box {
-    position: relative;
-    flex: 1;
-    max-width: 400px;
-}
-
-.search-box input {
-    width: 100%;
-    padding: 0.75rem 1rem 0.75rem 3rem;
-    border: 1px solid var(--gray-300);
-    border-radius: 12px;
-    font-size: 0.9375rem;
-    color: var(--gray-700);
-    transition: all 0.2s ease;
-}
-
-.search-box input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-.search-box i {
-    position: absolute;
-    left: 1rem;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray-400);
-}
-
-.filter-options {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-top: 1.5rem;
-}
-
-.filter-group label {
-    display: block;
-    color: var(--gray-600);
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.filter-group label i {
-    color: var(--primary);
-    font-size: 0.875rem;
-}
-
-.filter-group select {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--gray-300);
-    border-radius: 12px;
-    font-size: 0.9375rem;
-    color: var(--gray-700);
-    background: white;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-group select:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-}
-
-/* ===== TABLE SECTION ===== */
-.table-section {
-    background: white;
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--gray-200);
-}
-
-.table-header {
-    padding: 1.5rem;
-    border-bottom: 1px solid var(--gray-200);
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-}
-
-.table-header h3 {
-    color: var(--gray-800);
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.table-header h3 i {
-    color: var(--primary);
-}
-
-.table-container {
-    padding: 0;
-}
-
-.table-modern {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-    margin: 0;
-}
-
-.table-modern thead {
-    background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-100) 100%);
-}
-
-.table-modern thead th {
-    padding: 1rem 1.5rem;
-    color: var(--gray-600);
-    font-weight: 600;
-    font-size: 0.8125rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: 2px solid var(--gray-200);
-    white-space: nowrap;
-}
-
-.table-modern tbody tr {
-    transition: all 0.2s ease;
-    border-top: 1px solid transparent;
-}
-
-.table-modern tbody tr:hover {
-    background-color: var(--gray-50);
-    transform: translateX(4px);
-}
-
-.table-modern tbody td {
-    padding: 1.25rem 1.5rem;
-    color: var(--gray-700);
-    font-size: 0.9375rem;
-    vertical-align: middle;
-    border-top: 1px solid var(--gray-100);
-}
-
-/* ===== VENDOR AVATAR ===== */
-.vendor-avatar {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-.vendor-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.25rem;
-    flex-shrink: 0;
-}
-
-.vendor-info h6 {
-    color: var(--gray-800);
-    font-weight: 600;
-    margin-bottom: 0.25rem;
-}
-
-.vendor-info small {
-    color: var(--gray-500);
-    font-size: 0.8125rem;
-}
-
-/* ===== BADGES ===== */
-.badge {
-    padding: 0.5rem 0.875rem;
-    border-radius: 8px;
-    font-size: 0.8125rem;
-    font-weight: 500;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.375rem;
-}
-
-.badge i {
-    font-size: 0.75rem;
-}
-
-.badge-primary {
-    background: linear-gradient(135deg, var(--primary-light) 0%, #bfdbfe 100%);
-    color: var(--primary);
-    border: 1px solid rgba(37, 99, 235, 0.2);
-}
-
-.badge-success {
-    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-    color: #065f46;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-.badge-warning {
-    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-    color: #92400e;
-    border: 1px solid rgba(245, 158, 11, 0.2);
-}
-
-.badge-info {
-    background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
-    color: #155e75;
-    border: 1px solid rgba(6, 182, 212, 0.2);
-}
-
-/* ===== CONTACT INFO ===== */
-.contact-info {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: var(--gray-600);
-    margin-bottom: 0.25rem;
-}
-
-.contact-info i {
-    color: var(--gray-400);
-    width: 16px;
-    text-align: center;
-}
-
-/* ===== ADDRESS ===== */
-.address-cell {
-    max-width: 250px;
-}
-
-.address-text {
-    color: var(--gray-600);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-/* ===== ACTION BUTTONS ===== */
-.action-buttons {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: flex-end;
-}
-
-.btn-action {
-    width: 36px;
-    height: 36px;
-    border-radius: 10px;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
-    color: white;
-    font-size: 0.875rem;
-}
-
-.btn-action i {
-    font-size: 0.875rem;
-}
-
-.btn-edit {
-    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%);
-}
-
-.btn-edit:hover {
-    background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.btn-delete {
-    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%);
-}
-
-.btn-delete:hover {
-    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-}
-
-/* ===== EMPTY STATE ===== */
-.empty-state {
-    text-align: center;
-    padding: 4rem 2rem;
-}
-
-.empty-state-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1.5rem;
-    color: var(--gray-400);
-    font-size: 2rem;
-}
-
-.empty-state h4 {
-    color: var(--gray-700);
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-}
-
-.empty-state p {
-    color: var(--gray-500);
-    margin-bottom: 1.5rem;
-    max-width: 400px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.btn-empty {
-    padding: 0.75rem 1.75rem;
-    border-radius: 12px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.3s ease;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .page-header {
-        padding: 1.75rem 1.5rem;
-    }
-    
-    .header-content {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .header-text h1 {
-        font-size: 1.5rem;
-    }
-    
-    .btn-add {
-        width: 100%;
-        justify-content: center;
-    }
-    
-    .stats-container {
-        grid-template-columns: 1fr;
-    }
-    
-    .filter-header {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .search-box {
-        max-width: 100%;
-    }
-    
-    .filter-options {
-        grid-template-columns: 1fr;
-    }
-    
-    .table-modern {
-        font-size: 0.875rem;
-    }
-    
-    .table-modern thead th,
-    .table-modern tbody td {
-        padding: 1rem;
-    }
-    
-    .vendor-icon {
-        width: 40px;
-        height: 40px;
-        font-size: 1rem;
-    }
-    
-    .action-buttons {
-        flex-wrap: wrap;
-        justify-content: center;
-    }
-}
-
-@media (max-width: 576px) {
-    .table-modern {
-        display: block;
-        overflow-x: auto;
-    }
-    
-    .badge {
-        padding: 0.375rem 0.75rem;
-        font-size: 0.75rem;
-    }
-}
-</style>
-@endpush
+@section('page-description', 'Kelola data vendor dan supplier')
 
 @section('content')
-<div class="container-fluid px-3 px-lg-4">
-    
-    <!-- Page Header -->
-    <div class="page-header">
-        <div class="header-content">
-            <div class="header-text">
-                <h1><i class="fas fa-users"></i>Data Vendor</h1>
+    <!-- Welcome Header Card -->
+    <div class="welcome-header-card mb-4">
+        <div class="welcome-header-content">
+            <div class="welcome-header-text">
+                <h2>Data Vendor</h2>
                 <p>Kelola informasi vendor dan supplier untuk kebutuhan pembelian</p>
             </div>
-            <div>
-                {{-- TOMBOL TAMBAH HANYA UNTUK ADMIN --}}
-                @role('admin')
-                <a href="{{ route('vendor.create') }}" class="btn btn-add">
-                    <i class="fas fa-plus"></i>
+            @role('admin')
+            <div class="welcome-header-action mt-3">
+                <a href="{{ route('vendor.create') }}" class="btn btn-light-custom">
+                    <i class="fas fa-plus-circle me-2"></i>
                     <span>Tambah Vendor</span>
                 </a>
-                @endrole
             </div>
+            @endrole
         </div>
     </div>
 
     <!-- Alert Messages -->
     @if(session('success'))
-    <div class="alert alert-success alert-modern alert-dismissible fade show" role="alert">
+    <div class="alert alert-success alert-modern alert-dismissible fade show mb-4" role="alert">
         <div class="d-flex align-items-center">
-            <i class="fas fa-check-circle"></i>
+            <i class="fas fa-check-circle me-3"></i>
             <div class="alert-body">
                 <strong>Berhasil!</strong> {{ session('success') }}
             </div>
@@ -686,9 +37,9 @@ body {
     @endif
 
     @if(session('error'))
-    <div class="alert alert-danger alert-modern alert-dismissible fade show" role="alert">
+    <div class="alert alert-danger alert-modern alert-dismissible fade show mb-4" role="alert">
         <div class="d-flex align-items-center">
-            <i class="fas fa-exclamation-circle"></i>
+            <i class="fas fa-exclamation-circle me-3"></i>
             <div class="alert-body">
                 <strong>Error!</strong> {{ session('error') }}
             </div>
@@ -696,136 +47,172 @@ body {
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
-
-    <!-- Stats Cards -->
-    <div class="stats-container">
-        <div class="stat-card">
-            <div class="stat-card-icon primary">
-                <i class="fas fa-building"></i>
+    
+    <!-- Statistics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-lg-6 col-md-6">
+            <div class="stats-card total-card">
+                <div class="stats-card-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <div class="stats-card-content">
+                    <div class="stats-value">{{ $vendors->count() }}</div>
+                    <div class="stats-label">Total Vendor</div>
+                </div>
             </div>
-            <h3>{{ $vendors->count() }}</h3>
-            <p>Total Vendor</p>
         </div>
-        <div class="stat-card">
-            <div class="stat-card-icon success">
-                <i class="fas fa-tag"></i>
+        <div class="col-lg-6 col-md-6">
+            <div class="stats-card available-card">
+                <div class="stats-card-icon">
+                    <i class="fas fa-tag"></i>
+                </div>
+                <div class="stats-card-content">
+                    <div class="stats-value">{{ $kategoris->count() }}</div>
+                    <div class="stats-label">Kategori Vendor</div>
+                </div>
             </div>
-            <h3>{{ $kategoris->count() }}</h3>
-            <p>Kategori Vendor</p>
         </div>
     </div>
 
-    <!-- Filter Section -->
-    <div class="filter-section">
-        <div class="filter-header">
-            <h3><i class="fas fa-filter"></i>Filter & Pencarian</h3>
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Cari vendor...">
+    <!-- Filter Card -->
+    <div class="filter-card">
+        <div class="row g-3 align-items-end">
+            <div class="col-lg-6 col-md-6">
+                <label class="filter-label">
+                    <i class="fas fa-search"></i>
+                    <span>Cari Vendor</span>
+                </label>
+                <div class="input-wrapper">
+                    <div class="input-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <input type="text" 
+                           id="searchInput"
+                           class="form-control-custom" 
+                           placeholder="Cari nama vendor atau kontak...">
+                </div>
             </div>
-        </div>
-        
-        <div class="filter-options">
-            <div class="filter-group">
-                <label for="filterKategori"><i class="fas fa-tag"></i>Kategori</label>
-                <select id="filterKategori" class="form-select">
+            <div class="col-lg-4 col-md-6">
+                <label class="filter-label">
+                    <i class="fas fa-tag"></i>
+                    <span>Kategori</span>
+                </label>
+                <select id="filterKategori" class="form-select-custom">
                     <option value="">Semua Kategori</option>
                     @foreach($kategoris as $kategori)
                     <option value="{{ $kategori->nama_kategori }}">{{ $kategori->nama_kategori }}</option>
                     @endforeach
                 </select>
             </div>
+            <div class="col-lg-2 col-md-6">
+                <div class="filter-actions">
+                    <button type="button" id="resetFilter" class="btn btn-reset">
+                        <i class="fas fa-redo"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Table Section -->
-    <div class="table-section">
-        <div class="table-header">
-            <h3><i class="fas fa-list"></i>Daftar Vendor</h3>
+    <!-- Table Card -->
+    <div class="table-card">
+        <div class="table-card-header">
+            <div class="table-card-title">
+                <h3>Daftar Vendor</h3>
+                <p>Total {{ $vendors->count() }} vendor tersedia</p>
+            </div>
         </div>
         
-        <div class="table-container">
+        <div class="table-responsive">
             @if($vendors->count() > 0)
-            <div class="table-responsive">
-                <table id="vendorTable" class="table table-modern">
-                    <thead>
-                        <tr>
-                            <th width="60">NO</th>
-                            <th>VENDOR</th>
-                            <th>KATEGORI</th>
-                            <th>KONTAK</th>
-                            <th>ALAMAT</th>
-                            {{-- KOLOM AKSI HANYA UNTUK ADMIN --}}
-                            @role('admin')
-                            <th class="text-end" width="100">AKSI</th>
-                            @endrole
-                        </tr>
-                    </thead>
-                   <tbody>
+            <table id="vendorTable" class="table-custom">
+                <thead>
+                    <tr>
+                        <th style="width: 5%;">#</th>
+                        <th style="width: 25%;">Vendor</th>
+                        <th style="width: 15%;">Kategori</th>
+                        <th style="width: 20%;">Kontak</th>
+                        <th style="width: @role('admin')25%@else35%@endrole;">Alamat</th>
+                        @role('admin')
+                        <th style="width: 10%;" class="text-center">Aksi</th>
+                        @endrole
+                    </tr>
+                </thead>
+                <tbody>
                     @foreach($vendors as $index => $vendor)
                     <tr>
-                        <td class="text-center fw-bold">
-                            {{ $index + 1 }}
+                        <td>
+                            <div class="table-number" style="background: linear-gradient(135deg, {{ $index % 2 == 0 ? '#dbeafe' : '#e5e7eb' }} 0%, {{ $index % 2 == 0 ? '#bfdbfe' : '#d1d5db' }} 100%); color: {{ $index % 2 == 0 ? '#1e3a8a' : '#4b5563' }};">
+                                {{ $index + 1 }}
+                            </div>
                         </td>
                         <td>
-                            <div class="vendor-avatar">
-                                <div class="vendor-icon">
+                            <div class="vendor-info-cell">
+                                <div class="vendor-icon-wrapper">
                                     <i class="fas fa-store"></i>
                                 </div>
-                                <div class="vendor-info">
-                                    <h6 class="mb-1">{{ $vendor->nama_vendor }}</h6>
-                                    <small>VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</small>
+                                <div class="vendor-details">
+                                    <div class="vendor-name">{{ $vendor->nama_vendor }}</div>
+                                    <div class="vendor-code">
+                                        <i class="fas fa-barcode"></i>
+                                        <span>VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
                         <td>
                             @php
-                                $badgeClasses = ['badge-primary', 'badge-success', 'badge-warning', 'badge-info'];
-                                $badgeClass = $badgeClasses[$index % 4];
+                                $categoryColors = [
+                                    0 => ['bg' => 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)', 'text' => '#1e3a8a'],
+                                    1 => ['bg' => 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)', 'text' => '#0369a1'],
+                                    2 => ['bg' => 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)', 'text' => '#7c3aed'],
+                                    3 => ['bg' => 'linear-gradient(135deg, #fef7ff 0%, #fce7f3 100%)', 'text' => '#db2777'],
+                                ];
+                                $color = $categoryColors[$index % 4];
                             @endphp
-                            <span class="badge {{ $badgeClass }}">
+                            <div class="category-badge" style="background: {{ $color['bg'] }}; color: {{ $color['text'] }};">
                                 <i class="fas fa-tag"></i>
-                                {{ $vendor->kategori->nama_kategori ?? '-' }}
-                            </span>
+                                <span>{{ $vendor->kategori->nama_kategori ?? '-' }}</span>
+                            </div>
                         </td>
                         <td>
-                            <div class="contact-info">
-                                <i class="fas fa-phone"></i>
-                                <span>{{ $vendor->no_telp_vendor }}</span>
+                            <div class="contact-info-cell">
+                                <div class="contact-item">
+                                    <i class="fas fa-phone"></i>
+                                    <span>{{ $vendor->no_telp_vendor }}</span>
+                                </div>
+                                @if($vendor->email_vendor)
+                                <div class="contact-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>{{ $vendor->email_vendor }}</span>
+                                </div>
+                                @endif
                             </div>
-                            @if($vendor->email_vendor)
-                            <div class="contact-info">
-                                <i class="fas fa-envelope"></i>
-                                <span>{{ $vendor->email_vendor }}</span>
-                            </div>
-                            @endif
                         </td>
-                        <td class="address-cell">
-                            <span class="address-text" title="{{ $vendor->alamat_vendor }}">
-                                {{ $vendor->alamat_vendor }}
-                            </span>
+                        <td>
+                            <div class="address-text" style="color: {{ $index % 2 == 0 ? '#4b5563' : '#6b7280' }};">
+                                {{ Str::limit($vendor->alamat_vendor, 60) }}
+                            </div>
                         </td>
                         
-                        {{-- TOMBOL AKSI HANYA UNTUK ADMIN --}}
                         @role('admin')
                         <td>
                             <div class="action-buttons">
                                 <a href="{{ route('vendor.edit', $vendor->id) }}" 
-                                class="btn btn-action btn-edit" 
-                                title="Edit vendor">
+                                   class="btn-action btn-edit" 
+                                   title="Edit"
+                                   style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e;">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <form action="{{ route('vendor.destroy', $vendor->id) }}" 
-                                    method="POST" 
-                                    class="d-inline delete-form">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="btn btn-action btn-delete" 
-                                            title="Hapus vendor">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+                                <button type="button" 
+                                        class="btn-action btn-delete" 
+                                        data-id="{{ $vendor->id }}"
+                                        data-name="{{ $vendor->nama_vendor }}"
+                                        data-code="VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}"
+                                        title="Hapus"
+                                        style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
                         </td>
                         @endrole
@@ -833,178 +220,853 @@ body {
                     @endforeach
                 </tbody>
             </table>
-            </div>
             @else
             <div class="empty-state">
-                <div class="empty-state-icon">
-                    <i class="fas fa-box-open"></i>
+                <div class="empty-icon">
+                    <i class="fas fa-inbox"></i>
                 </div>
-                <h4>Belum Ada Data Vendor</h4>
-                <p>
-                    @role('admin')
-                    Mulai kelola vendor Anda dengan menambahkan data vendor pertama
-                    @else
-                    Belum ada data vendor tersedia
-                    @endrole
-                </p>
-                @role('admin')
-                <a href="{{ route('vendor.create') }}" class="btn btn-primary btn-empty">
-                    <i class="fas fa-plus me-2"></i>Tambah Vendor
-                </a>
-                @endrole
+                <h5 style="color: #1f2937;">Tidak Ada Data Vendor</h5>
+                <p style="color: #6b7280;">Belum ada vendor yang terdaftar dalam sistem</p>
             </div>
             @endif
         </div>
     </div>
 
-</div>
+    <!-- Hidden form for delete -->
+    <form id="deleteForm" method="POST" style="display: none;">
+        @csrf
+        @method('DELETE')
+    </form>
 @endsection
+
+@push('styles')
+<link rel="icon" type="image/png" href="{{ asset('images/transdata-logo.png') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+<style>
+:root {
+    --primary-blue: #1e3a8a;
+    --primary-blue-light: #2563eb;
+    --orange: #f97316;
+    --success-green: #059669;
+    --danger-red: #dc2626;
+    --warning-yellow: #f59e0b;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+/* Welcome Header Card */
+.welcome-header-card {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #f97316 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 10px 30px rgba(37, 99, 235, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.welcome-header-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.welcome-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.welcome-header-text h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+}
+
+.welcome-header-text p {
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 0;
+    font-size: 0.9375rem;
+}
+
+.welcome-header-action {
+    position: relative;
+    z-index: 1;
+}
+
+.btn-light-custom {
+    background: white;
+    color: var(--primary-blue);
+    border: none;
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
+}
+
+.btn-light-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+    color: var(--primary-blue);
+}
+
+/* Alert Modern */
+.alert-modern {
+    border: none;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    border-left: 4px solid transparent;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    border-left-color: var(--success-green);
+    color: #065f46;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-left-color: var(--danger-red);
+    color: #991b1b;
+}
+
+.alert-modern i {
+    font-size: 1.25rem;
+}
+
+/* Statistics Cards */
+.stats-card {
+    background: white;
+    border-radius: 16px;
+    padding: 1.75rem;
+    box-shadow: var(--shadow-lg);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    border-left: 4px solid transparent;
+}
+
+.stats-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.stats-card-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    flex-shrink: 0;
+}
+
+.total-card {
+    border-left-color: var(--primary-blue);
+}
+
+.total-card .stats-card-icon {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: var(--primary-blue);
+}
+
+.available-card {
+    border-left-color: var(--success-green);
+}
+
+.available-card .stats-card-icon {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: var(--success-green);
+}
+
+.stats-card-content {
+    flex: 1;
+}
+
+.stats-value {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+
+.stats-label {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Filter Card */
+.filter-card {
+    background: white;
+    border-radius: 18px;
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
+    margin-bottom: 1.5rem;
+}
+
+.filter-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--gray-700);
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+}
+
+.filter-label i {
+    color: var(--primary-blue);
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 1.125rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gray-600);
+    font-size: 1.125rem;
+    z-index: 2;
+}
+
+.form-control-custom {
+    width: 100%;
+    padding: 0.875rem 1rem 0.875rem 3.25rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--gray-800);
+}
+
+.form-control-custom:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+}
+
+.form-select-custom {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--gray-200);
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: var(--gray-800);
+    cursor: pointer;
+}
+
+.form-select-custom:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(30, 58, 138, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.btn-reset {
+    width: 100%;
+    background: white;
+    color: var(--gray-700);
+    border: 2px solid var(--gray-300);
+    padding: 0.875rem 1.25rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.btn-reset:hover {
+    background: var(--gray-50);
+    border-color: var(--gray-400);
+}
+
+/* Table Card */
+.table-card {
+    background: white;
+    border-radius: 18px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+}
+
+.table-card-header {
+    padding: 2rem;
+    border-bottom: 2px solid var(--gray-100);
+    background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+}
+
+.table-card-title h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    margin-bottom: 0.25rem;
+}
+
+.table-card-title p {
+    color: var(--gray-600);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+/* Table Styles */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.table-custom {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table-custom thead {
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+}
+
+.table-custom thead th {
+    color: white;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8125rem;
+    letter-spacing: 0.05em;
+    padding: 1.25rem 1.5rem;
+    border: none;
+    white-space: nowrap;
+    position: relative;
+}
+
+.table-custom thead th:first-child {
+    border-top-left-radius: 8px;
+}
+
+.table-custom thead th:last-child {
+    border-top-right-radius: 8px;
+}
+
+.table-custom thead th::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.table-custom thead th:last-child::after {
+    display: none;
+}
+
+.table-custom tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid var(--gray-100);
+}
+
+.table-custom tbody tr:nth-child(even) {
+    background: linear-gradient(135deg, rgba(249, 250, 251, 0.5) 0%, rgba(243, 244, 246, 0.5) 100%);
+}
+
+.table-custom tbody tr:nth-child(odd) {
+    background: white;
+}
+
+.table-custom tbody tr:hover {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    transform: translateX(4px);
+}
+
+.table-custom tbody td {
+    padding: 1.25rem 1.5rem;
+    vertical-align: middle;
+    border: none;
+    position: relative;
+}
+
+.table-custom tbody td::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 20%;
+    height: 60%;
+    width: 1px;
+    background: var(--gray-200);
+}
+
+.table-custom tbody td:last-child::after {
+    display: none;
+}
+
+.table-number {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0 auto;
+}
+
+/* Vendor Info Cell */
+.vendor-info-cell {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.vendor-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-light) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.vendor-details {
+    flex: 1;
+}
+
+.vendor-name {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--gray-800);
+    margin-bottom: 0.25rem;
+}
+
+.vendor-code {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--gray-500);
+}
+
+.vendor-code i {
+    font-size: 0.75rem;
+}
+
+/* Category Badge */
+.category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+}
+
+.category-badge:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow);
+}
+
+/* Contact Info Cell */
+.contact-info-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--gray-600);
+    font-size: 0.9375rem;
+}
+
+.contact-item i {
+    color: var(--gray-400);
+    width: 16px;
+    text-align: center;
+    font-size: 0.875rem;
+}
+
+/* Address Text */
+.address-text {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.btn-action {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 0.9375rem;
+    text-decoration: none;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #fde68a 0%, #fcd34d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #991b1b;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-icon {
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, var(--gray-100) 0%, var(--gray-200) 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+}
+
+.empty-icon i {
+    font-size: 3rem;
+    color: var(--gray-600);
+}
+
+.empty-state h5 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.empty-state p {
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.btn-primary-custom {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 1.05rem;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(30, 58, 138, 0.3);
+}
+
+.btn-primary-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 58, 138, 0.4);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .welcome-header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .welcome-header-action {
+        margin-top: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .welcome-header-card {
+        padding: 1.5rem;
+    }
+    
+    .welcome-header-text h2 {
+        font-size: 1.5rem;
+    }
+    
+    .stats-card {
+        padding: 1.25rem;
+    }
+    
+    .stats-card-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+    }
+    
+    .stats-value {
+        font-size: 1.75rem;
+    }
+    
+    .filter-card {
+        padding: 1.5rem;
+    }
+    
+    .table-card-header {
+        padding: 1.5rem;
+    }
+    
+    .table-custom thead th,
+    .table-custom tbody td {
+        padding: 1rem;
+    }
+    
+    .table-custom thead th::after,
+    .table-custom tbody td::after {
+        display: none;
+    }
+    
+    .pagination-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+@media (max-width: 576px) {
+    .action-buttons {
+        flex-direction: column;
+    }
+    
+    .btn-action {
+        width: 100%;
+    }
+    
+    .category-badge,
+    .status-badge {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8125rem;
+    }
+}
+</style>
+@endpush
+
 @push('scripts')
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- Bootstrap 5 Bundle -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables -->
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function() {
-    // Initialize DataTable
-    var table = $('#vendorTable').DataTable({
-        responsive: true,
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/id.json',
-            search: "_INPUT_",
-            searchPlaceholder: "Cari vendor...",
-            lengthMenu: "Tampilkan _MENU_ vendor",
-            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ vendor",
-            infoEmpty: "Menampilkan 0 sampai 0 dari 0 vendor",
-            infoFiltered: "(disaring dari _MAX_ total vendor)",
-            zeroRecords: "Tidak ditemukan vendor yang sesuai",
-            emptyTable: "Tidak ada data vendor tersedia",
-            paginate: {
-                first: "‹‹",
-                last: "››",
-                next: "›",
-                previous: "‹"
-            }
-        },
-        order: [[0, 'asc']],
-        pageLength: 10,
-        lengthMenu: [[5, 10, 25, 50, -1], [5, 10, 25, 50, "Semua"]],
-        columnDefs: [
-            @role('admin')
-            { orderable: false, targets: [5] },
-            @else
-            { orderable: false, targets: [] },
-            @endrole
-            { className: "text-center", targets: [0] },
-            @role('admin')
-            { className: "text-end", targets: [5] }
-            @endrole
-        ],
-        initComplete: function() {
-            $('.dataTables_length select').addClass('form-select form-select-sm');
-            $('.dataTables_filter input').addClass('form-control form-control-sm');
-            $('.dataTables_filter').hide();
-            
-            $('#searchInput').on('keyup', function() {
-                table.search(this.value).draw();
-            });
-        },
-        drawCallback: function() {
-            $('#vendorTable tbody tr').hover(
-                function() {
-                    $(this).css('transform', 'translateX(4px)');
-                },
-                function() {
-                    $(this).css('transform', 'translateX(0)');
-                }
-            );
-        }
-    });
-
-    // Filter by Category
-    $('#filterKategori').on('change', function() {
-        var kategori = $(this).val();
-        table.column(2).search(kategori).draw();
-    });
-
-    // Delete Confirmation - HANYA UNTUK ADMIN
-    @role('admin')
-    $(document).on('submit', '.delete-form', function(e) {
-        e.preventDefault();
-        var form = this;
-        var vendorName = $(this).closest('tr').find('.vendor-info h6').text();
-        var vendorCode = $(this).closest('tr').find('.vendor-info small').text();
+    // Delete confirmation with SweetAlert2
+    $('.btn-delete').on('click', function() {
+        const id = $(this).data('id');
+        const name = $(this).data('name');
         
         Swal.fire({
-            title: 'Hapus Vendor?',
-            html: `
-                <div class="text-center">
-                    <i class="fas fa-trash text-danger mb-3" style="font-size: 3rem;"></i>
-                    <p class="mb-2">Anda akan menghapus vendor:</p>
-                    <h6 class="mb-1">${vendorName}</h6>
-                    <small class="text-muted">${vendorCode}</small>
-                    <p class="text-danger mt-3 mb-0"><small>Data yang dihapus tidak dapat dikembalikan</small></p>
-                </div>
-            `,
+            title: 'Hapus Perangkat?',
+            html: `Anda yakin ingin menghapus perangkat <strong>"${name}"</strong>?<br><small class="text-muted">Data yang dihapus tidak dapat dikembalikan.</small>`,
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: '#ef4444',
+            confirmButtonColor: '#dc2626',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: 'Hapus',
-            cancelButtonText: 'Batal',
+            confirmButtonText: '<i class="fas fa-trash me-2"></i>Ya, Hapus!',
+            cancelButtonText: '<i class="fas fa-times me-2"></i>Batal',
             reverseButtons: true,
             customClass: {
-                popup: 'border-0 shadow-lg',
-                confirmButton: 'btn btn-danger px-4 py-2',
-                cancelButton: 'btn btn-outline-secondary px-4 py-2'
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title',
+                htmlContainer: 'swal-custom-html',
+                confirmButton: 'swal-custom-confirm',
+                cancelButton: 'swal-custom-cancel'
             },
-            buttonsStyling: false,
-            showClass: {
-                popup: 'animate__animated animate__fadeInDown'
-            },
-            hideClass: {
-                popup: 'animate__animated animate__fadeOutUp'
-            }
+            buttonsStyling: false
         }).then((result) => {
             if (result.isConfirmed) {
+                // Show loading
                 Swal.fire({
                     title: 'Menghapus...',
-                    text: 'Sedang menghapus data vendor',
+                    html: 'Mohon tunggu sebentar',
                     allowOutsideClick: false,
+                    allowEscapeKey: false,
                     showConfirmButton: false,
                     willOpen: () => {
                         Swal.showLoading();
                     }
                 });
                 
+                // Submit form
+                const form = $('#deleteForm');
+                form.attr('action', '/perangkat/' + id);
                 form.submit();
             }
         });
     });
-    @endrole
 
-    // Auto hide alerts after 5 seconds
-    setTimeout(function() {
-        $('.alert').fadeOut('slow');
-    }, 5000);
+    // Show success message
+    @if(session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: 'Berhasil!',
+            text: '{{ session('success') }}',
+            timer: 3000,
+            showConfirmButton: false,
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title'
+            }
+        });
+    @endif
 
-    // Add click effect to action buttons
-    @role('admin')
-    $(document).on('mousedown', '.btn-action', function() {
-        $(this).css('transform', 'scale(0.95)');
-    }).on('mouseup mouseleave', '.btn-action', function() {
-        $(this).css('transform', '');
-    });
-    @endrole
-
-    console.log('✅ Vendor Management System Loaded');
-    console.log('📊 Total Vendors:', {{ $vendors->count() }});
+    // Show error message
+    @if(session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal!',
+            text: '{{ session('error') }}',
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: 'OK',
+            customClass: {
+                popup: 'swal-custom-popup',
+                title: 'swal-custom-title',
+                confirmButton: 'swal-custom-confirm'
+            },
+            buttonsStyling: false
+        });
+    @endif
 });
 </script>
+
+<style>
+/* SweetAlert2 Custom Styles */
+.swal-custom-popup {
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+.swal-custom-title {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: var(--gray-800) !important;
+}
+
+.swal-custom-html {
+    font-size: 1.05rem !important;
+    color: var(--gray-600) !important;
+    line-height: 1.6 !important;
+}
+
+.swal-custom-confirm {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.875rem 2rem !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+.swal-custom-confirm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4) !important;
+}
+
+.swal-custom-cancel {
+    background: white !important;
+    color: var(--gray-700) !important;
+    border: 2px solid var(--gray-300) !important;
+    padding: 0.875rem 2rem !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-custom-cancel:hover {
+    background: var(--gray-50) !important;
+    border-color: var(--gray-400) !important;
+}
+
+.swal2-icon {
+    border-width: 3px !important;
+}
+
+.swal2-success .swal2-success-ring {
+    border-color: rgba(5, 150, 105, 0.3) !important;
+}
+
+.swal2-success [class^=swal2-success-line] {
+    background-color: #059669 !important;
+}
+
+.swal2-error [class^=swal2-x-mark-line] {
+    background-color: #dc2626 !important;
+}
+</style>
 @endpush

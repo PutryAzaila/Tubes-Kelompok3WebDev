@@ -613,19 +613,6 @@
                                             <i class="fas fa-inbox"></i>
                                         </div>
                                         <h5>Belum Ada Kategori</h5>
-                                        <p>
-                                            @role('admin')
-                                            Mulai dengan menambahkan kategori vendor pertama Anda
-                                            @else
-                                            Belum ada data kategori vendor tersedia
-                                            @endrole
-                                        </p>
-                                        @role('admin')
-                                        <a href="{{ route('kategori-vendor.create') }}" class="btn btn-add">
-                                            <i class="fas fa-plus-circle"></i>
-                                            Tambah Kategori Sekarang
-                                        </a>
-                                        @endrole
                                     </div>
                                 </td>
                             </tr>

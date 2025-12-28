@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('id_karyawan')->constrained('users')->onDelete('cascade');
             $table->timestamp('tanggal_pemesanan');
             $table->enum('status', ['Diajukan', 'Disetujui','Ditolak']);
+            $table->text('alasan_penolakan')->nullable();
             $table->timestamps();
         });
     }

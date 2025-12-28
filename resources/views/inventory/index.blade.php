@@ -740,6 +740,54 @@
         </div>
     </div>
 </div>
+<!-- Modal Pop-up untuk No Data -->
+<div class="modal fade" id="noDataModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden;">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f59e0b;"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3" style="color: #1e3a8a;">Tidak Ada Data!</h4>
+                <p class="text-muted mb-4">
+                    Data yang akan di-export tidak ditemukan.<br>
+                    Pastikan tabel memiliki data atau cek filter yang aktif.
+                </p>
+                <button type="button" class="btn btn-primary px-4 py-2" data-bs-dismiss="modal" 
+                        style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); border: none; border-radius: 0.5rem;">
+                    <i class="fas fa-check me-2"></i>Mengerti
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Pop-up untuk Success Export -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden;">
+            <div class="modal-body text-center p-5">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center" 
+                         style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);">
+                        <i class="fas fa-check-circle" style="font-size: 3rem; color: #10b981;"></i>
+                    </div>
+                </div>
+                <h4 class="fw-bold mb-3" style="color: #1e3a8a;">Export Berhasil!</h4>
+                <p class="text-muted mb-4" id="successMessage">
+                    File berhasil di-download ke perangkat Anda.
+                </p>
+                <button type="button" class="btn btn-success px-4 py-2" data-bs-dismiss="modal" 
+                        style="background: linear-gradient(135deg, #10b981 0%, #34d399 100%); border: none; border-radius: 0.5rem;">
+                    <i class="fas fa-times me-2"></i>Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -842,7 +890,8 @@ function exportToExcel() {
     const filteredData = dataTable.rows({ search: 'applied' }).data();
     
     if (filteredData.length === 0) {
-        alert('Tidak ada data untuk di-export!');
+        const noDataModal = new bootstrap.Modal(document.getElementById('noDataModal'));
+        noDataModal.show();
         return;
     }
     
@@ -887,32 +936,12 @@ function exportToExcel() {
     const fileName = `Inventory_Data_${new Date().toISOString().split('T')[0]}.xlsx`;
     XLSX.writeFile(wb, fileName);
     
-    console.log('✅ Excel exported:', fileName);
-    
-    // Show success message
-    showExportMessage('Excel berhasil di-download!', 'success');
-}
+console.log('✅ Excel exported:', fileName);
 
-// Show Export Success Message
-function showExportMessage(message, type) {
-    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
-    const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
-    
-    const alertHTML = `
-        <div class="alert ${alertClass} alert-dismissible fade show animate-fade-in" role="alert">
-            <i class="fas ${icon} me-2"></i>${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-    
-    $('.container-fluid.px-4').prepend(alertHTML);
-    
-    // Auto dismiss after 3 seconds
-    setTimeout(() => {
-        $('.alert').fadeOut('slow', function() {
-            $(this).remove();
-        });
-    }, 3000);
+// Show success modal
+document.getElementById('successMessage').textContent = `File Excel "${fileName}" berhasil di-download!`;
+const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+successModal.show();
 }
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
@@ -922,10 +951,10 @@ function exportToPDF() {
     const filteredData = dataTable.rows({ search: 'applied' }).data();
     
     if (filteredData.length === 0) {
-        alert('Tidak ada data untuk di-export!');
+        const noDataModal = new bootstrap.Modal(document.getElementById('noDataModal'));
+        noDataModal.show();
         return;
-    }
-    
+    }    
     // Prepare table data
     const tableData = [];
     filteredData.each(function(row, index) {
@@ -1077,9 +1106,11 @@ function exportToPDF() {
     doc.save(fileName);
     
     console.log('✅ PDF exported:', fileName);
-    
-    // Show success message
-    showExportMessage('PDF berhasil di-download!', 'success');
+
+    // Show success modal
+    document.getElementById('successMessage').textContent = `File PDF "${fileName}" berhasil di-download!`;
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    successModal.show();
 }
 </script>
 @endpush

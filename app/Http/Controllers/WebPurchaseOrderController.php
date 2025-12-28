@@ -194,34 +194,37 @@ class WebPurchaseOrderController extends Controller
         }
     }
 
-    public function reject(Request $request, $id)
-    {
-        $request->validate([
-            'reason' => 'nullable|string|max:500',
+public function reject(Request $request, $id)
+{
+    $request->validate([
+        'reason' => 'nullable|string|max:500',
+    ]);
+
+    try {
+        DB::beginTransaction();
+
+        $purchaseOrder = PurchaseOrder::findOrFail($id);
+
+        if ($purchaseOrder->status !== 'Diajukan') {
+            return redirect()->back()
+                ->with('error', 'Hanya PO dengan status Diajukan yang bisa ditolak');
+        }
+
+        $purchaseOrder->update([
+            'status' => 'Ditolak',
+            'alasan_penolakan' => $request->reason, // 👈 TAMBAH INI
         ]);
 
-        try {
-            DB::beginTransaction();
+        DB::commit();
 
-            $purchaseOrder = PurchaseOrder::findOrFail($id);
-
-            if ($purchaseOrder->status !== 'Diajukan') {
-                return redirect()->back()
-                    ->with('error', 'Hanya PO dengan status Diajukan yang bisa ditolak');
-            }
-
-            $purchaseOrder->update(['status' => 'Ditolak']);
-
-            DB::commit();
-
-            return redirect()->route('purchase-order.show', $id)
-                ->with('success', 'Purchase Order berhasil ditolak!');
-        } catch (\Exception $e) {
-            DB::rollBack();
-            return redirect()->back()
-                ->with('error', 'Gagal menolak Purchase Order: ' . $e->getMessage());
-        }
+        return redirect()->route('purchase-order.show', $id)
+            ->with('success', 'Purchase Order berhasil ditolak!');
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return redirect()->back()
+            ->with('error', 'Gagal menolak Purchase Order: ' . $e->getMessage());
     }
+}
 
     /**
      * Helper: Get date info berdasarkan status
