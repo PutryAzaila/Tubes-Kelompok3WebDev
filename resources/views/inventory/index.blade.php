@@ -914,7 +914,6 @@ function showExportMessage(message, type) {
         });
     }, 3000);
 }
-// Export to PDF - IMPROVED & SIMPLIFIED
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('l', 'mm', 'a4'); // landscape
