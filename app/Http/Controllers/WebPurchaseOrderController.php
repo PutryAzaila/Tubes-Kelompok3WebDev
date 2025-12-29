@@ -212,7 +212,7 @@ public function reject(Request $request, $id)
 
         $purchaseOrder->update([
             'status' => 'Ditolak',
-            'alasan_penolakan' => $request->reason, // 👈 TAMBAH INI
+            'alasan_penolakan' => $request->reason, 
         ]);
 
         DB::commit();
@@ -226,9 +226,6 @@ public function reject(Request $request, $id)
     }
 }
 
-    /**
-     * Helper: Get date info berdasarkan status
-     */
     private function getDateInfo($purchaseOrder)
     {
         $dateInfo = [

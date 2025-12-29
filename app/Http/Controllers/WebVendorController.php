@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class WebVendorController extends Controller
 {
-    /**
-     * Display a listing of vendors
-     */
+
     public function index()
     {
         $vendors = DataVendor::with('kategori')->latest()->get();
@@ -20,9 +18,6 @@ class WebVendorController extends Controller
         return view('vendor.index', compact('vendors', 'kategoris'));
     }
 
-    /**
-     * Show the form for creating a new vendor
-     */
     public function create()
     {
         $kategoris = KategoriVendor::all();
@@ -30,9 +25,6 @@ class WebVendorController extends Controller
         return view('vendor.create', compact('kategoris'));
     }
 
-    /**
-     * Store a newly created vendor in storage
-     */
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -75,9 +67,6 @@ class WebVendorController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified vendor
-     */
     public function edit($id)
     {
         $vendor = DataVendor::with('kategori')->findOrFail($id);
@@ -86,9 +75,6 @@ class WebVendorController extends Controller
         return view('vendor.edit', compact('vendor', 'kategoris'));
     }
 
-    /**
-     * Update the specified vendor in storage
-     */
     public function update(Request $request, $id)
     {
         $vendor = DataVendor::findOrFail($id);
@@ -133,9 +119,6 @@ class WebVendorController extends Controller
         }
     }
 
-    /**
-     * Remove the specified vendor from storage
-     */
     public function destroy($id)
     {
         try {

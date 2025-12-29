@@ -16,7 +16,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <!-- SheetJS for Excel -->
 <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
-
+<link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
 <style>
 /* Welcome Header Card */
 .welcome-header-card {
@@ -559,6 +559,57 @@
 .btn-danger.btn-modern {
     background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
 }
+/* SweetAlert2 Custom Styles */
+.swal-custom-popup {
+    border-radius: 20px !important;
+    padding: 2rem !important;
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+}
+
+.swal-custom-title {
+    font-size: 1.75rem !important;
+    font-weight: 700 !important;
+    color: #1f2937 !important;
+}
+
+.swal-custom-html {
+    font-size: 1.05rem !important;
+    color: #6b7280 !important;
+    line-height: 1.6 !important;
+}
+
+.swal-custom-confirm {
+    background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.875rem 2rem !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+}
+
+.swal-custom-confirm:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 16px rgba(220, 38, 38, 0.4) !important;
+}
+
+.swal-custom-cancel {
+    background: white !important;
+    color: #374151 !important;
+    border: 2px solid #d1d5db !important;
+    padding: 0.875rem 2rem !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    font-size: 1rem !important;
+    transition: all 0.3s ease !important;
+}
+
+.swal-custom-cancel:hover {
+    background: #f3f4f6 !important;
+    border-color: #9ca3af !important;
+}
 </style>
 @endpush
 
@@ -872,6 +923,8 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <!-- Bootstrap 5 Bundle (includes Popper) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- SweetAlert2 -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 $(document).ready(function() {
@@ -963,14 +1016,48 @@ function resetFilters() {
     $('#noResultsRow').remove();
 }
 
-// Confirm Delete
+// Confirm Delete dengan SweetAlert2
 function confirmDelete(id) {
-    if (confirm('Apakah Anda yakin ingin menghapus Purchase Order ini?')) {
-        const form = document.getElementById('deleteForm');
-        form.action = `/purchase-order/${id}`;
-        form.submit();
-    }
+    Swal.fire({
+        title: 'Hapus Purchase Order?',
+        html: 'Anda yakin ingin menghapus Purchase Order ini?<br><small class="text-muted">Data yang dihapus tidak dapat dikembalikan.</small>',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#dc2626',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: '<i class="fas fa-trash me-2"></i>Ya, Hapus!',
+        cancelButtonText: '<i class="fas fa-times me-2"></i>Batal',
+        reverseButtons: true,
+        customClass: {
+            popup: 'swal-custom-popup',
+            title: 'swal-custom-title',
+            htmlContainer: 'swal-custom-html',
+            confirmButton: 'swal-custom-confirm',
+            cancelButton: 'swal-custom-cancel'
+        },
+        buttonsStyling: false
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Show loading
+            Swal.fire({
+                title: 'Menghapus...',
+                html: 'Mohon tunggu sebentar',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                showConfirmButton: false,
+                willOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+            
+            // Submit form
+            const form = document.getElementById('deleteForm');
+            form.action = `/purchase-order/${id}`;
+            form.submit();
+        }
+    });
 }
+
 // Export to Excel
 function exportToExcel() {
     const table = document.getElementById('poTable');
@@ -1026,10 +1113,10 @@ function exportToExcel() {
     successModal.show();
 }
 
-// Export to PDF - Modern Style (sama seperti Inventory)
+// Export to PDF - Modern Style
 function exportToPDF() {
     const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('l', 'mm', 'a4'); // landscape
+    const doc = new jsPDF('l', 'mm', 'a4');
     
     const table = document.getElementById('poTable');
     const rows = Array.from(table.querySelectorAll('tbody tr')).filter(row => {
@@ -1060,26 +1147,21 @@ function exportToPDF() {
     const totalDisetujui = tableData.filter(row => row[6].includes('Disetujui')).length;
     const totalDitolak = tableData.filter(row => row[6].includes('Ditolak')).length;
     
-    // Page width for centering
     const pageWidth = doc.internal.pageSize.getWidth();
     
-    // === HEADER SECTION ===
-    // Background Header
+    // Header Section
     doc.setFillColor(30, 58, 138);
     doc.rect(0, 0, pageWidth, 40, 'F');
     
-    // Main Title
     doc.setFontSize(24);
     doc.setFont(undefined, 'bold');
     doc.setTextColor(255, 255, 255);
     doc.text('PURCHASE ORDER REPORT', pageWidth / 2, 15, { align: 'center' });
     
-    // Subtitle
     doc.setFontSize(11);
     doc.setFont(undefined, 'normal');
     doc.text('Laporan Daftar Purchase Order', pageWidth / 2, 22, { align: 'center' });
     
-    // Export Date
     const currentDate = new Date().toLocaleDateString('id-ID', { 
         weekday: 'long', 
         year: 'numeric', 
@@ -1089,12 +1171,10 @@ function exportToPDF() {
     doc.setFontSize(10);
     doc.text(`Tanggal Export: ${currentDate}`, pageWidth / 2, 28, { align: 'center' });
     
-    // Divider line
     doc.setDrawColor(255, 255, 255);
     doc.setLineWidth(0.5);
     doc.line(40, 32, pageWidth - 40, 32);
     
-    // === STATISTICS TEXT ===
     doc.setFontSize(10);
     doc.setFont(undefined, 'normal');
     doc.text(
@@ -1104,10 +1184,8 @@ function exportToPDF() {
         { align: 'center' }
     );
     
-    // Reset colors
     doc.setTextColor(0, 0, 0);
     
-    // === TABLE SECTION ===
     doc.autoTable({
         head: [['No', 'Kode PO', 'Vendor', 'Staff', 'Tanggal', 'Items', 'Status']],
         body: tableData,
@@ -1142,20 +1220,16 @@ function exportToPDF() {
             6: { cellWidth: 30, halign: 'center' }
         },
         didDrawPage: function(data) {
-            // === FOOTER SECTION ===
             const pageHeight = doc.internal.pageSize.getHeight();
             const footerY = pageHeight - 15;
             
-            // Footer background
             doc.setFillColor(248, 249, 250);
             doc.rect(0, footerY - 5, pageWidth, 20, 'F');
             
-            // Divider line
             doc.setDrawColor(220, 220, 220);
             doc.setLineWidth(0.3);
             doc.line(20, footerY - 5, pageWidth - 20, footerY - 5);
             
-            // Page number
             doc.setFontSize(9);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(30, 58, 138);
@@ -1163,13 +1237,11 @@ function exportToPDF() {
             const totalPages = doc.internal.getNumberOfPages();
             doc.text(`Halaman ${pageNum} dari ${totalPages}`, pageWidth / 2, footerY, { align: 'center' });
             
-            // Footer info
             doc.setFontSize(8);
             doc.setFont(undefined, 'normal');
             doc.setTextColor(107, 114, 128);
             doc.text('Generated by Purchase Order Management System', pageWidth / 2, footerY + 5, { align: 'center' });
             
-            // Timestamp
             const timestamp = new Date().toLocaleString('id-ID', { 
                 hour: '2-digit', 
                 minute: '2-digit',
@@ -1180,16 +1252,14 @@ function exportToPDF() {
         margin: { left: (pageWidth - 245) / 2, right: (pageWidth - 245) / 2 }
     });
     
-    // Save PDF
     const fileName = `Purchase_Orders_${new Date().toISOString().split('T')[0]}.pdf`;
     doc.save(fileName);
     
     console.log('✅ PDF exported:', fileName);
 
-    // Show success modal
     document.getElementById('successMessage').textContent = `File PDF "${fileName}" berhasil di-download!`;
     const successModal = new bootstrap.Modal(document.getElementById('successModal'));
     successModal.show();
-    }
+}
 </script>
 @endpush

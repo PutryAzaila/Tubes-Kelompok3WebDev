@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Validator;
 class WebPerangkatController extends Controller
 {
     /**
-     * Display a listing of the resource.
      * GET /perangkat
      */
     public function index(Request $request)
@@ -69,7 +68,6 @@ class WebPerangkatController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
      * GET /perangkat/create
      */
     public function create()
@@ -83,7 +81,6 @@ class WebPerangkatController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
      * POST /perangkat
      */
     public function store(Request $request)
@@ -127,7 +124,6 @@ class WebPerangkatController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
      * GET /perangkat/{id}/edit
      */
     public function edit($id)
@@ -143,7 +139,6 @@ class WebPerangkatController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
      * PUT/PATCH /perangkat/{id}
      */
     public function update(Request $request, $id)

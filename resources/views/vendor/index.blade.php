@@ -129,10 +129,11 @@
                 <thead>
                     <tr>
                         <th style="width: 5%;">#</th>
-                        <th style="width: 25%;">Vendor</th>
-                        <th style="width: 15%;">Kategori</th>
-                        <th style="width: 20%;">Kontak</th>
-                        <th style="width: @role('admin')25%@else35%@endrole;">Alamat</th>
+                        <th style="width: 20%;">Vendor</th>
+                        <th style="width: 12%;">Kategori</th>
+                        <th style="width: 15%;">Kontak</th>
+                        <th style="width: 18%;">Alamat</th>
+                        <th style="width: @role('admin')20%@else30%@endrole;">Deskripsi</th>
                         @role('admin')
                         <th style="width: 10%;" class="text-center">Aksi</th>
                         @endrole
@@ -154,8 +155,6 @@
                                 <div class="vendor-details">
                                     <div class="vendor-name">{{ $vendor->nama_vendor }}</div>
                                     <div class="vendor-code">
-                                        <i class="fas fa-barcode"></i>
-                                        <span>VEND-{{ str_pad($vendor->id, 4, '0', STR_PAD_LEFT) }}</span>
                                     </div>
                                 </div>
                             </div>
@@ -189,12 +188,16 @@
                                 @endif
                             </div>
                         </td>
-                        <td>
-                            <div class="address-text" style="color: {{ $index % 2 == 0 ? '#4b5563' : '#6b7280' }};">
-                                {{ Str::limit($vendor->alamat_vendor, 60) }}
-                            </div>
-                        </td>
-                        
+                       <td>
+                        <div class="address-text" style="color: {{ $index % 2 == 0 ? '#4b5563' : '#6b7280' }};">
+                            {{ Str::limit($vendor->alamat_vendor, 60) }}
+                        </div>
+                    </td>
+                    <td>
+                        <div class="description-text" style="color: {{ $index % 2 == 0 ? '#4b5563' : '#6b7280' }};">
+                            {{ $vendor->deskripsi_vendor ? Str::limit($vendor->deskripsi_vendor, 50) : '-' }}
+                        </div>
+                    </td>                    
                         @role('admin')
                         <td>
                             <div class="action-buttons">
@@ -927,8 +930,8 @@ $(document).ready(function() {
         const name = $(this).data('name');
         
         Swal.fire({
-            title: 'Hapus Perangkat?',
-            html: `Anda yakin ingin menghapus perangkat <strong>"${name}"</strong>?<br><small class="text-muted">Data yang dihapus tidak dapat dikembalikan.</small>`,
+            title: 'Hapus Vendor?',
+            html: `Anda yakin ingin menghapus vendor <strong>"${name}"</strong>?<br><small class="text-muted">Data yang dihapus tidak dapat dikembalikan.</small>`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#dc2626',
@@ -960,7 +963,7 @@ $(document).ready(function() {
                 
                 // Submit form
                 const form = $('#deleteForm');
-                form.attr('action', '/perangkat/' + id);
+                form.attr('action', '/vendor/' + id);
                 form.submit();
             }
         });

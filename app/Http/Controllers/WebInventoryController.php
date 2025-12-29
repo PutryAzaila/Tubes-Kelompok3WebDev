@@ -163,18 +163,18 @@ class WebInventoryController extends Controller
             
             $jenisText = $request->jenis_inventori === 'masuk' ? 'masuk' : 'keluar';
             $itemCount = 1; 
-            
+
             if ($request->has_serial == '0') {
                 $itemCount = intval($request->stok);
             } else {
                 if ($request->jenis_inventori === 'masuk') {
                     if ($request->sumber === 'Vendor') {
-                        $itemCount = count(array_filter($request->serial_number ?? [], function($s) {
+                        $itemCount = count(array_filter($request->serial_numbers ?? [], function($s) {
                             return !empty(trim($s));
                         }));
-                    } else {
+                    } else if ($request->sumber === 'Customer') {
                         $returnCount = count($request->return_serials ?? []);
-                        $newCount = count(array_filter($request->serial_number ?? [], function($s) {
+                        $newCount = count(array_filter($request->serial_numbers ?? [], function($s) {
                             return !empty(trim($s));
                         }));
                         $itemCount = $returnCount + $newCount;
@@ -186,7 +186,7 @@ class WebInventoryController extends Controller
 
             $perangkat = Perangkat::find($request->id_perangkat);
             $perangkatName = $perangkat ? $perangkat->nama_perangkat : 'barang';
-            
+
             $successMessage = "Berhasil! {$itemCount} unit {$perangkatName} telah ditambahkan sebagai barang {$jenisText}.";
 
             if ($request->ajax() || $request->wantsJson()) {
@@ -214,12 +214,12 @@ class WebInventoryController extends Controller
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => '❌ Gagal menyimpan data: ' . $e->getMessage()
+                    'message' => 'Gagal menyimpan data: ' . $e->getMessage()
                 ], 500);
             }
             
             return redirect()->back()
-                ->with('error', '❌ Gagal menyimpan data: ' . $e->getMessage())
+                ->with('error', 'Gagal menyimpan data: ' . $e->getMessage())
                 ->withInput();
         }
     }
@@ -296,13 +296,11 @@ private function handleBarangMasuk($request)
             ]);
         }
         
-    } else { // Customer - HANYA RETURN
+    } else { 
         Log::info('Customer Source - Return Only');
         
         if ($hasSerial) {
-            // =====================================================
-            // CUSTOMER: RETURN SERIALS ONLY
-            // =====================================================
+
             $returnSerials = $request->return_serials ?? [];
             Log::info('Return Serials (Detail IDs):', $returnSerials);
             
@@ -316,7 +314,6 @@ private function handleBarangMasuk($request)
                     throw new \Exception("Detail barang ID {$detailId} tidak ditemukan!");
                 }
                 
-                // HITUNG BERDASARKAN LOGIKA RENTAL
                 $allMasuk = BarangMasuk::where('detail_barang_id', $detailId)->get();
                 $allKeluar = BarangKeluar::where('detail_barang_id', $detailId)->get();
                 
@@ -536,22 +533,13 @@ public function getReturnableSerials(Request $request)
             }
         }
         
-        // LOGIKA BARU UNTUK RENTAL SYSTEM:
-        // Hitung berapa kali masuk dari Customer Return
         $customerReturns = $barangMasukRecords->whereIn('status', ['Customer Return', 'Customer', 'Customer New'])->sum('jumlah');
         
-        // Barang yang sedang disewa = Keluar - Customer Returns
-        // Ini karena: 
-        // - Vendor masuk 1x = stok awal
-        // - Keluar 1x = disewa
-        // - Belum ada customer return = masih disewa
         $currentlyOut = $totalKeluar - $customerReturns;
         
         Log::info("Customer Returns: {$customerReturns}");
         Log::info("Currently Out (Keluar - Customer Returns): {$currentlyOut}");
         
-        // ✅ RETURNABLE jika ada barang yang keluar dan belum di-return
-        // Untuk serial number, jumlah selalu 1, jadi jika pernah keluar dan belum ada customer return = returnable
         if ($totalKeluar > 0 && $currentlyOut > 0) {
             Log::info("✓ RETURNABLE - Barang sedang disewa (belum di-return)");
             
