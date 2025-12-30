@@ -167,6 +167,7 @@
     padding: 1rem;
     border-bottom: 1px solid #e5e7eb;
     background: linear-gradient(135deg, #eff6ff 0%, #f3e8ff 100%);
+    flex-shrink: 0;
 }
 
 .logo-img {
@@ -226,6 +227,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    min-height: 0;
 }
 
 .sidebar-nav::-webkit-scrollbar {
@@ -399,6 +401,7 @@
     border-top: 1px solid #e5e7eb;
     padding: 0.75rem;
     background: #f9fafb;
+    flex-shrink: 0;
 }
 
 .logout-btn {
@@ -452,17 +455,82 @@
     transform: rotate(180deg);
 }
 
-/* Mobile */
+/* Mobile Styles */
 @media (max-width: 991px) {
     .sidebar {
         transform: translateX(-100%);
+        height: 100vh;
+        height: 100dvh; /* Dynamic viewport height untuk mobile */
     }
     
     .sidebar.show {
         transform: translateX(0);
     }
+    
+    /* Pastikan logo tidak terlalu besar di mobile */
+    .sidebar-logo {
+        height: 80px;
+        padding: 0.75rem;
+    }
+    
+    .logo-img {
+        height: 40px;
+    }
+    
+    .logo-subtitle {
+        font-size: 8px;
+        padding: 2px 8px;
+    }
+    
+    /* Navigation di mobile - tambahkan padding bottom untuk logout button */
+    .sidebar-nav {
+        padding: 0.75rem 0.5rem;
+        padding-bottom: 1rem;
+    }
+    
+    /* Footer tetap visible di mobile */
+    .sidebar-footer {
+        padding: 0.75rem 0.5rem;
+        position: sticky;
+        bottom: 0;
+        background: #ffffff;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Logout button lebih compact di mobile */
+    .logout-btn {
+        padding: 0.625rem 0.875rem;
+        font-size: 14px;
+    }
+    
+    /* Nav items lebih compact */
+    .sidebar-nav-item {
+        padding: 0.625rem 0.875rem;
+    }
 }
 
+/* Extra small devices */
+@media (max-width: 576px) {
+    .sidebar {
+        width: 240px;
+    }
+    
+    .sidebar-nav-item {
+        padding: 0.5rem 0.75rem;
+        gap: 0.5rem;
+    }
+    
+    .nav-text {
+        font-size: 14px;
+    }
+    
+    .submenu-item {
+        padding: 0.5rem 0.625rem;
+        font-size: 13px;
+    }
+}
+
+/* Overlay */
 .sidebar-overlay {
     position: fixed;
     inset: 0;
@@ -476,6 +544,13 @@
 .sidebar-overlay.show {
     opacity: 1;
     visibility: visible;
+}
+
+/* Prevent body scroll when sidebar is open on mobile */
+@media (max-width: 991px) {
+    body.sidebar-open {
+        overflow: hidden;
+    }
 }
 </style>
 
@@ -503,6 +578,16 @@ function toggleSubmenu(button) {
     button.setAttribute('aria-expanded', !isOpen);
 }
 
+// Close Sidebar (for mobile)
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    
+    sidebar.classList.remove('show');
+    overlay.classList.remove('show');
+    document.body.classList.remove('sidebar-open');
+}
+
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
     // Auto-open active submenus
@@ -515,5 +600,14 @@ document.addEventListener('DOMContentLoaded', function() {
             button.setAttribute('aria-expanded', 'true');
         }
     });
+    
+    // Handle mobile sidebar toggle
+    const toggleBtn = document.getElementById('sidebarToggleBtn');
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', function() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        });
+    }
 });
 </script>
