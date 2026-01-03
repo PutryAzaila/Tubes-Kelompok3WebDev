@@ -1,3 +1,6 @@
+<!-- COMPLETE SIDEBAR FILE -->
+<!-- File: resources/views/components/sidebar.blade.php -->
+
 <aside id="sidebar" class="sidebar">
     
     <!-- Logo Section -->
@@ -12,7 +15,7 @@
     </div>
 
     <!-- Toggle Button (Desktop) -->
-    <button id="sidebarToggleBtn" class="sidebar-toggle d-none d-lg-flex" type="button">
+    <button id="sidebarToggleBtn" class="sidebar-toggle d-none d-lg-flex" type="button" onclick="toggleSidebarCollapse()">
         <i class="fas fa-chevron-left"></i>
     </button>
 
@@ -99,7 +102,7 @@
             </div>
             @endrole
 
-            <!-- INVENTORY - MANAJER, ADMIN& NOC -->
+            <!-- INVENTORY - MANAJER, ADMIN & NOC -->
             @role('manajer', 'admin', 'noc')
             <a href="{{ route('inventory.index') }}"
                class="sidebar-nav-item {{ request()->is('inventory*') ? 'active' : '' }}">
@@ -152,7 +155,7 @@
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
     z-index: 1050;
     width: 260px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     display: flex;
     flex-direction: column;
 }
@@ -201,6 +204,7 @@
     background: white;
     border: 2px solid #2563eb;
     border-radius: 50%;
+    display: flex;
     align-items: center;
     justify-content: center;
     color: #2563eb;
@@ -297,7 +301,7 @@
 .nav-text {
     font-weight: 500;
     white-space: nowrap;
-    transition: opacity 0.2s ease;
+    transition: opacity 0.2s ease, width 0.2s ease;
 }
 
 .sidebar-nav-item:hover {
@@ -326,7 +330,7 @@
 
 .dropdown-icon {
     font-size: 10px;
-    transition: transform 0.3s;
+    transition: transform 0.3s, opacity 0.2s;
 }
 
 .nav-item-dropdown[aria-expanded="true"] .dropdown-icon {
@@ -414,7 +418,7 @@
     color: #dc2626 !important;
 }
 
-/* Collapsed State */
+/* ==================== COLLAPSED STATE ==================== */
 .sidebar.collapsed {
     width: 80px;
 }
@@ -460,14 +464,13 @@
     .sidebar {
         transform: translateX(-100%);
         height: 100vh;
-        height: 100dvh; /* Dynamic viewport height untuk mobile */
+        height: 100dvh;
     }
     
     .sidebar.show {
         transform: translateX(0);
     }
     
-    /* Pastikan logo tidak terlalu besar di mobile */
     .sidebar-logo {
         height: 80px;
         padding: 0.75rem;
@@ -482,13 +485,11 @@
         padding: 2px 8px;
     }
     
-    /* Navigation di mobile - tambahkan padding bottom untuk logout button */
     .sidebar-nav {
         padding: 0.75rem 0.5rem;
         padding-bottom: 1rem;
     }
     
-    /* Footer tetap visible di mobile */
     .sidebar-footer {
         padding: 0.75rem 0.5rem;
         position: sticky;
@@ -497,19 +498,16 @@
         box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
     }
     
-    /* Logout button lebih compact di mobile */
     .logout-btn {
         padding: 0.625rem 0.875rem;
         font-size: 14px;
     }
     
-    /* Nav items lebih compact */
     .sidebar-nav-item {
         padding: 0.625rem 0.875rem;
     }
 }
 
-/* Extra small devices */
 @media (max-width: 576px) {
     .sidebar {
         width: 240px;
@@ -546,7 +544,6 @@
     visibility: visible;
 }
 
-/* Prevent body scroll when sidebar is open on mobile */
 @media (max-width: 991px) {
     body.sidebar-open {
         overflow: hidden;
@@ -578,7 +575,38 @@ function toggleSubmenu(button) {
     button.setAttribute('aria-expanded', !isOpen);
 }
 
-// Close Sidebar (for mobile)
+// Toggle Sidebar Collapse (Desktop) - UPDATE BODY CLASS
+function toggleSidebarCollapse() {
+    const sidebar = document.getElementById('sidebar');
+    const body = document.body;
+    
+    const isCollapsed = sidebar.classList.toggle('collapsed');
+    
+    // PENTING: Toggle body class untuk content-wrapper
+    if (isCollapsed) {
+        body.classList.add('sidebar-collapsed');
+    } else {
+        body.classList.remove('sidebar-collapsed');
+    }
+    
+    console.log('✅ Sidebar toggled! Collapsed:', isCollapsed);
+    console.log('✅ Body class:', body.className);
+    
+    // Save state
+    localStorage.setItem('sidebarCollapsed', isCollapsed);
+    
+    // Close submenus when collapsing
+    if (isCollapsed) {
+        document.querySelectorAll('.submenu-container').forEach(sm => {
+            sm.classList.remove('show');
+        });
+        document.querySelectorAll('.nav-item-dropdown').forEach(btn => {
+            btn.setAttribute('aria-expanded', 'false');
+        });
+    }
+}
+
+// Close Sidebar (Mobile)
 function closeSidebar() {
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('sidebarOverlay');
@@ -590,23 +618,45 @@ function closeSidebar() {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', function() {
-    // Auto-open active submenus
-    document.querySelectorAll('.nav-item-group').forEach(group => {
-        const activeSubmenu = group.querySelector('.submenu-item.active');
-        if (activeSubmenu) {
-            const submenu = group.querySelector('.submenu-container');
-            const button = group.querySelector('.nav-item-dropdown');
-            submenu.classList.add('show');
-            button.setAttribute('aria-expanded', 'true');
-        }
-    });
+    console.log('🚀 Sidebar initialized');
     
-    // Handle mobile sidebar toggle
+    const sidebar = document.getElementById('sidebar');
     const toggleBtn = document.getElementById('sidebarToggleBtn');
+    const body = document.body;
+    
+    // Restore saved state
+    const savedState = localStorage.getItem('sidebarCollapsed');
+    if (savedState === 'true') {
+        sidebar.classList.add('collapsed');
+        body.classList.add('sidebar-collapsed');
+        console.log('✅ Restored collapsed state');
+    }
+    
+    // Setup toggle button
     if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
-            const sidebar = document.getElementById('sidebar');
-            sidebar.classList.toggle('collapsed');
+        toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🔵 Toggle clicked!');
+            toggleSidebarCollapse();
+        });
+        console.log('✅ Toggle button ready');
+    } else {
+        console.error('❌ Toggle button not found!');
+    }
+    
+    // Auto-open active submenus
+    if (!sidebar.classList.contains('collapsed')) {
+        document.querySelectorAll('.nav-item-group').forEach(group => {
+            const activeSubmenu = group.querySelector('.submenu-item.active');
+            if (activeSubmenu) {
+                const submenu = group.querySelector('.submenu-container');
+                const button = group.querySelector('.nav-item-dropdown');
+                if (submenu && button) {
+                    submenu.classList.add('show');
+                    button.setAttribute('aria-expanded', 'true');
+                }
+            }
         });
     }
 });

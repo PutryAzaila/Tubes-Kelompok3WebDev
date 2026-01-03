@@ -27,27 +27,30 @@
             min-height: 100vh;
         }
 
-        /* Main Content Wrapper */
+        /* Main Content Wrapper - UPDATED */
         .content-wrapper {
             padding: 1.5rem;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
+        /* Desktop - Default state */
         @media (min-width: 992px) {
             .content-wrapper {
-                margin-left: 260px;
-                padding-top: 90px; /* 70px navbar + 20px spacing */
+                margin-left: 260px; /* Lebar sidebar normal */
+                padding-top: 90px;
             }
             
+            /* Sidebar collapsed state */
             body.sidebar-collapsed .content-wrapper {
-                margin-left: 80px;
+                margin-left: 80px; /* Lebar sidebar collapsed */
             }
         }
 
+        /* Mobile - No margin */
         @media (max-width: 991px) {
             .content-wrapper {
                 margin-left: 0;
-                padding-top: 80px; /* 60px navbar + 20px spacing */
+                padding-top: 80px;
             }
         }
 
